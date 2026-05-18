@@ -1,11 +1,29 @@
 // pages/[naering]/[kommune].jsx
+import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import { NAERINGSKODER, getBedrifterByKategoriOgKommune, getNaeringBySlug } from '../../lib/db';
 import styles from '../../styles/Kategori.module.css';
 
 export default function KategoriSide({ bedrifter, naering, kommune, total }) {
-  if (!naering) return <div>Ikke funnet</div>;
+  const router = useRouter();
+
+  if (router.isFallback) {
+    return (
+      <Layout title="Laster...">
+        <div style={{ padding: '80px 40px', textAlign: 'center', color: '#6B7280' }}>
+          <div style={{ fontSize: 32, marginBottom: 16 }}>⏳</div>
+          <div style={{ fontSize: 16, fontWeight: 600 }}>Henter bedrifter...</div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!naering) return (
+    <Layout title="Ikke funnet">
+      <div style={{ padding: '80px 40px', textAlign: 'center' }}>Siden ble ikke funnet.</div>
+    </Layout>
+  );
 
   const tittel = `${naering.visningsnavn} i ${kommune}`;
 
@@ -15,7 +33,6 @@ export default function KategoriSide({ bedrifter, naering, kommune, total }) {
       description={`Finn ${naering.visningsnavn.toLowerCase()} i ${kommune}. ${total} registrerte bedrifter. Verifisert mot Brønnøysundregistrene.`}
       canonical={`/${naering.slug}/${kommune.toLowerCase().replace(/\s/g, '-')}`}
     >
-      {/* HERO */}
       <section className={styles.hero}>
         <div className="container">
           <nav className="breadcrumb">
@@ -52,14 +69,12 @@ export default function KategoriSide({ bedrifter, naering, kommune, total }) {
         </div>
       </section>
 
-      {/* ANNONSE */}
       <div className="container">
         <div className={styles.annonse}>
           📢 Annonseplass – {naering.visningsnavn} i {kommune}
         </div>
       </div>
 
-      {/* BEDRIFTER */}
       <section className={styles.bedrifterSection}>
         <div className="container">
           <div className={styles.secHeader}>
@@ -78,7 +93,6 @@ export default function KategoriSide({ bedrifter, naering, kommune, total }) {
         </div>
       </section>
 
-      {/* SEO-TEKST */}
       <section className={styles.seoTekst}>
         <div className="container--narrow">
           <h2>Hva koster en {naering.visningsnavn.toLowerCase()} i {kommune}?</h2>
@@ -97,7 +111,6 @@ export default function KategoriSide({ bedrifter, naering, kommune, total }) {
         </div>
       </section>
 
-      {/* FAQ */}
       <section className={styles.faq}>
         <div className="container--narrow">
           <h2 className={styles.faqTitle}>Vanlige spørsmål</h2>
@@ -121,7 +134,6 @@ export default function KategoriSide({ bedrifter, naering, kommune, total }) {
         </div>
       </section>
 
-      {/* RELATERTE BRANSJER */}
       <section className={styles.relaterte}>
         <div className="container">
           <h2 className={styles.secTitle}>Andre bransjer i {kommune}</h2>
@@ -141,20 +153,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, total }) {
 }
 
 export async function getStaticPaths() {
-  // Generer de viktigste kombinasjonene ved build, resten med fallback
-  const viktigste = [
-    ['elektriker', 'oslo'], ['elektriker', 'bergen'], ['elektriker', 'trondheim'],
-    ['elektriker', 'kristiansand'], ['elektriker', 'stavanger'],
-    ['rorlegger', 'oslo'], ['rorlegger', 'bergen'],
-    ['tomrer', 'oslo'], ['tomrer', 'kristiansand'],
-    ['maler', 'oslo'], ['byggmester', 'oslo'],
-  ];
-
-  const paths = viktigste.map(([naering, kommune]) => ({
-    params: { naering, kommune }
-  }));
-
-  return { paths, fallback: 'blocking' };
+  return { paths: [], fallback: true };
 }
 
 export async function getStaticProps({ params }) {

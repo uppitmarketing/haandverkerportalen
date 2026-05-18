@@ -1,11 +1,31 @@
 // pages/bedrift/[slug].jsx
+import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
 import styles from '../../styles/Bedrift.module.css';
 
 export default function BedriftSide({ bedrift, relaterte }) {
-  if (!bedrift) return <div>Ikke funnet</div>;
+  const router = useRouter();
+
+  if (router.isFallback) {
+    return (
+      <Layout title="Laster...">
+        <div style={{ padding: '80px 40px', textAlign: 'center', color: '#6B7280' }}>
+          <div style={{ fontSize: 32, marginBottom: 16 }}>⏳</div>
+          <div style={{ fontSize: 16, fontWeight: 600 }}>Henter bedriftsinformasjon...</div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!bedrift) return (
+    <Layout title="Ikke funnet">
+      <div style={{ padding: '80px 40px', textAlign: 'center', color: '#6B7280' }}>
+        Bedriften ble ikke funnet.
+      </div>
+    </Layout>
+  );
 
   const naering = getNaeringByKode(bedrift.naeringskode);
   const stiftetAar = bedrift.stiftelsesdato?.substring(0, 4);
@@ -18,7 +38,6 @@ export default function BedriftSide({ bedrift, relaterte }) {
       description={`${bedrift.navn} er en ${naering?.visningsnavn?.toLowerCase() || 'håndverker'}-bedrift i ${bedrift.poststed}. Org.nr: ${bedrift.organisasjonsnummer}.`}
       canonical={`/bedrift/${bedrift.slug}`}
     >
-      {/* HEADER */}
       <section className={styles.hero}>
         <div className="container">
           <nav className="breadcrumb">
@@ -52,12 +71,9 @@ export default function BedriftSide({ bedrift, relaterte }) {
         </div>
       </section>
 
-      {/* BODY */}
       <div className="container">
         <div className={styles.layout}>
           <main className={styles.main}>
-
-            {/* OM BEDRIFTEN */}
             <div className={styles.boks}>
               <h2 className={styles.boksTitle}>Om bedriften</h2>
               <dl className={styles.detaljer}>
@@ -78,7 +94,6 @@ export default function BedriftSide({ bedrift, relaterte }) {
               </dl>
             </div>
 
-            {/* ADRESSE */}
             <div className={styles.boks}>
               <h2 className={styles.boksTitle}>Adresse</h2>
               <p className={styles.adresseTekst}>
@@ -95,7 +110,6 @@ export default function BedriftSide({ bedrift, relaterte }) {
           </main>
 
           <aside className={styles.aside}>
-            {/* KONTAKT */}
             <div className={styles.kontaktBoks}>
               <h2 className={styles.boksTitle}>Kontakt</h2>
               {bedrift.hjemmeside ? (
@@ -123,7 +137,6 @@ export default function BedriftSide({ bedrift, relaterte }) {
               </div>
             </div>
 
-            {/* RELATERTE */}
             {relaterte.length > 0 && (
               <div>
                 <h3 className={styles.relTitle}>
@@ -147,10 +160,8 @@ export default function BedriftSide({ bedrift, relaterte }) {
 }
 
 export async function getStaticPaths() {
-  const slugs = await getAlleBedriftSlugs();
-  // Bygg bare de første 500 ved deploy, resten med fallback
-  const paths = slugs.slice(0, 500).map(slug => ({ params: { slug } }));
-  return { paths, fallback: 'blocking' };
+  // Bygg ingen sider ved deploy – alle genereres on-demand
+  return { paths: [], fallback: true };
 }
 
 export async function getStaticProps({ params }) {
