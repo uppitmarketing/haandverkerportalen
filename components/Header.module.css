@@ -1,0 +1,15 @@
+/* components/Header.module.css */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.inner { display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 24px; }
+.logo { font-size: 16px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); white-space: nowrap; }
+.logo span { color: var(--accent); }
+.nav { display: flex; align-items: center; gap: 2px; flex: 1; justify-content: center; }
+.navLink { font-size: 13px; font-weight: 500; color: var(--ink-3); padding: 6px 12px; border-radius: var(--radius-sm); transition: all 0.15s; }
+.navLink:hover { color: var(--ink); background: var(--bg); }
+.cta { font-size: 12px; padding: 7px 14px; }
+@media (max-width: 640px) { .nav { display: none; } .cta { display: none; } }

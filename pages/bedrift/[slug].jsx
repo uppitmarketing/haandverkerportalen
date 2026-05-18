@@ -1,0 +1,166 @@
+// pages/bedrift/[slug].jsx
+import Layout from '../../components/Layout';
+import BedriftKort from '../../components/BedriftKort';
+import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
+import styles from '../../styles/Bedrift.module.css';
+
+export default function BedriftSide({ bedrift, relaterte }) {
+  if (!bedrift) return <div>Ikke funnet</div>;
+
+  const naering = getNaeringByKode(bedrift.naeringskode);
+  const stiftetAar = bedrift.stiftelsesdato?.substring(0, 4);
+  const status = bedrift.konkurs ? 'Konkurs' : bedrift.er_aktiv ? 'Aktiv' : 'Inaktiv';
+  const kommuneSlug = bedrift.kommune?.toLowerCase().replace(/\s/g, '-').replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/å/g, 'a');
+
+  return (
+    <Layout
+      title={`${bedrift.navn} – ${naering?.visningsnavn || 'Håndverker'} i ${bedrift.kommune}`}
+      description={`${bedrift.navn} er en ${naering?.visningsnavn?.toLowerCase() || 'håndverker'}-bedrift i ${bedrift.poststed}. Org.nr: ${bedrift.organisasjonsnummer}.`}
+      canonical={`/bedrift/${bedrift.slug}`}
+    >
+      {/* HEADER */}
+      <section className={styles.hero}>
+        <div className="container">
+          <nav className="breadcrumb">
+            <a href="/">Forside</a>
+            <span className="breadcrumb__sep">/</span>
+            {naering && <a href={`/${naering.slug}`}>{naering.visningsnavn}</a>}
+            {naering && bedrift.kommune && (
+              <>
+                <span className="breadcrumb__sep">/</span>
+                <a href={`/${naering.slug}/${kommuneSlug}`}>{bedrift.kommune}</a>
+              </>
+            )}
+            <span className="breadcrumb__sep">/</span>
+            <span>{bedrift.navn}</span>
+          </nav>
+
+          <div className={styles.heroInner}>
+            <div className={styles.heroIcon}>{naering?.icon || '🏗️'}</div>
+            <div>
+              <div className={styles.tagger}>
+                <span className={`tag ${bedrift.er_aktiv && !bedrift.konkurs ? 'tag--green' : 'tag--red'}`}>{status}</span>
+                {naering && <span className="tag tag--blue">{naering.visningsnavn}</span>}
+                {bedrift.mva_registrert && <span className="tag tag--muted">MVA-reg.</span>}
+              </div>
+              <h1 className={styles.navn}>{bedrift.navn}</h1>
+              <p className={styles.adresse}>
+                {bedrift.adresse ? `${bedrift.adresse}, ` : ''}{bedrift.postnummer} {bedrift.poststed}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* BODY */}
+      <div className="container">
+        <div className={styles.layout}>
+          <main className={styles.main}>
+
+            {/* OM BEDRIFTEN */}
+            <div className={styles.boks}>
+              <h2 className={styles.boksTitle}>Om bedriften</h2>
+              <dl className={styles.detaljer}>
+                {[
+                  ['Firmanavn', bedrift.navn],
+                  ['Org.nummer', bedrift.organisasjonsnummer],
+                  ['Organisasjonsform', bedrift.organisasjonsform],
+                  ['Bransje', `${bedrift.naeringskode_tekst} (${bedrift.naeringskode})`],
+                  ['Ansatte', bedrift.antall_ansatte != null ? bedrift.antall_ansatte : 'Ikke oppgitt'],
+                  ['Stiftet', stiftetAar || '—'],
+                  ['Status', status],
+                ].map(([label, verdi]) => verdi ? (
+                  <div key={label} className={styles.rad}>
+                    <dt>{label}</dt>
+                    <dd>{verdi}</dd>
+                  </div>
+                ) : null)}
+              </dl>
+            </div>
+
+            {/* ADRESSE */}
+            <div className={styles.boks}>
+              <h2 className={styles.boksTitle}>Adresse</h2>
+              <p className={styles.adresseTekst}>
+                {bedrift.adresse && <span>{bedrift.adresse}<br /></span>}
+                {bedrift.postnummer} {bedrift.poststed}<br />
+                {bedrift.kommune} kommune
+              </p>
+              <div className={styles.kartPlaceholder}>🗺️ Kart kommer</div>
+            </div>
+
+            <div className={styles.annonse}>
+              📢 Annonseplass – relaterte tjenester
+            </div>
+          </main>
+
+          <aside className={styles.aside}>
+            {/* KONTAKT */}
+            <div className={styles.kontaktBoks}>
+              <h2 className={styles.boksTitle}>Kontakt</h2>
+              {bedrift.hjemmeside ? (
+                <a
+                  href={bedrift.hjemmeside.startsWith('http') ? bedrift.hjemmeside : `https://${bedrift.hjemmeside}`}
+                  target="_blank" rel="noopener noreferrer"
+                  className={`btn btn--primary ${styles.kontaktBtn}`}
+                >
+                  🌐 Gå til nettside
+                </a>
+              ) : (
+                <div className={styles.ingenNettside}>Ingen nettside registrert</div>
+              )}
+              <a
+                href={`https://www.brreg.no/finn-bedrift/?orgnr=${bedrift.organisasjonsnummer}`}
+                target="_blank" rel="noopener noreferrer"
+                className={`btn btn--outline ${styles.brregBtn}`}
+              >
+                Se på Brreg.no →
+              </a>
+              <div className={styles.erDuEier}>
+                <strong>Er du eier?</strong>
+                <p>Krev inn profilen og legg til kontaktinfo og bilder.</p>
+                <a href="/for-bedrifter" className={styles.kreverLink}>Krev inn profil →</a>
+              </div>
+            </div>
+
+            {/* RELATERTE */}
+            {relaterte.length > 0 && (
+              <div>
+                <h3 className={styles.relTitle}>
+                  Andre {naering?.visningsnavn?.toLowerCase()}er i {bedrift.kommune}
+                </h3>
+                <div className={styles.relGrid}>
+                  {relaterte.map(b => <BedriftKort key={b.organisasjonsnummer} bedrift={b} />)}
+                </div>
+                {naering && (
+                  <a href={`/${naering.slug}/${kommuneSlug}`} className={styles.seAlle}>
+                    Se alle i {bedrift.kommune} →
+                  </a>
+                )}
+              </div>
+            )}
+          </aside>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+export async function getStaticPaths() {
+  const slugs = await getAlleBedriftSlugs();
+  // Bygg bare de første 500 ved deploy, resten med fallback
+  const paths = slugs.slice(0, 500).map(slug => ({ params: { slug } }));
+  return { paths, fallback: 'blocking' };
+}
+
+export async function getStaticProps({ params }) {
+  const bedrift = await getBedriftBySlug(params.slug);
+  if (!bedrift) return { notFound: true };
+
+  const relaterte = await getRelaterteBedrifter(bedrift.naeringskode, bedrift.kommunenummer, bedrift.slug);
+
+  return {
+    props: { bedrift, relaterte },
+    revalidate: 86400,
+  };
+}

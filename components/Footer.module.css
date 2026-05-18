@@ -1,0 +1,13 @@
+/* components/Footer.module.css */
+.footer { background: var(--surface); border-top: 1px solid var(--border); margin-top: 80px; }
+.inner { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; padding-top: 48px; padding-bottom: 40px; }
+.logo { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; color: var(--ink); margin-bottom: 8px; }
+.logo span { color: var(--accent); }
+.desc { font-size: 12px; color: var(--muted); line-height: 1.7; }
+.colTitle { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--border); margin-bottom: 12px; }
+.links { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.links a { font-size: 13px; color: var(--ink-3); transition: color 0.15s; }
+.links a:hover { color: var(--ink); }
+.bottom { border-top: 1px solid var(--border); padding: 14px 0; font-size: 11px; color: var(--muted); }
+@media (max-width: 768px) { .inner { grid-template-columns: 1fr 1fr; gap: 28px; } .brand { grid-column: 1 / -1; } }
+@media (max-width: 480px) { .inner { grid-template-columns: 1fr; } }
