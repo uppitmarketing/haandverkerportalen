@@ -30,7 +30,27 @@ export default function BedriftSide({ bedrift, relaterte }) {
   const naering = getNaeringByKode(bedrift.naeringskode);
   const stiftetAar = bedrift.stiftelsesdato?.substring(0, 4);
   const status = bedrift.konkurs ? 'Konkurs' : bedrift.er_aktiv ? 'Aktiv' : 'Inaktiv';
-  const kommuneSlug = bedrift.kommune?.toLowerCase().replace(/\s/g, '-').replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/å/g, 'a');
+  const kommuneSlug = bedrift.kommune?.toLowerCase()
+    .replace(/\s/g, '-')
+    .replace(/æ/g, 'ae')
+    .replace(/ø/g, 'o')
+    .replace(/å/g, 'a');
+
+  // Bygg adressestreng for kart
+  const adresseKart = [bedrift.adresse, bedrift.postnummer, bedrift.poststed]
+    .filter(Boolean)
+    .join(', ');
+
+  const kartUrl = adresseKart
+    ? `https://www.openstreetmap.org/search?query=${encodeURIComponent(adresseKart)}#map=15`
+    : null;
+
+  const kartEmbedUrl = adresseKart
+    ? `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(adresseKart)}&format=json&limit=1`
+    : null;
+
+  // Riktig Brreg-URL
+  const brregUrl = `https://w2.brreg.no/enhet/sok/detalj.jsp?orgnr=${bedrift.organisasjonsnummer}`;
 
   return (
     <Layout
@@ -74,6 +94,7 @@ export default function BedriftSide({ bedrift, relaterte }) {
       <div className="container">
         <div className={styles.layout}>
           <main className={styles.main}>
+
             <div className={styles.boks}>
               <h2 className={styles.boksTitle}>Om bedriften</h2>
               <dl className={styles.detaljer}>
@@ -95,13 +116,30 @@ export default function BedriftSide({ bedrift, relaterte }) {
             </div>
 
             <div className={styles.boks}>
-              <h2 className={styles.boksTitle}>Adresse</h2>
+              <h2 className={styles.boksTitle}>Adresse og kart</h2>
               <p className={styles.adresseTekst}>
                 {bedrift.adresse && <span>{bedrift.adresse}<br /></span>}
                 {bedrift.postnummer} {bedrift.poststed}<br />
                 {bedrift.kommune} kommune
               </p>
-              <div className={styles.kartPlaceholder}>🗺️ Kart kommer</div>
+              {adresseKart && (
+                <div className={styles.kartWrapper}>
+                  <iframe
+                    title={`Kart for ${bedrift.navn}`}
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=&layer=mapnik&marker=&query=${encodeURIComponent(adresseKart)}`}
+                    className={styles.kart}
+                    loading="lazy"
+                  />
+                  <a
+                    href={kartUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.kartLenke}
+                  >
+                    Åpne i OpenStreetMap →
+                  </a>
+                </div>
+              )}
             </div>
 
             <div className={styles.annonse}>
@@ -115,7 +153,8 @@ export default function BedriftSide({ bedrift, relaterte }) {
               {bedrift.hjemmeside ? (
                 <a
                   href={bedrift.hjemmeside.startsWith('http') ? bedrift.hjemmeside : `https://${bedrift.hjemmeside}`}
-                  target="_blank" rel="noopener noreferrer"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`btn btn--primary ${styles.kontaktBtn}`}
                 >
                   🌐 Gå til nettside
@@ -124,8 +163,9 @@ export default function BedriftSide({ bedrift, relaterte }) {
                 <div className={styles.ingenNettside}>Ingen nettside registrert</div>
               )}
               <a
-                href={`https://www.brreg.no/finn-bedrift/?orgnr=${bedrift.organisasjonsnummer}`}
-                target="_blank" rel="noopener noreferrer"
+                href={brregUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`btn btn--outline ${styles.brregBtn}`}
               >
                 Se på Brreg.no →
@@ -160,16 +200,13 @@ export default function BedriftSide({ bedrift, relaterte }) {
 }
 
 export async function getStaticPaths() {
-  // Bygg ingen sider ved deploy – alle genereres on-demand
   return { paths: [], fallback: true };
 }
 
 export async function getStaticProps({ params }) {
   const bedrift = await getBedriftBySlug(params.slug);
   if (!bedrift) return { notFound: true };
-
   const relaterte = await getRelaterteBedrifter(bedrift.naeringskode, bedrift.kommunenummer, bedrift.slug);
-
   return {
     props: { bedrift, relaterte },
     revalidate: 86400,
