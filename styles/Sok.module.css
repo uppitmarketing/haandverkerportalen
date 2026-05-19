@@ -13,69 +13,99 @@
   margin-bottom: 24px;
 }
 
-.searchForm {
+.searchForm { display: flex; flex-direction: column; gap: 10px; }
+
+.mainField {
   display: flex;
-  gap: 12px;
-  align-items: flex-end;
-  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
 }
 
-.fields {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: 12px;
+.mainInput {
   flex: 1;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.field label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.field input,
-.field select {
   background: var(--bg);
-  border: 1.5px solid var(--border);
+  border: 2px solid var(--border);
   color: var(--ink);
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  padding: 10px 14px;
-  border-radius: var(--radius);
+  font-size: 16px;
+  padding: 13px 18px;
+  border-radius: var(--radius-lg);
   outline: none;
-  appearance: none;
   transition: border-color 0.15s;
 }
 
-.field input:focus,
-.field select:focus {
-  border-color: var(--accent);
-}
+.mainInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+.mainInput::placeholder { color: var(--muted); }
 
-.status {
-  padding: 48px 0;
-  text-align: center;
-  color: var(--muted);
-  font-size: 14px;
-}
+.searchBtn { padding: 13px 24px; font-size: 14px; border-radius: var(--radius-lg); }
 
-.treffHeader {
-  padding: 24px 0 16px;
-}
+.filters { display: flex; gap: 10px; }
 
-.antall {
+.filterSelect {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  color: var(--ink-2);
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
-  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  min-width: 160px;
+  transition: border-color 0.15s;
+}
+
+.filterSelect:focus { border-color: var(--accent); }
+
+.eksempler {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  font-size: 12px;
   color: var(--muted);
 }
+
+.exChip {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--ink-3);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.exChip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); }
+
+.parsedInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0 4px;
+  font-size: 13px;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.parsedTag {
+  background: var(--accent-lt);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.status { padding: 48px 0; text-align: center; color: var(--muted); font-size: 14px; }
+
+.treffHeader { padding: 20px 0 14px; }
+.antall { font-size: 13px; font-weight: 600; color: var(--muted); }
 
 .grid {
   display: grid;
@@ -84,46 +114,19 @@
   padding-bottom: 64px;
 }
 
-.ingenTreff {
+.ingenTreff, .start {
   text-align: center;
   padding: 80px 0;
   color: var(--muted);
 }
 
-.ingenIcon {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-
-.ingenTreff h2 {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 8px;
-}
-
-.ingenTreff p {
-  font-size: 14px;
-}
-
-.start {
-  text-align: center;
-  padding: 80px 0;
-  color: var(--muted);
-}
-
-.startIcon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  opacity: 0.4;
-}
-
-.start p {
-  font-size: 14px;
-}
+.ingenIcon, .startIcon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+.ingenTreff h2 { font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.ingenTreff p, .start p { font-size: 14px; }
 
 @media (max-width: 768px) {
-  .fields { grid-template-columns: 1fr; }
-  .searchForm { flex-direction: column; }
+  .filters { flex-direction: column; }
   .grid { grid-template-columns: 1fr; }
+  .mainField { flex-direction: column; }
+  .searchBtn { width: 100%; justify-content: center; }
 }

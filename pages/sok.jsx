@@ -6,36 +6,88 @@ import BedriftKort from '../components/BedriftKort';
 import { NAERINGSKODER, KOMMUNER, sokBedrifter } from '../lib/db';
 import styles from '../styles/Sok.module.css';
 
+// Søkeord som matcher bransjer
+const BRANSJE_SOKEORD = {
+  'elektriker': '43.210', 'elektro': '43.210', 'elektrisk': '43.210',
+  'rørlegger': '43.221', 'rorlegger': '43.221', 'vvs': '43.221', 'rør': '43.221',
+  'tømrer': '43.320', 'tomrer': '43.320', 'snekker': '43.320', 'tømrere': '43.320',
+  'maler': '43.340', 'malerfirma': '43.340', 'glass': '43.340', 'glassmester': '43.340',
+  'byggmester': '41.000', 'bygg': '41.000', 'byggefirma': '41.000', 'entreprenør': '41.000',
+  'taklegger': '43.910', 'tak': '43.910', 'taket': '43.910',
+  'gulvlegger': '43.330', 'gulv': '43.330', 'parkett': '43.330',
+  'grunnarbeid': '43.120', 'graving': '43.120', 'grunnentreprenør': '43.120',
+};
+
+function parseFrektekst(tekst) {
+  if (!tekst) return { navn: '', naeringskode: '', kommunenummer: '' };
+
+  const ord = tekst.toLowerCase().trim().split(/\s+/);
+  let funnetKode = '';
+  let funnetKommune = '';
+  const gjenværendeOrd = [];
+
+  for (const ord_item of ord) {
+    // Sjekk bransje
+    if (!funnetKode && BRANSJE_SOKEORD[ord_item]) {
+      funnetKode = BRANSJE_SOKEORD[ord_item];
+      continue;
+    }
+    // Sjekk kommune
+    const kommune = KOMMUNER.find(k =>
+      k.navn.toLowerCase() === ord_item ||
+      k.slug === ord_item ||
+      k.navn.toLowerCase().replace(/\s/g, '') === ord_item
+    );
+    if (!funnetKommune && kommune) {
+      funnetKommune = kommune.nummer;
+      continue;
+    }
+    gjenværendeOrd.push(ord_item);
+  }
+
+  return {
+    naeringskode: funnetKode,
+    kommunenummer: funnetKommune,
+    navn: gjenværendeOrd.join(' '),
+  };
+}
+
 export default function SokSide() {
   const router = useRouter();
-  const { navn, kode, kommune } = router.query;
+  const { q, kode, kommune } = router.query;
 
+  const [query, setQuery] = useState('');
+  const [kodeInput, setKodeInput] = useState('');
+  const [kommuneInput, setKommuneInput] = useState('');
   const [resultater, setResultater] = useState([]);
   const [laster, setLaster] = useState(false);
   const [sokt, setSokt] = useState(false);
-
-  const [navnInput, setNavnInput] = useState('');
-  const [kodeInput, setKodeInput] = useState('');
-  const [kommuneInput, setKommuneInput] = useState('');
+  const [parsed, setParsed] = useState(null);
 
   useEffect(() => {
     if (!router.isReady) return;
-    if (navn) setNavnInput(navn);
+    if (q) setQuery(q);
     if (kode) setKodeInput(kode);
     if (kommune) setKommuneInput(kommune);
-    if (navn || kode || kommune) {
-      utforSok({ navn, kode, kommune });
+    if (q || kode || kommune) {
+      utforSok(q || '', kode || '', kommune || '');
     }
-  }, [router.isReady, navn, kode, kommune]);
+  }, [router.isReady]);
 
-  async function utforSok(params) {
+  async function utforSok(q_val, kode_val, kommune_val) {
     setLaster(true);
     setSokt(true);
+
+    // Parse fritekst
+    const p = parseFrektekst(q_val);
+    setParsed(p);
+
     const data = await sokBedrifter({
-      navn: params.navn || '',
-      naeringskode: params.kode || '',
-      kommunenummer: params.kommune || '',
+      navn: p.navn || '',
+      naeringskode: kode_val || p.naeringskode || '',
+      kommunenummer: kommune_val || p.kommunenummer || '',
     });
+
     setResultater(data);
     setLaster(false);
   }
@@ -45,12 +97,20 @@ export default function SokSide() {
     router.push({
       pathname: '/sok',
       query: {
-        ...(navnInput && { navn: navnInput }),
+        ...(query && { q: query }),
         ...(kodeInput && { kode: kodeInput }),
         ...(kommuneInput && { kommune: kommuneInput }),
       }
-    });
+    }, undefined, { shallow: false });
+    utforSok(query, kodeInput, kommuneInput);
   }
+
+  const funnetBransje = parsed?.naeringskode
+    ? NAERINGSKODER.find(n => n.kode === parsed.naeringskode)
+    : null;
+  const funnetKommune = parsed?.kommunenummer
+    ? KOMMUNER.find(k => k.nummer === parsed.kommunenummer)
+    : null;
 
   return (
     <Layout
@@ -61,44 +121,75 @@ export default function SokSide() {
         <div className="container">
           <h1 className={styles.title}>Søk etter håndverker</h1>
           <form onSubmit={handleSubmit} className={styles.searchForm}>
-            <div className={styles.fields}>
-              <div className={styles.field}>
-                <label>Bedriftsnavn</label>
-                <input
-                  type="text"
-                  placeholder="F.eks. Hansen Elektro..."
-                  value={navnInput}
-                  onChange={e => setNavnInput(e.target.value)}
-                />
-              </div>
-              <div className={styles.field}>
-                <label>Bransje</label>
-                <select value={kodeInput} onChange={e => setKodeInput(e.target.value)}>
-                  <option value="">Alle bransjer</option>
-                  {NAERINGSKODER.map(n => (
-                    <option key={n.kode} value={n.kode}>{n.icon} {n.visningsnavn}</option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.field}>
-                <label>Kommune</label>
-                <select value={kommuneInput} onChange={e => setKommuneInput(e.target.value)}>
-                  <option value="">Alle kommuner</option>
-                  {KOMMUNER.map(k => (
-                    <option key={k.nummer} value={k.nummer}>{k.navn}</option>
-                  ))}
-                </select>
-              </div>
+            <div className={styles.mainField}>
+              <input
+                type="text"
+                className={styles.mainInput}
+                placeholder='F.eks. "elektriker oslo" eller "Hansen Elektro"'
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                autoFocus
+              />
+              <button type="submit" className={`btn btn--primary ${styles.searchBtn}`}>
+                Søk →
+              </button>
             </div>
-            <button type="submit" className="btn btn--primary">Søk →</button>
+
+            <div className={styles.filters}>
+              <select
+                className={styles.filterSelect}
+                value={kodeInput}
+                onChange={e => setKodeInput(e.target.value)}
+              >
+                <option value="">Alle bransjer</option>
+                {NAERINGSKODER.map(n => (
+                  <option key={n.kode} value={n.kode}>{n.icon} {n.visningsnavn}</option>
+                ))}
+              </select>
+              <select
+                className={styles.filterSelect}
+                value={kommuneInput}
+                onChange={e => setKommuneInput(e.target.value)}
+              >
+                <option value="">Alle kommuner</option>
+                {KOMMUNER.map(k => (
+                  <option key={k.nummer} value={k.nummer}>{k.navn}</option>
+                ))}
+              </select>
+            </div>
           </form>
+
+          <div className={styles.eksempler}>
+            <span>Prøv:</span>
+            {['elektriker oslo', 'rørlegger bergen', 'tømrer kristiansand', 'maler stavanger'].map(s => (
+              <button
+                key={s}
+                className={styles.exChip}
+                onClick={() => {
+                  setQuery(s);
+                  utforSok(s, '', '');
+                  router.push({ pathname: '/sok', query: { q: s } });
+                }}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
       <div className="container">
-        {laster && (
-          <div className={styles.status}>Søker...</div>
+        {/* Vis hva som ble tolket */}
+        {sokt && !laster && parsed && (funnetBransje || funnetKommune) && (
+          <div className={styles.parsedInfo}>
+            <span>Søkte etter:</span>
+            {funnetBransje && <span className={styles.parsedTag}>{funnetBransje.icon} {funnetBransje.visningsnavn}</span>}
+            {funnetKommune && <span className={styles.parsedTag}>📍 {funnetKommune.navn}</span>}
+            {parsed.navn && <span className={styles.parsedTag}>🔤 "{parsed.navn}"</span>}
+          </div>
         )}
+
+        {laster && <div className={styles.status}>Søker...</div>}
 
         {!laster && sokt && resultater.length === 0 && (
           <div className={styles.ingenTreff}>
@@ -124,7 +215,7 @@ export default function SokSide() {
         {!sokt && (
           <div className={styles.start}>
             <div className={styles.startIcon}>🔨</div>
-            <p>Fyll inn søkekriterier over og trykk Søk</p>
+            <p>Skriv inn et søk over – prøv f.eks. "elektriker oslo"</p>
           </div>
         )}
       </div>
