@@ -4,6 +4,7 @@ import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
 import styles from '../../styles/Bedrift.module.css';
+import Kart from '../../components/Kart';
 
 export default function BedriftSide({ bedrift, relaterte }) {
   const router = useRouter();
@@ -122,24 +123,7 @@ export default function BedriftSide({ bedrift, relaterte }) {
                 {bedrift.postnummer} {bedrift.poststed}<br />
                 {bedrift.kommune} kommune
               </p>
-              {adresseKart && (
-                <div className={styles.kartWrapper}>
-                  <iframe
-                    title={`Kart for ${bedrift.navn}`}
-                    src={`https://www.openstreetmap.org/export/embed.html?bbox=&layer=mapnik&marker=&query=${encodeURIComponent(adresseKart)}`}
-                    className={styles.kart}
-                    loading="lazy"
-                  />
-                  <a
-                    href={kartUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.kartLenke}
-                  >
-                    Åpne i OpenStreetMap →
-                  </a>
-                </div>
-              )}
+              <Kart adresse={bedrift.adresse} postnummer={bedrift.postnummer} poststed={bedrift.poststed} />
             </div>
 
             <div className={styles.annonse}>
