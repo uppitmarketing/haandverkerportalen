@@ -1,0 +1,31 @@
+name: Brreg månedlig sync
+
+on:
+  schedule:
+    - cron: '0 3 1 * *'  # Første dag i måneden kl 03:00
+  workflow_dispatch:      # Kan også kjøres manuelt fra GitHub
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install node-fetch @supabase/supabase-js
+
+      - name: Kjør Brreg-import
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: node brreg_import_full.js
+
+      - name: Trigger Netlify deploy
+        run: |
+          curl -X POST -d '{}' ${{ secrets.NETLIFY_DEPLOY_HOOK }}
