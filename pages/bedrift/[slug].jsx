@@ -148,9 +148,9 @@ export default function BedriftSide({ bedrift, relaterte }) {
                   href={`https://www.google.com/search?q=${encodeURIComponent(bedrift.navn)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`btn btn--outline ${styles.brregBtn}`}
+                  className={styles.googleLenke}
                 >
-                  🔍 Søk etter {bedrift.navn} på Google
+                  Finn nettside via Google →
                 </a>
               )}
               <a
