@@ -1,10 +1,11 @@
 // brreg_import_full.js – full månedlig sync mot Brreg
 import { createClient } from '@supabase/supabase-js';
+import ws from 'ws';
 import fetch from 'node-fetch';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { realtime: { transport: ws } });
 
 const BRREG_BASE = 'https://data.brreg.no/enhetsregisteret/api/enheter';
 const PAGE_SIZE = 100;

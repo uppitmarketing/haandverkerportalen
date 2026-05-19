@@ -2,8 +2,8 @@ name: Brreg månedlig sync
 
 on:
   schedule:
-    - cron: '0 3 1 * *'  # Første dag i måneden kl 03:00
-  workflow_dispatch:      # Kan også kjøres manuelt fra GitHub
+    - cron: '0 3 1 * *'
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -15,10 +15,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
-        run: npm install node-fetch @supabase/supabase-js
+        run: npm install node-fetch @supabase/supabase-js ws
 
       - name: Kjør Brreg-import
         env:
