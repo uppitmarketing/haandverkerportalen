@@ -2,7 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NAERINGSKODER, KOMMUNER } from '../lib/db';
 
-const BASE_URL = 'https://haandverkerportalen.netlify.app';
+const BASE_URL = 'https://haandverkerportalen.no';
 
 function generateSitemap(urls) {
   return `<?xml version="1.0" encoding="UTF-8"?>
