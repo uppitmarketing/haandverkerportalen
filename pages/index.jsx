@@ -18,7 +18,7 @@ export default function Home({ antallPerNaering, sisteOslo }) {
     if (naering && !navn) {
       router.push(`/${naering.slug}`);
     } else if (navn) {
-      router.push(`/sok?navn=${encodeURIComponent(navn)}${naeringskode ? `&kode=${naeringskode}` : ''}`);
+      router.push(`/sok?q=${encodeURIComponent(navn)}${naeringskode ? `&kode=${naeringskode}` : ''}`);
     }
   }
 

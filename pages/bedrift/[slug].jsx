@@ -144,7 +144,14 @@ export default function BedriftSide({ bedrift, relaterte }) {
                   🌐 Gå til nettside
                 </a>
               ) : (
-                <div className={styles.ingenNettside}>Ingen nettside registrert</div>
+                <a
+                  href={`https://www.google.com/search?q=${encodeURIComponent(bedrift.navn)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`btn btn--outline ${styles.brregBtn}`}
+                >
+                  🔍 Søk etter {bedrift.navn} på Google
+                </a>
               )}
               <a
                 href={brregUrl}
