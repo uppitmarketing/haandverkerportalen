@@ -1,0 +1,72 @@
+/* styles/Info.module.css */
+.page { padding: 56px 0 80px; }
+
+.title {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+
+.lead {
+  font-size: 17px;
+  color: var(--ink-3);
+  line-height: 1.7;
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--ink);
+  margin-top: 32px;
+  margin-bottom: 10px;
+}
+
+p { font-size: 15px; color: var(--ink-2); line-height: 1.75; margin-bottom: 12px; }
+
+ul { padding-left: 20px; margin-bottom: 12px; }
+li { font-size: 15px; color: var(--ink-2); line-height: 1.75; margin-bottom: 4px; }
+
+a { color: var(--accent); }
+a:hover { text-decoration: underline; }
+
+.cta {
+  background: var(--accent-lt);
+  border: 1px solid rgba(37,99,235,0.15);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-top: 40px;
+}
+
+.cta h3 { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.cta p { margin-bottom: 16px; }
+
+.artikkelListe { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
+
+.artikkelKort {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+}
+
+.artikkelBransje {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-lt);
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.artikkelTittel { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 6px; letter-spacing: -0.3px; }
+.artikkelIngress { font-size: 14px; color: var(--ink-3); line-height: 1.6; margin-bottom: 10px; }
+.artikkelKommer { font-size: 11px; color: var(--muted); font-style: italic; }
