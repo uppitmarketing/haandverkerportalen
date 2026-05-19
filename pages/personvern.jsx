@@ -9,12 +9,12 @@ export default function Personvern() {
         <div className="container--narrow">
           <h1 className={styles.title}>Personvern</h1>
           <p className={styles.lead}>HåndverkerPortalen respekterer ditt personvern.</p>
-          <h2>Hvilke data samler vi inn?</h2>
-          <p>Vi samler ikke inn personopplysninger fra besøkende. Bedriftsinformasjon på siden er hentet fra offentlige registre (Brønnøysundregistrene) og er underlagt Norsk lisens for offentlige data (NLOD).</p>
-          <h2>Informasjonskapsler</h2>
-          <p>Vi bruker kun teknisk nødvendige informasjonskapsler for å drifte nettsiden. Vi bruker ingen sporingskapsler eller reklamekapsler.</p>
-          <h2>Kontakt</h2>
-          <p>Spørsmål om personvern? Kontakt oss på <a href="mailto:post@uppit.no">post@uppit.no</a></p>
+          <h2 className={styles.heading}>Hvilke data samler vi inn?</h2>
+          <p className={styles.tekst}>Vi samler ikke inn personopplysninger fra besøkende. Bedriftsinformasjon er hentet fra offentlige registre og er underlagt NLOD-lisensen.</p>
+          <h2 className={styles.heading}>Informasjonskapsler</h2>
+          <p className={styles.tekst}>Vi bruker kun teknisk nødvendige informasjonskapsler. Ingen sporingskapsler eller reklamekapsler.</p>
+          <h2 className={styles.heading}>Kontakt</h2>
+          <p className={styles.tekst}>Spørsmål? Kontakt oss på <a className={styles.lenke} href="mailto:post@uppit.no">post@uppit.no</a></p>
         </div>
       </div>
     </Layout>
