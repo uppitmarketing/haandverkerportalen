@@ -10,15 +10,11 @@ import styles from '../styles/Home.module.css';
 export default function Home({ antallPerNaering, sisteOslo }) {
   const router = useRouter();
   const [navn, setNavn] = useState('');
-  const [naeringskode, setNaeringskode] = useState('');
 
   function handleSok(e) {
     e.preventDefault();
-    const naering = NAERINGSKODER.find(n => n.kode === naeringskode);
-    if (naering && !navn) {
-      router.push(`/${naering.slug}`);
-    } else if (navn) {
-      router.push(`/sok?q=${encodeURIComponent(navn)}${naeringskode ? `&kode=${naeringskode}` : ''}`);
+    if (navn) {
+      router.push(`/sok?q=${encodeURIComponent(navn)}`);
     }
   }
 
@@ -46,17 +42,6 @@ export default function Home({ antallPerNaering, sisteOslo }) {
                 value={navn}
                 onChange={e => setNavn(e.target.value)}
               />
-              <div className={styles.searchDivider} />
-              <select
-                className={styles.searchSelect}
-                value={naeringskode}
-                onChange={e => setNaeringskode(e.target.value)}
-              >
-                <option value="">Alle bransjer</option>
-                {NAERINGSKODER.map(n => (
-                  <option key={n.kode} value={n.kode}>{n.icon} {n.visningsnavn}</option>
-                ))}
-              </select>
               <button type="submit" className={styles.searchBtn}>Søk →</button>
             </div>
 
