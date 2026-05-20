@@ -136,6 +136,22 @@ export default function BedriftSide({ bedrift, relaterte }) {
             <div className={styles.annonse}>
               📢 Annonseplass – relaterte tjenester
             </div>
+
+            {relaterte.length > 0 && (
+              <div className={styles.relaterteSection}>
+                <h3 className={styles.relTitle}>
+                  Andre {naering?.visningsnavn?.toLowerCase()}er i {bedrift.kommune}
+                </h3>
+                <div className={styles.relGrid}>
+                  {relaterte.map(b => <BedriftKort key={b.organisasjonsnummer} bedrift={b} />)}
+                </div>
+                {naering && (
+                  <a href={`/${naering.slug}/${kommuneSlug}`} className={styles.seAlle}>
+                    Se alle i {bedrift.kommune} →
+                  </a>
+                )}
+              </div>
+            )}
           </main>
 
           <aside className={styles.aside}>
@@ -174,22 +190,6 @@ export default function BedriftSide({ bedrift, relaterte }) {
                 <a href="/for-bedrifter" className={styles.kreverLink}>Krev inn profil →</a>
               </div>
             </div>
-
-            {relaterte.length > 0 && (
-              <div>
-                <h3 className={styles.relTitle}>
-                  Andre {naering?.visningsnavn?.toLowerCase()}er i {bedrift.kommune}
-                </h3>
-                <div className={styles.relGrid}>
-                  {relaterte.map(b => <BedriftKort key={b.organisasjonsnummer} bedrift={b} />)}
-                </div>
-                {naering && (
-                  <a href={`/${naering.slug}/${kommuneSlug}`} className={styles.seAlle}>
-                    Se alle i {bedrift.kommune} →
-                  </a>
-                )}
-              </div>
-            )}
           </aside>
         </div>
       </div>
