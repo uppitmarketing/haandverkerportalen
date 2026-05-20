@@ -4,6 +4,7 @@ import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
 import styles from '../../styles/Bedrift.module.css';
+import { genererBeskrivelse } from '../../lib/genererBeskrivelse';
 import Kart from '../../components/Kart';
 
 export default function BedriftSide({ bedrift, relaterte }) {
@@ -31,6 +32,7 @@ export default function BedriftSide({ bedrift, relaterte }) {
   const naering = getNaeringByKode(bedrift.naeringskode);
   const stiftetAar = bedrift.stiftelsesdato?.substring(0, 4);
   const status = bedrift.konkurs ? 'Konkurs' : bedrift.er_aktiv ? 'Aktiv' : 'Inaktiv';
+  const beskrivelse = genererBeskrivelse(bedrift);
   const kommuneSlug = bedrift.kommune?.toLowerCase()
     .replace(/\s/g, '-')
     .replace(/æ/g, 'ae')
@@ -96,6 +98,11 @@ export default function BedriftSide({ bedrift, relaterte }) {
         <div className={styles.layout}>
           <main className={styles.main}>
 
+            {beskrivelse && (
+              <div className={styles.boks}>
+                <p className={styles.beskrivelse}>{beskrivelse}</p>
+              </div>
+            )}
             <div className={styles.boks}>
               <h2 className={styles.boksTitle}>Om bedriften</h2>
               <dl className={styles.detaljer}>
