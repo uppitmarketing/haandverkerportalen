@@ -6,7 +6,6 @@ import BedriftKort from '../components/BedriftKort';
 import { NAERINGSKODER, KOMMUNER, sokBedrifter } from '../lib/db';
 import styles from '../styles/Sok.module.css';
 
-// Søkeord som matcher bransjer
 const BRANSJE_SOKEORD = {
   'elektriker': '43.210', 'elektro': '43.210', 'elektrisk': '43.210',
   'rørlegger': '43.221', 'rorlegger': '43.221', 'vvs': '43.221', 'rør': '43.221',
@@ -20,19 +19,16 @@ const BRANSJE_SOKEORD = {
 
 function parseFrektekst(tekst) {
   if (!tekst) return { navn: '', naeringskode: '', kommunenummer: '' };
-
   const ord = tekst.toLowerCase().trim().split(/\s+/);
   let funnetKode = '';
   let funnetKommune = '';
   const gjenværendeOrd = [];
 
   for (const ord_item of ord) {
-    // Sjekk bransje
     if (!funnetKode && BRANSJE_SOKEORD[ord_item]) {
       funnetKode = BRANSJE_SOKEORD[ord_item];
       continue;
     }
-    // Sjekk kommune
     const kommune = KOMMUNER.find(k =>
       k.navn.toLowerCase() === ord_item ||
       k.slug === ord_item ||
@@ -54,11 +50,9 @@ function parseFrektekst(tekst) {
 
 export default function SokSide() {
   const router = useRouter();
-  const { q, kode, kommune } = router.query;
+  const { q } = router.query;
 
   const [query, setQuery] = useState('');
-  const [kodeInput, setKodeInput] = useState('');
-  const [kommuneInput, setKommuneInput] = useState('');
   const [resultater, setResultater] = useState([]);
   const [laster, setLaster] = useState(false);
   const [sokt, setSokt] = useState(false);
@@ -66,43 +60,31 @@ export default function SokSide() {
 
   useEffect(() => {
     if (!router.isReady) return;
-    if (q) setQuery(q);
-    if (kode) setKodeInput(kode);
-    if (kommune) setKommuneInput(kommune);
-    if (q || kode || kommune) {
-      utforSok(q || '', kode || '', kommune || '');
+    if (q) {
+      setQuery(q);
+      utforSok(q);
     }
   }, [router.isReady]);
 
-  async function utforSok(q_val, kode_val, kommune_val) {
+  async function utforSok(q_val) {
     setLaster(true);
     setSokt(true);
-
-    // Parse fritekst
     const p = parseFrektekst(q_val);
     setParsed(p);
-
     const data = await sokBedrifter({
       navn: p.navn || '',
-      naeringskode: kode_val || p.naeringskode || '',
-      kommunenummer: kommune_val || p.kommunenummer || '',
+      naeringskode: p.naeringskode || '',
+      kommunenummer: p.kommunenummer || '',
     });
-
     setResultater(data);
     setLaster(false);
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    router.push({
-      pathname: '/sok',
-      query: {
-        ...(query && { q: query }),
-        ...(kodeInput && { kode: kodeInput }),
-        ...(kommuneInput && { kommune: kommuneInput }),
-      }
-    }, undefined, { shallow: false });
-    utforSok(query, kodeInput, kommuneInput);
+    if (!query) return;
+    router.push({ pathname: '/sok', query: { q: query } }, undefined, { shallow: false });
+    utforSok(query);
   }
 
   const funnetBransje = parsed?.naeringskode
@@ -134,52 +116,11 @@ export default function SokSide() {
                 Søk →
               </button>
             </div>
-
-            <div className={styles.filters}>
-              <select
-                className={styles.filterSelect}
-                value={kodeInput}
-                onChange={e => setKodeInput(e.target.value)}
-              >
-                <option value="">Alle bransjer</option>
-                {NAERINGSKODER.map(n => (
-                  <option key={n.kode} value={n.kode}>{n.icon} {n.visningsnavn}</option>
-                ))}
-              </select>
-              <select
-                className={styles.filterSelect}
-                value={kommuneInput}
-                onChange={e => setKommuneInput(e.target.value)}
-              >
-                <option value="">Alle kommuner</option>
-                {KOMMUNER.map(k => (
-                  <option key={k.nummer} value={k.nummer}>{k.navn}</option>
-                ))}
-              </select>
-            </div>
           </form>
-
-          <div className={styles.eksempler}>
-            <span>Prøv:</span>
-            {['elektriker oslo', 'rørlegger bergen', 'tømrer kristiansand', 'maler stavanger'].map(s => (
-              <button
-                key={s}
-                className={styles.exChip}
-                onClick={() => {
-                  setQuery(s);
-                  utforSok(s, '', '');
-                  router.push({ pathname: '/sok', query: { q: s } });
-                }}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
         </div>
       </section>
 
       <div className="container">
-        {/* Vis hva som ble tolket */}
         {sokt && !laster && parsed && (funnetBransje || funnetKommune) && (
           <div className={styles.parsedInfo}>
             <span>Søkte etter:</span>
@@ -195,7 +136,7 @@ export default function SokSide() {
           <div className={styles.ingenTreff}>
             <div className={styles.ingenIcon}>🔍</div>
             <h2>Ingen treff</h2>
-            <p>Prøv et annet søk eller fjern noen filtre.</p>
+            <p>Prøv et annet søk, f.eks. "elektriker oslo".</p>
           </div>
         )}
 

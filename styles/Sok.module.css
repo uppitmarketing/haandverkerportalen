@@ -23,6 +23,7 @@
 
 .mainInput {
   flex: 1;
+  min-width: 0;
   background: var(--bg);
   border: 2px solid var(--border);
   color: var(--ink);
@@ -37,51 +38,7 @@
 .mainInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
 .mainInput::placeholder { color: var(--muted); }
 
-.searchBtn { padding: 13px 24px; font-size: 14px; border-radius: var(--radius-lg); }
-
-.filters { display: flex; gap: 10px; }
-
-.filterSelect {
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  color: var(--ink-2);
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  padding: 8px 14px;
-  border-radius: var(--radius);
-  outline: none;
-  appearance: none;
-  cursor: pointer;
-  min-width: 160px;
-  transition: border-color 0.15s;
-}
-
-.filterSelect:focus { border-color: var(--accent); }
-
-.eksempler {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px;
-  flex-wrap: wrap;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.exChip {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--ink-3);
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 4px 12px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.exChip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); }
+.searchBtn { padding: 13px 24px; font-size: 14px; border-radius: var(--radius-lg); flex-shrink: 0; }
 
 .parsedInfo {
   display: flex;
@@ -125,8 +82,8 @@
 .ingenTreff p, .start p { font-size: 14px; }
 
 @media (max-width: 768px) {
-  .filters { flex-direction: column; }
+  .mainField { flex-direction: column; width: 100%; }
+  .mainInput { width: 100%; box-sizing: border-box; }
+  .searchBtn { width: 100%; justify-content: center; box-sizing: border-box; }
   .grid { grid-template-columns: 1fr; }
-  .mainField { flex-direction: column; }
-  .searchBtn { width: 100%; justify-content: center; }
 }
