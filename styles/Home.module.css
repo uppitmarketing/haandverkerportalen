@@ -18,7 +18,7 @@
 .searchBar:focus-within { border-color: var(--accent); box-shadow: 0 4px 24px rgba(37,99,235,0.12); }
 .searchInput {
   flex: 1; border: none; outline: none;
-  font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink);
+  font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink);
   padding: 15px 18px; background: transparent;
 }
 .searchInput::placeholder { color: var(--muted); }
