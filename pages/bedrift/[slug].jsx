@@ -7,6 +7,24 @@ import styles from '../../styles/Bedrift.module.css';
 import { genererBeskrivelse } from '../../lib/genererBeskrivelse';
 import Kart from '../../components/Kart';
 
+function AnnonseKort() {
+  return (
+    <div className={styles.annonseBoks}>
+      <div className={styles.annonseInner}>
+        <div className={styles.annonseBilde}>
+          <span style={{ fontSize: 28 }}>📢</span>
+        </div>
+        <div className={styles.annonseTekst}>
+          <strong>Annonsér her</strong>
+          <p>Nå tusenvis av håndverkere og deres kunder daglig.</p>
+          <a href="/annonsering" className={styles.annonseLink}>Se annonsemuligheter →</a>
+        </div>
+      </div>
+      <span className={styles.annonseLabel}>Annonse</span>
+    </div>
+  );
+}
+
 export default function BedriftSide({ bedrift, relaterte }) {
   const router = useRouter();
 
@@ -190,6 +208,7 @@ export default function BedriftSide({ bedrift, relaterte }) {
                 <a href="/for-bedrifter" className={styles.kreverLink}>Krev inn profil →</a>
               </div>
             </div>
+            <AnnonseKort />
           </aside>
         </div>
       </div>
