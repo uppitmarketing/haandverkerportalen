@@ -7,6 +7,22 @@ import styles from '../../styles/Bedrift.module.css';
 import { genererBeskrivelse } from '../../lib/genererBeskrivelse';
 import Kart from '../../components/Kart';
 
+function AnnonseKortBreid() {
+  return (
+    <div className={styles.annonseBreid}>
+      <div className={styles.annonseBreidBilde}>
+        <span style={{ fontSize: 36 }}>📢</span>
+      </div>
+      <div className={styles.annonseBreidTekst}>
+        <strong>Annonsér på HåndverkerPortalen</strong>
+        <p>Nå kunder med høy kjøpsintensjon – folk som aktivt søker etter håndverkere i ditt område.</p>
+        <a href="/annonsering" className={styles.annonseLink}>Se annonsemuligheter →</a>
+      </div>
+      <span className={styles.annonseLabel}>Annonse</span>
+    </div>
+  );
+}
+
 function AnnonseKort() {
   return (
     <div className={styles.annonseBoks}>
@@ -151,9 +167,7 @@ export default function BedriftSide({ bedrift, relaterte }) {
               <Kart adresse={bedrift.adresse} postnummer={bedrift.postnummer} poststed={bedrift.poststed} />
             </div>
 
-            <div className={styles.annonse}>
-              📢 Annonseplass – relaterte tjenester
-            </div>
+            <AnnonseKortBreid />
 
             {relaterte.length > 0 && (
               <div className={styles.relaterteSection}>
