@@ -14,7 +14,7 @@ export default function OmOss() {
           <h2 className={styles.heading}>Datakilder</h2>
           <p className={styles.tekst}>All bedriftsinformasjon hentes fra <a className={styles.lenke} href="https://www.brreg.no" target="_blank" rel="noopener noreferrer">Brønnøysundregistrene</a> via deres åpne API. Data er lisensiert under <a className={styles.lenke} href="https://data.norge.no/nlod/" target="_blank" rel="noopener noreferrer">Norsk lisens for offentlige data (NLOD)</a>.</p>
           <h2 className={styles.heading}>Kontakt</h2>
-          <p className={styles.tekst}>Har du spørsmål? Ta kontakt via <a className={styles.lenke} href="mailto:post@uppit.no">post@uppit.no</a></p>
+          <p className={styles.tekst}>Har du spørsmål? Ta kontakt via <a className={styles.lenke} href="mailto:petter@uppit.no">petter@uppit.no</a></p>
           <p className={styles.tekst}>HåndverkerPortalen drives av <a className={styles.lenke} href="https://uppit.no" target="_blank" rel="noopener noreferrer">Uppit AS</a>.</p>
         </div>
       </div>

@@ -69,7 +69,7 @@ export default function Annonsering() {
               Ta kontakt for priser, tilgjengelighet og mer informasjon.
               Vi skreddersyr gjerne en løsning for deg.
             </p>
-            <a href="mailto:post@uppit.no" className="btn btn--primary">
+            <a href="mailto:petter@uppit.no" className="btn btn--primary">
               Kontakt oss →
             </a>
           </div>

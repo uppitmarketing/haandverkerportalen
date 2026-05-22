@@ -24,7 +24,7 @@ export default function ForBedrifter() {
           <div className={styles.cta}>
             <h3 className={styles.ctaTitle}>Kom i gang</h3>
             <p className={styles.ctaTekst}>Send oss en e-post så hjelper vi deg i gang.</p>
-            <a href="mailto:post@uppit.no" className="btn btn--primary">Kontakt oss →</a>
+            <a href="mailto:petter@uppit.no" className="btn btn--primary">Kontakt oss →</a>
           </div>
         </div>
       </div>

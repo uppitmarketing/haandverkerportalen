@@ -14,7 +14,7 @@ export default function Personvern() {
           <h2 className={styles.heading}>Informasjonskapsler</h2>
           <p className={styles.tekst}>Vi bruker kun teknisk nødvendige informasjonskapsler. Ingen sporingskapsler eller reklamekapsler.</p>
           <h2 className={styles.heading}>Kontakt</h2>
-          <p className={styles.tekst}>Spørsmål? Kontakt oss på <a className={styles.lenke} href="mailto:post@uppit.no">post@uppit.no</a></p>
+          <p className={styles.tekst}>Spørsmål? Kontakt oss på <a className={styles.lenke} href="mailto:petter@uppit.no">petter@uppit.no</a></p>
         </div>
       </div>
     </Layout>
