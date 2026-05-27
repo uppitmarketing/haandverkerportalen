@@ -23,31 +23,48 @@ function normaliserTekst(s) {
     .replace(/ae/g, 'æ').replace(/oe/g, 'ø').replace(/aa/g, 'å');
 }
 
+// Kjente kommuner/tettsteder for eksakt matching
+const KJENTE_STEDER = new Set([
+  'oslo','bergen','trondheim','stavanger','kristiansand','tromsø','tromso',
+  'drammen','fredrikstad','sarpsborg','sandnes','bodø','bodo','hamar',
+  'larvik','sandefjord','tønsberg','tonsberg','skien','porsgrunn','arendal',
+  'ålesund','alesund','molde','haugesund','moss','halden','lillehammer',
+  'gjøvik','gjoevik','kongsberg','ringerike','elverum','horten','grimstad',
+  'vennesla','lørenskog','lorenskog','lillestrøm','lillestrom','ullensaker',
+  'bærum','baerum','asker','steinkjer','levanger','stjørdal','stjordal',
+  'narvik','harstad','alta','rana','voss','askøy','askoy','alver','sola',
+  'karmøy','karmoy','eigersund','kristiansund','nordre follo',
+  'flekkerøy','flekkeroy','frogn','ski','oppegård','løten','loten',
+  'fredrikstad','sarpsborg','rygge','råde','hvaler',
+]);
+
 function parseFrektekst(tekst) {
   if (!tekst) return { navn: '', naeringskode: '', kommunenavn: '' };
   const ord = tekst.toLowerCase().trim().split(/\s+/);
   let funnetKode = '';
   let funnetKommunenavn = '';
-  const gjenværendeOrd = [];
+  const navneOrd = [];
 
   for (const ord_item of ord) {
+    // Sjekk bransje først
     if (!funnetKode && BRANSJE_SOKEORD[ord_item]) {
       funnetKode = BRANSJE_SOKEORD[ord_item];
       continue;
     }
-    // Sjekk om ordet kan være et kommunenavn (minst 3 tegn, ikke et bransjeord)
-    if (!funnetKommunenavn && ord_item.length >= 3 && !BRANSJE_SOKEORD[ord_item]) {
-      // Normaliser norske tegn (f.eks. loten -> løten, tromso -> tromsø)
-      funnetKommunenavn = normaliserTekst(ord_item);
+    // Sjekk kun mot kjente steder – ikke blind gjetning
+    const normalisert = normaliserTekst(ord_item);
+    if (!funnetKommunenavn && KJENTE_STEDER.has(normalisert)) {
+      funnetKommunenavn = normalisert;
       continue;
     }
-    gjenværendeOrd.push(ord_item);
+    // Alt annet er bedriftsnavn
+    navneOrd.push(ord_item);
   }
 
   return {
     naeringskode: funnetKode,
     kommunenavn: funnetKommunenavn,
-    navn: gjenværendeOrd.join(' '),
+    navn: navneOrd.join(' '),
   };
 }
 
