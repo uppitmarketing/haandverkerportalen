@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import BedriftKort from '../components/BedriftKort';
-import { NAERINGSKODER, KOMMUNER, sokBedrifter } from '../lib/db';
+import { NAERINGSKODER, sokBedrifter } from '../lib/db';
 import styles from '../styles/Sok.module.css';
 
 const BRANSJE_SOKEORD = {
@@ -17,11 +17,17 @@ const BRANSJE_SOKEORD = {
   'grunnarbeid': '43.120', 'graving': '43.120', 'grunnentreprenør': '43.120',
 };
 
+// Norske tegn-normalisering for kommunesøk
+function normaliserTekst(s) {
+  return s.toLowerCase()
+    .replace(/ae/g, 'æ').replace(/oe/g, 'ø').replace(/aa/g, 'å');
+}
+
 function parseFrektekst(tekst) {
-  if (!tekst) return { navn: '', naeringskode: '', kommunenummer: '' };
+  if (!tekst) return { navn: '', naeringskode: '', kommunenavn: '' };
   const ord = tekst.toLowerCase().trim().split(/\s+/);
   let funnetKode = '';
-  let funnetKommune = '';
+  let funnetKommunenavn = '';
   const gjenværendeOrd = [];
 
   for (const ord_item of ord) {
@@ -29,13 +35,10 @@ function parseFrektekst(tekst) {
       funnetKode = BRANSJE_SOKEORD[ord_item];
       continue;
     }
-    const kommune = KOMMUNER.find(k =>
-      k.navn.toLowerCase() === ord_item ||
-      k.slug === ord_item ||
-      k.navn.toLowerCase().replace(/\s/g, '') === ord_item
-    );
-    if (!funnetKommune && kommune) {
-      funnetKommune = kommune.nummer;
+    // Sjekk om ordet kan være et kommunenavn (minst 3 tegn, ikke et bransjeord)
+    if (!funnetKommunenavn && ord_item.length >= 3 && !BRANSJE_SOKEORD[ord_item]) {
+      // Normaliser norske tegn (f.eks. loten -> løten, tromso -> tromsø)
+      funnetKommunenavn = normaliserTekst(ord_item);
       continue;
     }
     gjenværendeOrd.push(ord_item);
@@ -43,7 +46,7 @@ function parseFrektekst(tekst) {
 
   return {
     naeringskode: funnetKode,
-    kommunenummer: funnetKommune,
+    kommunenavn: funnetKommunenavn,
     navn: gjenværendeOrd.join(' '),
   };
 }
@@ -74,7 +77,7 @@ export default function SokSide() {
     const data = await sokBedrifter({
       navn: p.navn || '',
       naeringskode: p.naeringskode || '',
-      kommunenummer: p.kommunenummer || '',
+      kommunenavn: p.kommunenavn || '',
     });
     setResultater(data);
     setLaster(false);
@@ -90,9 +93,7 @@ export default function SokSide() {
   const funnetBransje = parsed?.naeringskode
     ? NAERINGSKODER.find(n => n.kode === parsed.naeringskode)
     : null;
-  const funnetKommune = parsed?.kommunenummer
-    ? KOMMUNER.find(k => k.nummer === parsed.kommunenummer)
-    : null;
+  const funnetKommune = parsed?.kommunenavn || null;
 
   return (
     <Layout
@@ -124,7 +125,7 @@ export default function SokSide() {
           <div className={styles.parsedInfo}>
             <span>Søkte etter:</span>
             {funnetBransje && <span className={styles.parsedTag}>{funnetBransje.icon} {funnetBransje.visningsnavn}</span>}
-            {funnetKommune && <span className={styles.parsedTag}>📍 {funnetKommune.navn}</span>}
+            {funnetKommune && <span className={styles.parsedTag}>📍 {funnetKommune}</span>}
             {parsed.navn && <span className={styles.parsedTag}>🔤 "{parsed.navn}"</span>}
           </div>
         )}
