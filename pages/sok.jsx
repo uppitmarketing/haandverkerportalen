@@ -95,6 +95,7 @@ export default function SokSide() {
       navn: p.navn || '',
       naeringskode: p.naeringskode || '',
       kommunenavn: p.kommunenavn || '',
+      originalTekst: q_val,
     });
     setResultater(data);
     setLaster(false);
