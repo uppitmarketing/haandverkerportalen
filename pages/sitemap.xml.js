@@ -1,6 +1,7 @@
 // pages/sitemap.xml.js
 import { createClient } from '@supabase/supabase-js';
 import { NAERINGSKODER, KOMMUNER } from '../lib/db';
+import { ARTIKLER } from '../lib/artikler';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 const PAGE_SIZE = 1000;
@@ -57,6 +58,12 @@ export async function getServerSideProps({ res }) {
       url: `/${n.slug}`,
       priority: '0.8',
       changefreq: 'weekly',
+    })),
+
+    ...ARTIKLER.map(a => ({
+      url: `/artikler/${a.slug}`,
+      priority: '0.6',
+      changefreq: 'monthly',
     })),
 
     ...NAERINGSKODER.flatMap(n =>

@@ -48,11 +48,14 @@
 .artikkelListe { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
 
 .artikkelKort {
+  display: block;
   background: var(--surface);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 22px;
+  transition: border-color 0.15s;
 }
+.artikkelKort:hover { border-color: var(--accent); }
 
 .artikkelBransje {
   font-size: 10px;
@@ -68,5 +71,4 @@
 }
 
 .artikkelTittel { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 6px; letter-spacing: -0.3px; }
-.artikkelIngress { font-size: 14px; color: var(--ink-3); line-height: 1.6; margin-bottom: 10px; }
-.artikkelKommer { font-size: 11px; color: var(--muted); font-style: italic; }
+.artikkelIngress { font-size: 14px; color: var(--ink-3); line-height: 1.6; }

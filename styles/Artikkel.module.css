@@ -1,0 +1,48 @@
+/* styles/Artikkel.module.css */
+.hero { background: var(--ink); color: white; padding: 44px 0 40px; }
+.bransjeTag {
+  display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: #60A5FA; background: rgba(96,165,250,0.12);
+  padding: 4px 10px; border-radius: 4px; margin-bottom: 14px;
+}
+.title { font-size: clamp(26px, 4vw, 40px); font-weight: 800; letter-spacing: -1px; line-height: 1.15; margin-bottom: 12px; }
+.ingress { font-size: 15px; color: #9CA3AF; line-height: 1.7; max-width: 620px; }
+.meta { font-size: 12px; color: #6B7280; margin-top: 16px; }
+
+.body { padding: 48px 0 24px; }
+.body h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; color: var(--ink); margin-top: 32px; margin-bottom: 10px; }
+.body h2:first-child { margin-top: 0; }
+.body p { font-size: 15px; color: var(--ink-2); line-height: 1.75; margin-bottom: 12px; }
+.body ul { padding-left: 20px; margin-bottom: 16px; }
+.body li { font-size: 15px; color: var(--ink-2); line-height: 1.75; margin-bottom: 4px; }
+
+.cta {
+  background: var(--accent-lt);
+  border: 1px solid rgba(37,99,235,0.15);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin: 36px 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+}
+.ctaText { font-size: 14px; color: var(--ink-2); }
+.ctaText strong { display: block; font-size: 16px; color: var(--ink); margin-bottom: 4px; }
+
+.faq { padding: 24px 0 56px; }
+.faqTitle { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 16px; color: var(--ink); }
+.faqListe { display: flex; flex-direction: column; gap: 8px; }
+.faqItem { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.faqItem[open] { border-color: var(--accent); }
+.faqSpm { font-size: 14px; font-weight: 600; color: var(--ink); padding: 14px 18px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+.faqSpm::after { content: '+'; font-size: 18px; color: var(--accent); flex-shrink: 0; }
+.faqItem[open] .faqSpm::after { content: '−'; }
+.faqSvar { padding: 0 18px 14px; font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+
+.andreGuider { padding: 0 0 64px; }
+.andreGuiderTitle { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; color: var(--ink); margin-bottom: 14px; }
+.andreGuiderGrid { display: flex; flex-direction: column; gap: 10px; }
+.andreGuiderKort {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 14px 18px; font-size: 14px; font-weight: 500; color: var(--ink-2); transition: all 0.15s;
+}
+.andreGuiderKort:hover { border-color: var(--accent); color: var(--accent); }
