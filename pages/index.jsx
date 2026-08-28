@@ -2,12 +2,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
-import BedriftKort from '../components/BedriftKort';
-import { NAERINGSKODER, POPULAERE_SOK, getAntallPerNaering } from '../lib/db';
-import { supabase } from '../lib/supabase';
+import HandverkerNaerDeg from '../components/HandverkerNaerDeg';
+import { NAERINGSKODER, POPULAERE_SOK, getAntallPerNaering, getBedrifterNaerDeg } from '../lib/db';
 import styles from '../styles/Home.module.css';
 
-export default function Home({ antallPerNaering, sisteOslo }) {
+export default function Home({ antallPerNaering, standardBedrifter }) {
   const router = useRouter();
   const [navn, setNavn] = useState('');
 
@@ -103,22 +102,8 @@ export default function Home({ antallPerNaering, sisteOslo }) {
         </div>
       </section>
 
-      {/* SISTE FRA OSLO */}
-      {sisteOslo.length > 0 && (
-        <section className={styles.section} style={{ paddingTop: 0 }}>
-          <div className="container">
-            <div className={styles.secHeader}>
-              <h2 className={styles.secTitle}>Elektrikere i Oslo</h2>
-              <a href="/elektriker/oslo" className={styles.secLink}>Se alle →</a>
-            </div>
-            <div className={styles.bedGrid}>
-              {sisteOslo.map(b => (
-                <BedriftKort key={b.organisasjonsnummer} bedrift={b} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* HÅNDVERKERE NÆR DEG */}
+      <HandverkerNaerDeg standardBedrifter={standardBedrifter} standardKommuneNavn="Oslo" />
 
       {/* CTA */}
       <div className={styles.ctaWrap}>
@@ -139,20 +124,12 @@ export default function Home({ antallPerNaering, sisteOslo }) {
 
 export async function getStaticProps() {
   const antallPerNaering = await getAntallPerNaering();
-
-  const { data: sisteOslo } = await supabase
-    .from('bedrifter')
-    .select('*')
-    .eq('naeringskode', '43.210')
-    .eq('kommunenummer', '0301')
-    .eq('er_aktiv', true)
-    .order('navn')
-    .limit(3);
+  const standardBedrifter = await getBedrifterNaerDeg('0301');
 
   return {
     props: {
       antallPerNaering,
-      sisteOslo: sisteOslo || [],
+      standardBedrifter,
     },
     revalidate: 86400,
   };
