@@ -132,7 +132,7 @@ async function hentAlleSider(naeringskode, kommunenummer) {
 async function lagreBatch(enheter) {
   const mapped = enheter
     .map(mapEnhet)
-    .filter(e => e.organisasjonsform !== 'ENK');
+    .filter(e => e.organisasjonsform !== 'ENK' && e.organisasjonsform !== 'KBO');
   if (!mapped.length) return 0;
   const { error } = await supabase.from('bedrifter').upsert(mapped, { onConflict: 'organisasjonsnummer' });
   if (error) throw error;
