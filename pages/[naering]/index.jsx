@@ -61,36 +61,8 @@ export async function getStaticProps({ params }) {
   const naering = getNaeringBySlug(params.naering);
   if (!naering) return { notFound: true };
 
-  const kommuner = KOMMUNER.map(k => ({
-    ...k,
-    fylke: getFylke(k.nummer),
-  }));
-
   return {
-    props: { naering, kommuner },
+    props: { naering, kommuner: KOMMUNER },
     revalidate: 86400,
   };
-}
-
-function getFylke(nummer) {
-  const fylker = {
-    '0301': 'Oslo',
-    '3101': 'Østfold', '3103': 'Østfold', '3105': 'Østfold', '3107': 'Østfold',
-    '3201': 'Akershus', '3203': 'Akershus', '3205': 'Akershus', '3207': 'Akershus',
-    '3209': 'Akershus', '3222': 'Akershus',
-    '3301': 'Buskerud', '3303': 'Buskerud', '3305': 'Buskerud',
-    '3403': 'Innlandet', '3405': 'Innlandet', '3407': 'Innlandet', '3420': 'Innlandet',
-    '3801': 'Vestfold', '3805': 'Vestfold', '3807': 'Vestfold', '3809': 'Vestfold',
-    '3901': 'Telemark', '3903': 'Telemark',
-    '4202': 'Agder', '4203': 'Agder', '4204': 'Agder', '4223': 'Agder',
-    '1101': 'Rogaland', '1103': 'Rogaland', '1106': 'Rogaland', '1108': 'Rogaland',
-    '1124': 'Rogaland', '1149': 'Rogaland',
-    '4601': 'Vestland', '4620': 'Vestland', '4626': 'Vestland', '4630': 'Vestland',
-    '1505': 'Møre og Romsdal', '1506': 'Møre og Romsdal', '1507': 'Møre og Romsdal',
-    '5001': 'Trøndelag', '5006': 'Trøndelag', '5035': 'Trøndelag', '5037': 'Trøndelag',
-    '1804': 'Nordland', '1806': 'Nordland', '1833': 'Nordland',
-    '5401': 'Troms', '5402': 'Troms',
-    '5501': 'Finnmark',
-  };
-  return fylker[nummer] || '';
 }
