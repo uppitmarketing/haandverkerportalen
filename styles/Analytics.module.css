@@ -61,6 +61,16 @@
 .loggUt { font-size: 12px; font-weight: 600; color: var(--muted); }
 .loggUt:hover { color: var(--accent); }
 
+.perioder { display: flex; gap: 8px; max-width: 900px; margin: 0 auto 16px; }
+.periodeBtn {
+  font-size: 12px; font-weight: 600; color: var(--ink-2);
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 7px 14px;
+}
+.periodeBtn:hover { border-color: var(--accent); color: var(--accent); }
+.periodeAktiv { background: var(--accent); border-color: var(--accent); color: #fff; }
+.periodeAktiv:hover { color: #fff; }
+
 .stats { display: flex; gap: 14px; max-width: 900px; margin: 0 auto 20px; }
 .stat { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px 24px; flex: 1; }
 .statNum { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; color: var(--accent); }
