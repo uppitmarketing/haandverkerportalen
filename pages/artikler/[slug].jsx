@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import { ARTIKLER, getArtikkelBySlug, getAlleArtikkelSlugs } from '../../lib/artikler';
 import { getNaeringBySlug } from '../../lib/db';
+import { safeJsonLd } from '../../lib/jsonLd';
 import styles from '../../styles/Artikkel.module.css';
 
 const BASE_URL = 'https://haandverkerportalen.no';
@@ -69,11 +70,11 @@ export default function ArtikkelSide({ artikkel }) {
       <Head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(articleSchema) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }}
         />
       </Head>
 

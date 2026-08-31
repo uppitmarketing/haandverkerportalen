@@ -6,6 +6,7 @@ import BedriftKort from '../../components/BedriftKort';
 import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
 import styles from '../../styles/Bedrift.module.css';
 import { genererBeskrivelse, genererBedriftFaq } from '../../lib/genererBeskrivelse';
+import { safeJsonLd } from '../../lib/jsonLd';
 import Kart from '../../components/Kart';
 
 const BASE_URL = 'https://haandverkerportalen.no';
@@ -144,12 +145,12 @@ export default function BedriftSide({ bedrift, relaterte }) {
       <Head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(localBusinessSchema) }}
         />
         {faqSchema && (
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+            dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }}
           />
         )}
       </Head>
