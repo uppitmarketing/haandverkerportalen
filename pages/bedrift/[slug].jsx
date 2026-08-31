@@ -3,7 +3,9 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
+import Annonse from '../../components/Annonse';
 import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
+import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import styles from '../../styles/Bedrift.module.css';
 import { genererBeskrivelse, genererBedriftFaq } from '../../lib/genererBeskrivelse';
 import { safeJsonLd } from '../../lib/jsonLd';
@@ -22,41 +24,7 @@ const SCHEMA_TYPE = {
   '43.910': 'RoofingContractor',
 };
 
-function AnnonseKortBreid() {
-  return (
-    <div className={styles.annonseBreid}>
-      <div className={styles.annonseBreidBilde}>
-        <span style={{ fontSize: 36 }}>📢</span>
-      </div>
-      <div className={styles.annonseBreidTekst}>
-        <strong>Annonsér på HåndverkerPortalen</strong>
-        <p>Nå kunder med høy kjøpsintensjon – folk som aktivt søker etter håndverkere i ditt område.</p>
-        <a href="/annonsering" className={styles.annonseLink}>Se annonsemuligheter →</a>
-      </div>
-      <span className={styles.annonseLabel}>Annonse</span>
-    </div>
-  );
-}
-
-function AnnonseKort() {
-  return (
-    <div className={styles.annonseBoks}>
-      <div className={styles.annonseInner}>
-        <div className={styles.annonseBilde}>
-          <span style={{ fontSize: 28 }}>📢</span>
-        </div>
-        <div className={styles.annonseTekst}>
-          <strong>Annonsér her</strong>
-          <p>Nå tusenvis av håndverkere og deres kunder daglig.</p>
-          <a href="/annonsering" className={styles.annonseLink}>Se annonsemuligheter →</a>
-        </div>
-      </div>
-      <span className={styles.annonseLabel}>Annonse</span>
-    </div>
-  );
-}
-
-export default function BedriftSide({ bedrift, relaterte }) {
+export default function BedriftSide({ bedrift, relaterte, annonsor }) {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -241,7 +209,7 @@ export default function BedriftSide({ bedrift, relaterte }) {
               </div>
             )}
 
-            <AnnonseKortBreid />
+            <Annonse annonsor={annonsor} variant="bred" />
 
             {relaterte.length > 0 && (
               <div className={styles.relaterteSection}>
@@ -296,7 +264,7 @@ export default function BedriftSide({ bedrift, relaterte }) {
                 <a href="/for-bedrifter" className={styles.kreverLink}>Krev inn profil →</a>
               </div>
             </div>
-            <AnnonseKort />
+            <Annonse annonsor={annonsor} variant="kompakt" />
           </aside>
         </div>
       </div>
@@ -312,8 +280,10 @@ export async function getStaticProps({ params }) {
   const bedrift = await getBedriftBySlug(params.slug);
   if (!bedrift) return { notFound: true };
   const relaterte = await getRelaterteBedrifter(bedrift.naeringskode, bedrift.kommunenummer, bedrift.slug);
+  const naering = getNaeringByKode(bedrift.naeringskode);
+  const annonsor = await getAnnonsorForBransje(naering?.slug);
   return {
-    props: { bedrift, relaterte },
+    props: { bedrift, relaterte, annonsor },
     revalidate: 86400,
   };
 }

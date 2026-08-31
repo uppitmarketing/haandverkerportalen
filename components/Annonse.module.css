@@ -1,0 +1,46 @@
+/* components/Annonse.module.css */
+.plassholder {
+  margin: 20px 0; background: #FAFBFF; border: 1.5px dashed var(--border);
+  border-radius: var(--radius); padding: 12px 20px; text-align: center;
+  font-size: 12px; color: var(--muted); font-weight: 500;
+}
+.plassholder a { color: var(--accent); font-weight: 600; }
+
+.plassholderKompakt {
+  background: var(--surface); border: 1.5px dashed var(--border); border-radius: var(--radius-lg);
+  padding: 20px; text-align: center; font-size: 12px; color: var(--muted);
+}
+.plassholderKompakt a { color: var(--accent); font-weight: 600; }
+
+.kortBred {
+  display: flex; align-items: center; gap: 20px;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg);
+  padding: 20px 22px; position: relative; transition: all 0.15s;
+}
+.kortBred:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+
+.kortKompakt {
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg);
+  padding: 16px; position: relative; transition: all 0.15s;
+}
+.kortKompakt:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+.kortKompakt .bilde { width: 100%; height: 90px; }
+.kortKompakt .tekst { text-align: left; }
+
+.bilde {
+  width: 72px; height: 72px; border-radius: var(--radius); overflow: hidden;
+  background: var(--accent-lt); border: 1px solid rgba(37,99,235,0.15);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.bilde img { width: 100%; height: 100%; object-fit: cover; }
+.bildePlassholder { font-size: 28px; font-weight: 800; color: var(--accent); }
+
+.tekst { flex: 1; }
+.tekst strong { display: block; font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.tekst p { font-size: 13px; color: var(--ink-2); margin: 0; line-height: 1.5; }
+
+.merke {
+  position: absolute; top: 8px; right: 10px; font-size: 10px; color: var(--muted);
+  border: 0.5px solid var(--border); border-radius: 4px; padding: 2px 6px;
+}

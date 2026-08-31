@@ -2,10 +2,12 @@
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
+import Annonse from '../../components/Annonse';
 import { NAERINGSKODER, getBedrifterByKategoriOgKommune, getNaeringBySlug } from '../../lib/db';
+import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import styles from '../../styles/Kategori.module.css';
 
-export default function KategoriSide({ bedrifter, naering, kommune, total }) {
+export default function KategoriSide({ bedrifter, naering, kommune, total, annonsor }) {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -70,9 +72,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, total }) {
       </section>
 
       <div className="container">
-        <div className={styles.annonse}>
-          📢 Annonseplass – {naering.visningsnavn} i {kommune}
-        </div>
+        <Annonse annonsor={annonsor} variant="bred" />
       </div>
 
       <section className={styles.bedrifterSection}>
@@ -162,8 +162,10 @@ export async function getStaticProps({ params }) {
 
   if (!naering || !kommuneNavn) return { notFound: true };
 
+  const annonsor = await getAnnonsorForBransje(naering.slug);
+
   return {
-    props: { bedrifter, naering, kommune: kommuneNavn, total },
+    props: { bedrifter, naering, kommune: kommuneNavn, total, annonsor },
     revalidate: 86400,
   };
 }
