@@ -2,11 +2,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
+import BedriftKort from '../components/BedriftKort';
 import HandverkerNaerDeg from '../components/HandverkerNaerDeg';
-import { NAERINGSKODER, POPULAERE_SOK, getAntallPerNaering, getBedrifterNaerDeg } from '../lib/db';
+import {
+  NAERINGSKODER, POPULAERE_SOK, getAntallPerNaering, getBedrifterNaerDeg,
+  getNyligRegistrerte, getStorsteBedrifter, getNaeringByKode,
+} from '../lib/db';
 import styles from '../styles/Home.module.css';
 
-export default function Home({ antallPerNaering, standardBedrifter }) {
+export default function Home({ antallPerNaering, standardBedrifter, nyligRegistrerte, storsteBedrifter }) {
   const router = useRouter();
   const [navn, setNavn] = useState('');
 
@@ -102,8 +106,52 @@ export default function Home({ antallPerNaering, standardBedrifter }) {
         </div>
       </section>
 
+      {/* NYLIG REGISTRERTE */}
+      {nyligRegistrerte.length > 0 && (
+        <section className={styles.section}>
+          <div className="container">
+            <div className={styles.secHeader}>
+              <h2 className={styles.secTitle}>Nylig registrerte håndverkerbedrifter</h2>
+            </div>
+            <div className={styles.bedGrid}>
+              {nyligRegistrerte.map(b => (
+                <BedriftKort key={b.organisasjonsnummer} bedrift={b} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* HÅNDVERKERE NÆR DEG */}
       <HandverkerNaerDeg standardBedrifter={standardBedrifter} standardKommuneNavn="Oslo" />
+
+      {/* TOPPLISTE */}
+      {storsteBedrifter.length > 0 && (
+        <section className={styles.section} style={{ paddingTop: 0 }}>
+          <div className="container">
+            <div className={styles.secHeader}>
+              <h2 className={styles.secTitle}>Norges største håndverkerbedrifter</h2>
+              <span className={styles.secSub}>Etter antall ansatte</span>
+            </div>
+            <div className={styles.toppListe}>
+              {storsteBedrifter.map((b, i) => {
+                const naering = getNaeringByKode(b.naeringskode);
+                return (
+                  <a key={b.organisasjonsnummer} href={`/bedrift/${b.slug}`} className={styles.toppRad}>
+                    <span className={styles.toppRangering}>{i + 1}</span>
+                    <span className={styles.toppIkon}>{naering?.icon || '🏗️'}</span>
+                    <div className={styles.toppInfo}>
+                      <strong>{b.navn}</strong>
+                      <span>{b.naeringskode_tekst} · {b.kommune}</span>
+                    </div>
+                    <span className={styles.toppAntall}>{b.antall_ansatte.toLocaleString('no')} ansatte</span>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <div className={styles.ctaWrap}>
@@ -125,11 +173,15 @@ export default function Home({ antallPerNaering, standardBedrifter }) {
 export async function getStaticProps() {
   const antallPerNaering = await getAntallPerNaering();
   const standardBedrifter = await getBedrifterNaerDeg('0301');
+  const nyligRegistrerte = await getNyligRegistrerte();
+  const storsteBedrifter = await getStorsteBedrifter();
 
   return {
     props: {
       antallPerNaering,
       standardBedrifter,
+      nyligRegistrerte,
+      storsteBedrifter,
     },
     revalidate: 86400,
   };

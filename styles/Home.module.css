@@ -58,6 +58,22 @@
 .secHeader { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
 .secTitle { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; color: var(--ink); }
 .secLink { font-size: 12px; font-weight: 600; color: var(--accent); }
+.secSub { font-size: 12px; color: var(--muted); }
+
+/* TOPPLISTE */
+.toppListe { display: flex; flex-direction: column; gap: 8px; }
+.toppRad {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 12px 16px; transition: all 0.15s;
+}
+.toppRad:hover { border-color: var(--accent); box-shadow: var(--shadow-sm); }
+.toppRangering { font-size: 14px; font-weight: 800; color: var(--muted); width: 22px; flex-shrink: 0; text-align: center; }
+.toppIkon { font-size: 18px; flex-shrink: 0; }
+.toppInfo { flex: 1; min-width: 0; }
+.toppInfo strong { display: block; font-size: 14px; font-weight: 700; color: var(--ink); }
+.toppInfo span { font-size: 12px; color: var(--muted); }
+.toppAntall { font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; }
 
 /* KATEGORI GRID */
 .katGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
