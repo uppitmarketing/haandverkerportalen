@@ -7,7 +7,8 @@ import '../styles/globals.css';
 function sporSidevisning(path) {
   if (path.startsWith('/admin')) return;
   const user_agent = typeof navigator !== 'undefined' ? navigator.userAgent : null;
-  supabase.from('page_views').insert({ path, user_agent }).then(() => {}, () => {});
+  const referrer = typeof document !== 'undefined' ? document.referrer || null : null;
+  supabase.from('page_views').insert({ path, user_agent, referrer }).then(() => {}, () => {});
 }
 
 export default function App({ Component, pageProps }) {

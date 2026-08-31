@@ -76,6 +76,17 @@
 .statNum { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; color: var(--accent); }
 .statLabel { font-size: 12px; color: var(--muted); margin-top: 3px; }
 
+.kildeSeksjon { display: flex; gap: 14px; max-width: 900px; margin: 0 auto 20px; }
+.kildePanel { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; flex: 1; }
+.kildeTittel { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 14px; }
+.kildeRad { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+.kildeRad:last-child { margin-bottom: 0; }
+.kildeNavn { font-size: 13px; color: var(--ink-2); width: 130px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kildeBar { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.kildeBarFyll { height: 100%; background: var(--accent); border-radius: 3px; }
+.kildeTall { font-size: 12px; font-weight: 600; color: var(--ink); width: 40px; text-align: right; flex-shrink: 0; }
+.tomtLite { font-size: 13px; color: var(--muted); }
+
 .tabellBoks { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 8px; max-width: 900px; margin: 0 auto; overflow-x: auto; }
 .tomt { padding: 40px; text-align: center; color: var(--muted); font-size: 14px; }
 
