@@ -1,11 +1,25 @@
 // pages/bedrift/[slug].jsx
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
 import styles from '../../styles/Bedrift.module.css';
-import { genererBeskrivelse } from '../../lib/genererBeskrivelse';
+import { genererBeskrivelse, genererBedriftFaq } from '../../lib/genererBeskrivelse';
 import Kart from '../../components/Kart';
+
+const BASE_URL = 'https://haandverkerportalen.no';
+
+// Kartlegger til spesifikke schema.org-typer der de finnes, ellers en generisk håndverkertype
+const SCHEMA_TYPE = {
+  '43.210': 'Electrician',
+  '43.221': 'Plumber',
+  '43.222': 'Plumber',
+  '43.223': 'Plumber',
+  '41.000': 'GeneralContractor',
+  '43.340': 'HousePainter',
+  '43.910': 'RoofingContractor',
+};
 
 function AnnonseKortBreid() {
   return (
@@ -67,6 +81,7 @@ export default function BedriftSide({ bedrift, relaterte }) {
   const stiftetAar = bedrift.stiftelsesdato?.substring(0, 4);
   const status = bedrift.konkurs ? 'Konkurs' : bedrift.er_aktiv ? 'Aktiv' : 'Inaktiv';
   const beskrivelse = genererBeskrivelse(bedrift);
+  const faq = genererBedriftFaq(bedrift, naering?.visningsnavn);
   const kommuneSlug = bedrift.kommune?.toLowerCase()
     .replace(/\s/g, '-')
     .replace(/æ/g, 'ae')
@@ -89,12 +104,56 @@ export default function BedriftSide({ bedrift, relaterte }) {
   // Riktig Brreg-URL
   const brregUrl = `https://w2.brreg.no/enhet/sok/detalj.jsp?orgnr=${bedrift.organisasjonsnummer}`;
 
+  const localBusinessSchema = {
+    '@context': 'https://schema.org',
+    '@type': SCHEMA_TYPE[bedrift.naeringskode] || 'HomeAndConstructionBusiness',
+    name: bedrift.navn,
+    identifier: bedrift.organisasjonsnummer,
+    taxID: bedrift.organisasjonsnummer,
+    address: {
+      '@type': 'PostalAddress',
+      ...(bedrift.adresse && { streetAddress: bedrift.adresse }),
+      ...(bedrift.postnummer && { postalCode: bedrift.postnummer }),
+      ...(bedrift.poststed && { addressLocality: bedrift.poststed }),
+      addressCountry: 'NO',
+    },
+    ...(bedrift.hjemmeside && {
+      url: bedrift.hjemmeside.startsWith('http') ? bedrift.hjemmeside : `https://${bedrift.hjemmeside}`,
+    }),
+    ...(bedrift.stiftelsesdato && { foundingDate: bedrift.stiftelsesdato }),
+    ...(bedrift.antall_ansatte != null && { numberOfEmployees: bedrift.antall_ansatte }),
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${BASE_URL}/bedrift/${bedrift.slug}` },
+  };
+
+  const faqSchema = faq.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map(item => ({
+      '@type': 'Question',
+      name: item.sp,
+      acceptedAnswer: { '@type': 'Answer', text: item.sv },
+    })),
+  } : null;
+
   return (
     <Layout
       title={`${bedrift.navn} – ${naering?.visningsnavn || 'Håndverker'} i ${bedrift.kommune}`}
       description={`${bedrift.navn} er en ${naering?.visningsnavn?.toLowerCase() || 'håndverker'}-bedrift i ${bedrift.poststed}. Org.nr: ${bedrift.organisasjonsnummer}.`}
       canonical={`/bedrift/${bedrift.slug}`}
     >
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+        />
+        {faqSchema && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          />
+        )}
+      </Head>
+
       <section className={styles.hero}>
         <div className="container">
           <nav className="breadcrumb">
@@ -167,6 +226,20 @@ export default function BedriftSide({ bedrift, relaterte }) {
               <Kart adresse={bedrift.adresse} postnummer={bedrift.postnummer} poststed={bedrift.poststed} />
             </div>
 
+            {faq.length > 0 && (
+              <div className={styles.boks}>
+                <h2 className={styles.faqTitle}>Ofte stilte spørsmål</h2>
+                <div className={styles.faqListe}>
+                  {faq.map((item, i) => (
+                    <details key={i} className={styles.faqItem}>
+                      <summary className={styles.faqSpm}>{item.sp}</summary>
+                      <p className={styles.faqSvar}>{item.sv}</p>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <AnnonseKortBreid />
 
             {relaterte.length > 0 && (
@@ -231,7 +304,7 @@ export default function BedriftSide({ bedrift, relaterte }) {
 }
 
 export async function getStaticPaths() {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 export async function getStaticProps({ params }) {
