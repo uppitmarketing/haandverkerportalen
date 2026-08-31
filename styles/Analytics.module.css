@@ -1,0 +1,78 @@
+/* styles/Analytics.module.css */
+.loginWrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.loginBoks {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  width: 100%;
+  max-width: 320px;
+  box-shadow: var(--shadow);
+}
+
+.loginTitle {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+
+.loginInput {
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  outline: none;
+  margin-bottom: 12px;
+}
+.loginInput:focus { border-color: var(--accent); }
+
+.loginBtn {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 11px;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.loginBtn:hover { background: var(--accent-dk); }
+.loginBtn:disabled { opacity: 0.6; cursor: default; }
+
+.loginFeil { color: var(--red); font-size: 12px; margin-top: 10px; }
+
+.page { min-height: 100vh; background: var(--bg); padding: 40px; }
+
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; max-width: 900px; margin-left: auto; margin-right: auto; }
+.title { font-size: 24px; font-weight: 800; letter-spacing: -0.6px; color: var(--ink); }
+.loggUt { font-size: 12px; font-weight: 600; color: var(--muted); }
+.loggUt:hover { color: var(--accent); }
+
+.stats { display: flex; gap: 14px; max-width: 900px; margin: 0 auto 20px; }
+.stat { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px 24px; flex: 1; }
+.statNum { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; color: var(--accent); }
+.statLabel { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+.tabellBoks { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 8px; max-width: 900px; margin: 0 auto; overflow-x: auto; }
+.tomt { padding: 40px; text-align: center; color: var(--muted); font-size: 14px; }
+
+.tabell { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tabell th { text-align: left; padding: 10px 14px; color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+.tabell td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--ink-2); }
+.tabell tr:last-child td { border-bottom: none; }
+.tabell td:last-child { text-align: right; font-weight: 600; color: var(--ink); }
+.tabell a { color: var(--accent); }
+.tabell a:hover { text-decoration: underline; }
