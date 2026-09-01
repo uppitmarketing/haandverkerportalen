@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import BedriftKort from '../components/BedriftKort';
 import HandverkerNaerDeg from '../components/HandverkerNaerDeg';
+import HandverkerGuide from '../components/HandverkerGuide';
 import {
   NAERINGSKODER, POPULAERE_SOK, getAntallPerNaering, getBedrifterNaerDeg,
   getNyligRegistrerte, getStorsteBedrifter, getNaeringByKode,
@@ -81,6 +82,9 @@ export default function Home({ antallPerNaering, standardBedrifter, nyligRegistr
           </div>
         </div>
       </div>
+
+      {/* GUIDE */}
+      <HandverkerGuide />
 
       {/* KATEGORIER */}
       <section className={styles.section}>
