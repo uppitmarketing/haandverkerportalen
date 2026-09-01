@@ -155,7 +155,7 @@ export default function AnalyticsSide({
                       {sider.map(s => (
                         <tr key={s.visningssti}>
                           <td>
-                            {s.visningssti.includes('*') ? (
+                            {s.visningssti.includes('*') || s.visningssti.startsWith('/_guide/') ? (
                               <span>{s.visningssti}</span>
                             ) : (
                               <a href={s.visningssti} target="_blank" rel="noopener noreferrer">{s.visningssti}</a>
