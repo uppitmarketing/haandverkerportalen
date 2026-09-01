@@ -135,22 +135,22 @@ export default function HandverkerGuide() {
     <section className={styles.section}>
       <div className="container">
         <div className={styles.widget}>
-          <span className={styles.nyBadge}>Nyhet</span>
+          <div className={styles.badgeRow}>
+            <span className={styles.nyBadge}>Nyhet</span>
+          </div>
           <div className={styles.top}>
-            <div className={styles.eyebrow}>Har du en jobb som må gjøres?</div>
-            <h2 className={styles.h}>Finn rett håndverker med vår enkle guide</h2>
-            <div className={styles.progress}>
-              <span className={`${styles.dot} ${steg !== 'behov' ? styles.ferdig : styles.aktiv}`} />
-              <span className={`${styles.dot} ${steg === 'resultat' ? styles.ferdig : steg === 'sted' ? styles.aktiv : ''}`} />
-              <span className={`${styles.dot} ${steg === 'resultat' ? styles.aktiv : ''}`} />
+            <div className={styles.topInner}>
+              <div className={styles.eyebrow}>Har du en jobb som må gjøres?</div>
+              <h2 className={styles.h}>Finn rett håndverker med vår enkle guide</h2>
+              <div className={styles.progress}>
+                <span className={`${styles.dot} ${steg !== 'behov' ? styles.ferdig : styles.aktiv}`} />
+                <span className={`${styles.dot} ${steg === 'resultat' ? styles.ferdig : steg === 'sted' ? styles.aktiv : ''}`} />
+                <span className={`${styles.dot} ${steg === 'resultat' ? styles.aktiv : ''}`} />
+              </div>
             </div>
           </div>
 
           <div className={styles.body}>
-            {steg !== 'behov' && (
-              <button className={styles.tilbake} onClick={tilbake}>← Tilbake</button>
-            )}
-
             {steg === 'behov' && (
               <div className={styles.behovGrid}>
                 {NAERINGSKODER.map(n => (
@@ -164,7 +164,8 @@ export default function HandverkerGuide() {
             )}
 
             {steg === 'sted' && (
-              <div>
+              <div className={styles.narrow}>
+                <button className={styles.tilbake} onClick={tilbake}>← Tilbake</button>
                 <div className={styles.stegTittel}>Hvor trenger du hjelp?</div>
                 {kanSpore && (
                   <>
@@ -212,20 +213,23 @@ export default function HandverkerGuide() {
             )}
 
             {steg === 'resultat' && valgtBehov && valgtKommune && (
-              <div className={styles.resultatWrap}>
-                <div className={styles.resultatIkon}>✓</div>
-                {antall === null ? (
-                  <div className={styles.resultatTekst}>Teller opp…</div>
-                ) : (
-                  <div className={styles.resultatTekst}>
-                    Fant <span>{antall} {valgtBehov.visningsnavn.toLowerCase()}er</span> i {valgtKommune.navn}
-                  </div>
-                )}
-                <p className={styles.resultatSub}>Alle er ekte, registrerte bedrifter — sjekket mot Brønnøysundregistrene.</p>
-                <a href={`/${valgtBehov.slug}/${valgtKommune.slug}`} className={styles.resultatBtn}>
-                  Se {valgtBehov.visningsnavn.toLowerCase()}er i {valgtKommune.navn} →
-                </a>
-                <button className={styles.startPaNytt} onClick={startPaNytt}>Start på nytt</button>
+              <div className={styles.narrow}>
+                <button className={styles.tilbake} onClick={tilbake}>← Tilbake</button>
+                <div className={styles.resultatWrap}>
+                  <div className={styles.resultatIkon}>✓</div>
+                  {antall === null ? (
+                    <div className={styles.resultatTekst}>Teller opp…</div>
+                  ) : (
+                    <div className={styles.resultatTekst}>
+                      Fant <span>{antall} {valgtBehov.visningsnavn.toLowerCase()}er</span> i {valgtKommune.navn}
+                    </div>
+                  )}
+                  <p className={styles.resultatSub}>Alle er ekte, registrerte bedrifter — sjekket mot Brønnøysundregistrene.</p>
+                  <a href={`/${valgtBehov.slug}/${valgtKommune.slug}`} className={styles.resultatBtn}>
+                    Se {valgtBehov.visningsnavn.toLowerCase()}er i {valgtKommune.navn} →
+                  </a>
+                  <button className={styles.startPaNytt} onClick={startPaNytt}>Start på nytt</button>
+                </div>
               </div>
             )}
           </div>
