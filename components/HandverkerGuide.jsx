@@ -1,7 +1,7 @@
 // components/HandverkerGuide.jsx
 import { useState, useEffect, useRef } from 'react';
 import { NAERINGSKODER, KOMMUNER, matchKommuneFraNavn, getAntallForBransjeKommune } from '../lib/db';
-import { supabase } from '../lib/supabase';
+import { sporInternHendelse } from '../lib/internAnalytics';
 import styles from './HandverkerGuide.module.css';
 
 const EKSEMPLER = {
@@ -20,7 +20,7 @@ const POPULAERE_STEDER = ['oslo', 'bergen', 'trondheim', 'stavanger', 'drammen']
   .filter(Boolean);
 
 function sporGuideValg(bransjeSlug, kommuneSlug) {
-  supabase.from('page_views').insert({ path: `/_guide/${bransjeSlug}/${kommuneSlug}` }).then(() => {}, () => {});
+  sporInternHendelse(`/_guide/${bransjeSlug}/${kommuneSlug}`);
 }
 
 export default function HandverkerGuide() {

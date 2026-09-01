@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 import { getSupabaseAdmin } from '../../lib/supabaseAdmin';
 import { erGyldigToken } from '../../lib/analyticsAuth';
+import { NAERINGSKODER } from '../../lib/db';
 import styles from '../../styles/Analytics.module.css';
 
 const PERIODER = [
@@ -13,7 +14,7 @@ const PERIODER = [
 
 export default function AnalyticsSide({
   innlogget, sider, totalVisninger, totalBotVisninger, totalUnikeSider, periode,
-  enheter, kilder, oppsettFeil,
+  enheter, kilder, totalGuideBruk, guideBransjer, totalKlikk, toppKlikk, oppsettFeil,
 }) {
   const [passord, setPassord] = useState('');
   const [feil, setFeil] = useState('');
@@ -140,6 +141,41 @@ export default function AnalyticsSide({
                 </div>
               </div>
 
+              <div className={styles.kildeSeksjon}>
+                <div className={styles.kildePanel}>
+                  <h2 className={styles.kildeTittel}>Guide-bruk ({totalGuideBruk.toLocaleString('no')} fullført)</h2>
+                  {guideBransjer.length === 0 ? (
+                    <p className={styles.tomtLite}>Ingen bruk registrert ennå.</p>
+                  ) : (
+                    guideBransjer.map(g => (
+                      <div key={g.navn} className={styles.kildeRad}>
+                        <span className={styles.kildeNavn}>{g.ikon} {g.visningsnavn}</span>
+                        <div className={styles.kildeBar}>
+                          <div className={styles.kildeBarFyll} style={{ width: `${g.andel}%` }} />
+                        </div>
+                        <span className={styles.kildeTall}>{g.antall.toLocaleString('no')}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className={styles.kildePanel}>
+                  <h2 className={styles.kildeTittel}>Mest klikket til nettside ({totalKlikk.toLocaleString('no')} totalt)</h2>
+                  {toppKlikk.length === 0 ? (
+                    <p className={styles.tomtLite}>Ingen klikk registrert ennå.</p>
+                  ) : (
+                    toppKlikk.map(k => (
+                      <div key={k.slug} className={styles.kildeRad}>
+                        <a href={`/bedrift/${k.slug}`} target="_blank" rel="noopener noreferrer" className={styles.klikkNavn}>
+                          {k.slug}
+                        </a>
+                        <span className={styles.kildeTall}>{k.antall.toLocaleString('no')}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
               <div className={styles.tabellBoks}>
                 {sider.length === 0 ? (
                   <p className={styles.tomt}>Ingen sidevisninger registrert i denne perioden.</p>
@@ -155,7 +191,7 @@ export default function AnalyticsSide({
                       {sider.map(s => (
                         <tr key={s.visningssti}>
                           <td>
-                            {s.visningssti.includes('*') || s.visningssti.startsWith('/_guide/') ? (
+                            {s.visningssti.includes('*') ? (
                               <span>{s.visningssti}</span>
                             ) : (
                               <a href={s.visningssti} target="_blank" rel="noopener noreferrer">{s.visningssti}</a>
@@ -190,7 +226,8 @@ export async function getServerSideProps({ req, query }) {
     return {
       props: {
         innlogget: false, sider: [], totalVisninger: 0, totalBotVisninger: 0,
-        totalUnikeSider: 0, periode, enheter: [], kilder: [], oppsettFeil: null,
+        totalUnikeSider: 0, periode, enheter: [], kilder: [],
+        totalGuideBruk: 0, guideBransjer: [], totalKlikk: 0, toppKlikk: [], oppsettFeil: null,
       },
     };
   }
@@ -214,9 +251,40 @@ export async function getServerSideProps({ req, query }) {
     const ekte = alle.filter(r => !r.er_bot);
     const bots = alle.filter(r => r.er_bot);
 
-    const totalVisninger = ekte.reduce((sum, r) => sum + Number(r.antall), 0);
+    const ekteSider = ekte.filter(r => !r.visningssti.startsWith('/_'));
+    const guideRader = ekte.filter(r => r.visningssti.startsWith('/_guide/'));
+    const klikkRader = ekte.filter(r => r.visningssti.startsWith('/_klikk/bedrift/'));
+
+    const totalVisninger = ekteSider.reduce((sum, r) => sum + Number(r.antall), 0);
     const totalBotVisninger = bots.reduce((sum, r) => sum + Number(r.antall), 0);
-    const sider = ekte.slice(0, 300);
+    const sider = ekteSider.slice(0, 300);
+
+    const totalGuideBruk = guideRader.reduce((sum, r) => sum + Number(r.antall), 0);
+    const guideBransjer = (() => {
+      const kart = new Map();
+      for (const r of guideRader) {
+        const bransjeSlug = r.visningssti.split('/')[2];
+        kart.set(bransjeSlug, (kart.get(bransjeSlug) || 0) + Number(r.antall));
+      }
+      return Array.from(kart.entries())
+        .map(([slug, antall]) => {
+          const naering = NAERINGSKODER.find(n => n.slug === slug);
+          return {
+            navn: slug,
+            visningsnavn: naering?.visningsnavn || slug,
+            ikon: naering?.icon || '🔧',
+            antall,
+            andel: totalGuideBruk > 0 ? Math.round((antall / totalGuideBruk) * 1000) / 10 : 0,
+          };
+        })
+        .sort((a, b) => b.antall - a.antall);
+    })();
+
+    const totalKlikk = klikkRader.reduce((sum, r) => sum + Number(r.antall), 0);
+    const toppKlikk = [...klikkRader]
+      .sort((a, b) => Number(b.antall) - Number(a.antall))
+      .slice(0, 15)
+      .map(r => ({ slug: r.visningssti.split('/')[3], antall: Number(r.antall) }));
 
     const kildeRader = kildeRes.data || [];
     const totalKilder = kildeRader.reduce((sum, r) => sum + Number(r.antall), 0);
@@ -242,10 +310,14 @@ export async function getServerSideProps({ req, query }) {
         sider,
         totalVisninger,
         totalBotVisninger,
-        totalUnikeSider: ekte.length,
+        totalUnikeSider: ekteSider.length,
         periode,
         enheter: summer('enhet'),
         kilder: summer('kilde'),
+        totalGuideBruk,
+        guideBransjer,
+        totalKlikk,
+        toppKlikk,
         oppsettFeil: null,
       },
     };
@@ -253,7 +325,9 @@ export async function getServerSideProps({ req, query }) {
     return {
       props: {
         innlogget: true, sider: [], totalVisninger: 0, totalBotVisninger: 0,
-        totalUnikeSider: 0, periode, enheter: [], kilder: [], oppsettFeil: err.message || 'Ukjent feil',
+        totalUnikeSider: 0, periode, enheter: [], kilder: [],
+        totalGuideBruk: 0, guideBransjer: [], totalKlikk: 0, toppKlikk: [],
+        oppsettFeil: err.message || 'Ukjent feil',
       },
     };
   }

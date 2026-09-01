@@ -85,6 +85,8 @@
 .kildeBar { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
 .kildeBarFyll { height: 100%; background: var(--accent); border-radius: 3px; }
 .kildeTall { font-size: 12px; font-weight: 600; color: var(--ink); width: 40px; text-align: right; flex-shrink: 0; }
+.klikkNavn { flex: 1; min-width: 0; font-size: 13px; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.klikkNavn:hover { text-decoration: underline; }
 .tomtLite { font-size: 13px; color: var(--muted); }
 
 .tabellBoks { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 8px; max-width: 900px; margin: 0 auto; overflow-x: auto; }

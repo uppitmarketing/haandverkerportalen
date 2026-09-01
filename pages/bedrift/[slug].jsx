@@ -10,6 +10,7 @@ import styles from '../../styles/Bedrift.module.css';
 import { genererBeskrivelse, genererBedriftFaq } from '../../lib/genererBeskrivelse';
 import { safeJsonLd } from '../../lib/jsonLd';
 import { sporHendelse } from '../../lib/gtag';
+import { sporInternHendelse } from '../../lib/internAnalytics';
 import Kart from '../../components/Kart';
 
 const BASE_URL = 'https://haandverkerportalen.no';
@@ -238,13 +239,16 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`btn btn--primary ${styles.kontaktBtn}`}
-                  onClick={() => sporHendelse('bedrift_outbound_click', {
-                    bedrift_navn: bedrift.navn,
-                    bedrift_orgnr: bedrift.organisasjonsnummer,
-                    bedrift_bransje: bedrift.naeringskode_tekst,
-                    bedrift_kommune: bedrift.kommune,
-                    link_url: bedrift.hjemmeside,
-                  })}
+                  onClick={() => {
+                    sporHendelse('bedrift_outbound_click', {
+                      bedrift_navn: bedrift.navn,
+                      bedrift_orgnr: bedrift.organisasjonsnummer,
+                      bedrift_bransje: bedrift.naeringskode_tekst,
+                      bedrift_kommune: bedrift.kommune,
+                      link_url: bedrift.hjemmeside,
+                    });
+                    sporInternHendelse(`/_klikk/bedrift/${bedrift.slug}`);
+                  }}
                 >
                   🌐 Gå til nettside
                 </a>
