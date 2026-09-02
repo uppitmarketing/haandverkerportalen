@@ -16,12 +16,21 @@ export default function AnalyticsSide({
   innlogget, sider, totalVisninger, totalBotVisninger, totalUnikeSider, periode,
   enheter, kilder, totalGuideBruk, guideBransjer, totalKlikk, toppKlikk,
   totalAnnonseVisninger, totalEkteVisninger, totalPlaceholderVisninger, annonseVisningBransjer,
-  totalAnnonseKlikk, annonseKlikkBransjer, nettsideForslag, oppsettFeil,
+  totalAnnonseKlikk, annonseKlikkBransjer, nettsideForslag, leads, oppsettFeil,
 }) {
   const [passord, setPassord] = useState('');
   const [feil, setFeil] = useState('');
   const [laster, setLaster] = useState(false);
   const [behandlerId, setBehandlerId] = useState(null);
+  const [kopiert, setKopiert] = useState(false);
+
+  function kopierEposter() {
+    const tekst = leads.map(l => l.epost).join(', ');
+    navigator.clipboard.writeText(tekst).then(() => {
+      setKopiert(true);
+      setTimeout(() => setKopiert(false), 2000);
+    });
+  }
 
   async function handleForslag(id, handling) {
     setBehandlerId(id);
@@ -152,6 +161,44 @@ export default function AnalyticsSide({
                               Avvis
                             </button>
                           </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {leads.length > 0 && (
+                <div className={styles.tabellBoks} style={{ marginBottom: 20 }}>
+                  <div className={styles.leadHeader}>
+                    <h2 className={styles.kildeTittel} style={{ margin: 0 }}>
+                      E-post-leads ({leads.length.toLocaleString('no')} unike)
+                    </h2>
+                    <button className={styles.godkjennBtn} onClick={kopierEposter}>
+                      {kopiert ? 'Kopiert ✓' : 'Kopiér alle e-poster'}
+                    </button>
+                  </div>
+                  <table className={styles.tabell}>
+                    <thead>
+                      <tr>
+                        <th>E-post</th>
+                        <th>Bedrift(er)</th>
+                        <th>Sist aktiv</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leads.map(l => (
+                        <tr key={l.epost}>
+                          <td>{l.epost}</td>
+                          <td>
+                            {l.bedrifter.map((b, i) => (
+                              <span key={b.slug}>
+                                {i > 0 && ', '}
+                                <a href={`/bedrift/${b.slug}`} target="_blank" rel="noopener noreferrer">{b.navn}</a>
+                              </span>
+                            ))}
+                          </td>
+                          <td>{new Date(l.sistAktiv).toLocaleDateString('no')}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -336,7 +383,7 @@ export async function getServerSideProps({ req, query }) {
     totalUnikeSider: 0, periode, enheter: [], kilder: [],
     totalGuideBruk: 0, guideBransjer: [], totalKlikk: 0, toppKlikk: [],
     totalAnnonseVisninger: 0, totalEkteVisninger: 0, totalPlaceholderVisninger: 0, annonseVisningBransjer: [],
-    totalAnnonseKlikk: 0, annonseKlikkBransjer: [], nettsideForslag: [], oppsettFeil: null,
+    totalAnnonseKlikk: 0, annonseKlikkBransjer: [], nettsideForslag: [], leads: [], oppsettFeil: null,
   };
 
   if (!innlogget) {
@@ -350,17 +397,34 @@ export async function getServerSideProps({ req, query }) {
     if (periode === '24h') fra = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     if (periode === '7d') fra = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [sideRes, kildeRes, forslagRes] = await Promise.all([
+    const [sideRes, kildeRes, forslagRes, alleForslagRes] = await Promise.all([
       supabaseAdmin.rpc('page_view_counts', { fra }),
       supabaseAdmin.rpc('page_view_besokskilder', { fra }),
       supabaseAdmin.from('nettside_forslag').select('*').eq('status', 'venter').order('created_at', { ascending: false }),
+      supabaseAdmin.from('nettside_forslag').select('epost, bedrift_navn, bedrift_slug, created_at').order('created_at', { ascending: false }),
     ]);
 
     if (sideRes.error) throw new Error(sideRes.error.message);
     if (kildeRes.error) throw new Error(kildeRes.error.message);
     if (forslagRes.error) throw new Error(forslagRes.error.message);
+    if (alleForslagRes.error) throw new Error(alleForslagRes.error.message);
 
     const nettsideForslag = forslagRes.data || [];
+
+    // Leadbase: unike e-poster på tvers av alle innsendinger (uansett status),
+    // med hvilke(n) bedrift(er) de er knyttet til og siste aktivitet.
+    const leadKart = new Map();
+    for (const f of alleForslagRes.data || []) {
+      if (!f.epost) continue;
+      if (!leadKart.has(f.epost)) {
+        leadKart.set(f.epost, { epost: f.epost, bedrifter: [], sistAktiv: f.created_at });
+      }
+      const lead = leadKart.get(f.epost);
+      if (!lead.bedrifter.some(b => b.slug === f.bedrift_slug)) {
+        lead.bedrifter.push({ navn: f.bedrift_navn, slug: f.bedrift_slug });
+      }
+    }
+    const leads = Array.from(leadKart.values()).sort((a, b) => new Date(b.sistAktiv) - new Date(a.sistAktiv));
 
     const alle = sideRes.data || [];
     const ekte = alle.filter(r => !r.er_bot);
@@ -475,6 +539,7 @@ export async function getServerSideProps({ req, query }) {
         totalAnnonseKlikk,
         annonseKlikkBransjer,
         nettsideForslag,
+        leads,
         oppsettFeil: null,
       },
     };

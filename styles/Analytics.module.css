@@ -111,3 +111,5 @@
 .avvisBtn { background: var(--bg); color: var(--muted); border-color: var(--border); }
 .avvisBtn:hover { border-color: var(--red); color: var(--red); }
 .godkjennBtn:disabled, .avvisBtn:disabled { opacity: 0.6; cursor: default; }
+
+.leadHeader { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 0; margin-bottom: 6px; }
