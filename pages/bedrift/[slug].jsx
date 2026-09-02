@@ -211,7 +211,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
               </div>
             )}
 
-            <Annonse annonsor={annonsor} variant="bred" />
+            <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering?.slug} />
 
             {relaterte.length > 0 && (
               <div className={styles.relaterteSection}>
@@ -276,7 +276,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                 <a href="/for-bedrifter" className={styles.kreverLink}>Krev inn profil →</a>
               </div>
             </div>
-            <Annonse annonsor={annonsor} variant="kompakt" />
+            <Annonse annonsor={annonsor} variant="kompakt" bransjeSlug={naering?.slug} />
           </aside>
         </div>
       </div>

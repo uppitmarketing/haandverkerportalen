@@ -72,7 +72,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
       </section>
 
       <div className="container">
-        <Annonse annonsor={annonsor} variant="bred" />
+        <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering.slug} />
       </div>
 
       <section className={styles.bedrifterSection}>

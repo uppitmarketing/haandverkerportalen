@@ -1,11 +1,25 @@
 // components/Annonse.jsx
+import { useEffect } from 'react';
+import { sporInternHendelse } from '../lib/internAnalytics';
 import styles from './Annonse.module.css';
 
-export default function Annonse({ annonsor, variant = 'bred' }) {
+export default function Annonse({ annonsor, variant = 'bred', bransjeSlug }) {
+  const tilstand = annonsor ? 'annonse' : 'placeholder';
+  const bransje = bransjeSlug || 'ukjent';
+
+  useEffect(() => {
+    sporInternHendelse(`/_annonse/visning/${tilstand}/${variant}/${bransje}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function sporKlikk() {
+    sporInternHendelse(`/_annonse/klikk/${tilstand}/${variant}/${bransje}`);
+  }
+
   if (!annonsor) {
     return (
       <div className={variant === 'kompakt' ? styles.plassholderKompakt : styles.plassholder}>
-        📢 Annonseplass ledig — <a href="/annonsering">se annonsemuligheter</a>
+        📢 Annonseplass ledig — <a href="/annonsering" onClick={sporKlikk}>se annonsemuligheter</a>
       </div>
     );
   }
@@ -16,6 +30,7 @@ export default function Annonse({ annonsor, variant = 'bred' }) {
       target="_blank"
       rel="noopener noreferrer sponsored"
       className={variant === 'kompakt' ? styles.kortKompakt : styles.kortBred}
+      onClick={sporKlikk}
     >
       <div className={styles.bilde}>
         {annonsor.bilde_url ? (

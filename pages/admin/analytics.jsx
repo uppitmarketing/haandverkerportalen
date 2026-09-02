@@ -14,7 +14,9 @@ const PERIODER = [
 
 export default function AnalyticsSide({
   innlogget, sider, totalVisninger, totalBotVisninger, totalUnikeSider, periode,
-  enheter, kilder, totalGuideBruk, guideBransjer, totalKlikk, toppKlikk, oppsettFeil,
+  enheter, kilder, totalGuideBruk, guideBransjer, totalKlikk, toppKlikk,
+  totalAnnonseVisninger, totalEkteVisninger, totalPlaceholderVisninger, annonseVisningBransjer,
+  totalAnnonseKlikk, annonseKlikkBransjer, oppsettFeil,
 }) {
   const [passord, setPassord] = useState('');
   const [feil, setFeil] = useState('');
@@ -176,6 +178,46 @@ export default function AnalyticsSide({
                 </div>
               </div>
 
+              <div className={styles.kildeSeksjon}>
+                <div className={styles.kildePanel}>
+                  <h2 className={styles.kildeTittel}>Annonsevisninger</h2>
+                  <p className={styles.kildeSub}>
+                    {totalAnnonseVisninger.toLocaleString('no')} totalt · {totalEkteVisninger.toLocaleString('no')} ekte annonse · {totalPlaceholderVisninger.toLocaleString('no')} placeholder
+                  </p>
+                  {annonseVisningBransjer.length === 0 ? (
+                    <p className={styles.tomtLite}>Ingen visninger registrert ennå.</p>
+                  ) : (
+                    annonseVisningBransjer.map(b => (
+                      <div key={b.navn} className={styles.kildeRad}>
+                        <span className={styles.kildeNavn}>{b.ikon} {b.visningsnavn}</span>
+                        <div className={styles.kildeBar}>
+                          <div className={styles.kildeBarFyll} style={{ width: `${b.andel}%` }} />
+                        </div>
+                        <span className={styles.kildeTall}>{b.antall.toLocaleString('no')}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className={styles.kildePanel}>
+                  <h2 className={styles.kildeTittel}>Annonseklikk</h2>
+                  <p className={styles.kildeSub}>{totalAnnonseKlikk.toLocaleString('no')} totalt</p>
+                  {annonseKlikkBransjer.length === 0 ? (
+                    <p className={styles.tomtLite}>Ingen klikk registrert ennå.</p>
+                  ) : (
+                    annonseKlikkBransjer.map(b => (
+                      <div key={b.navn} className={styles.kildeRad}>
+                        <span className={styles.kildeNavn}>{b.ikon} {b.visningsnavn}</span>
+                        <div className={styles.kildeBar}>
+                          <div className={styles.kildeBarFyll} style={{ width: `${b.andel}%` }} />
+                        </div>
+                        <span className={styles.kildeTall}>{b.antall.toLocaleString('no')}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
               <div className={styles.tabellBoks}>
                 {sider.length === 0 ? (
                   <p className={styles.tomt}>Ingen sidevisninger registrert i denne perioden.</p>
@@ -222,14 +264,16 @@ export async function getServerSideProps({ req, query }) {
   const gyldigePerioder = PERIODER.map(p => p.key);
   const periode = gyldigePerioder.includes(query.periode) ? query.periode : 'all';
 
+  const tomProps = {
+    innlogget: false, sider: [], totalVisninger: 0, totalBotVisninger: 0,
+    totalUnikeSider: 0, periode, enheter: [], kilder: [],
+    totalGuideBruk: 0, guideBransjer: [], totalKlikk: 0, toppKlikk: [],
+    totalAnnonseVisninger: 0, totalEkteVisninger: 0, totalPlaceholderVisninger: 0, annonseVisningBransjer: [],
+    totalAnnonseKlikk: 0, annonseKlikkBransjer: [], oppsettFeil: null,
+  };
+
   if (!innlogget) {
-    return {
-      props: {
-        innlogget: false, sider: [], totalVisninger: 0, totalBotVisninger: 0,
-        totalUnikeSider: 0, periode, enheter: [], kilder: [],
-        totalGuideBruk: 0, guideBransjer: [], totalKlikk: 0, toppKlikk: [], oppsettFeil: null,
-      },
-    };
+    return { props: tomProps };
   }
 
   try {
@@ -286,6 +330,41 @@ export async function getServerSideProps({ req, query }) {
       .slice(0, 15)
       .map(r => ({ slug: r.visningssti.split('/')[3], antall: Number(r.antall) }));
 
+    // Annonse-stier: /_annonse/{visning|klikk}/{annonse|placeholder}/{bred|kompakt}/{bransje}
+    const annonseVisningRader = ekte.filter(r => r.visningssti.startsWith('/_annonse/visning/'));
+    const annonseKlikkRader = ekte.filter(r => r.visningssti.startsWith('/_annonse/klikk/'));
+
+    const grupperAnnonseEtterBransje = (rader) => {
+      const total = rader.reduce((sum, r) => sum + Number(r.antall), 0);
+      const kart = new Map();
+      for (const r of rader) {
+        const bransjeSlug = r.visningssti.split('/')[5];
+        kart.set(bransjeSlug, (kart.get(bransjeSlug) || 0) + Number(r.antall));
+      }
+      return Array.from(kart.entries())
+        .map(([slug, antall]) => {
+          const naering = NAERINGSKODER.find(n => n.slug === slug);
+          return {
+            navn: slug,
+            visningsnavn: naering?.visningsnavn || slug,
+            ikon: naering?.icon || '📢',
+            antall,
+            andel: total > 0 ? Math.round((antall / total) * 1000) / 10 : 0,
+          };
+        })
+        .sort((a, b) => b.antall - a.antall);
+    };
+
+    const totalAnnonseVisninger = annonseVisningRader.reduce((sum, r) => sum + Number(r.antall), 0);
+    const totalEkteVisninger = annonseVisningRader
+      .filter(r => r.visningssti.split('/')[3] === 'annonse')
+      .reduce((sum, r) => sum + Number(r.antall), 0);
+    const totalPlaceholderVisninger = totalAnnonseVisninger - totalEkteVisninger;
+    const annonseVisningBransjer = grupperAnnonseEtterBransje(annonseVisningRader);
+
+    const totalAnnonseKlikk = annonseKlikkRader.reduce((sum, r) => sum + Number(r.antall), 0);
+    const annonseKlikkBransjer = grupperAnnonseEtterBransje(annonseKlikkRader);
+
     const kildeRader = kildeRes.data || [];
     const totalKilder = kildeRader.reduce((sum, r) => sum + Number(r.antall), 0);
 
@@ -318,15 +397,20 @@ export async function getServerSideProps({ req, query }) {
         guideBransjer,
         totalKlikk,
         toppKlikk,
+        totalAnnonseVisninger,
+        totalEkteVisninger,
+        totalPlaceholderVisninger,
+        annonseVisningBransjer,
+        totalAnnonseKlikk,
+        annonseKlikkBransjer,
         oppsettFeil: null,
       },
     };
   } catch (err) {
     return {
       props: {
-        innlogget: true, sider: [], totalVisninger: 0, totalBotVisninger: 0,
-        totalUnikeSider: 0, periode, enheter: [], kilder: [],
-        totalGuideBruk: 0, guideBransjer: [], totalKlikk: 0, toppKlikk: [],
+        ...tomProps,
+        innlogget: true,
         oppsettFeil: err.message || 'Ukjent feil',
       },
     };
