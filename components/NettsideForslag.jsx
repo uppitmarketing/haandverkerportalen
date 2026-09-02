@@ -12,14 +12,14 @@ export default function NettsideForslag({ bedrift }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!nettside.trim()) return;
+    if (!nettside.trim() || !epost.trim()) return;
 
     setStatus('sender');
     const { error } = await supabase.from('nettside_forslag').insert({
       bedrift_slug: bedrift.slug,
       bedrift_navn: bedrift.navn,
       foreslatt_nettside: nettside.trim(),
-      epost: epost.trim() || null,
+      epost: epost.trim(),
     });
 
     setStatus(error ? 'feilet' : 'sendt');
@@ -41,6 +41,7 @@ export default function NettsideForslag({ bedrift }) {
         {harAlleredeNettside
           ? 'Stemmer ikke nettsiden vår? Foreslå riktig lenke — gratis.'
           : 'Legg til nettsiden din gratis, så blir profilen mer synlig.'}
+        {' '}Vi ber om e-post for å kunne bekrefte at forslaget faktisk kommer fra bedriften.
       </p>
       <form onSubmit={handleSubmit} className={styles.skjema}>
         <input
@@ -53,10 +54,11 @@ export default function NettsideForslag({ bedrift }) {
         />
         <input
           type="email"
-          placeholder="Din e-post (valgfritt)"
+          placeholder="Din e-post"
           value={epost}
           onChange={e => setEpost(e.target.value)}
           className={styles.input}
+          required
         />
         <button type="submit" className={styles.knapp} disabled={status === 'sender'}>
           {status === 'sender' ? 'Sender...' : 'Send inn gratis →'}
