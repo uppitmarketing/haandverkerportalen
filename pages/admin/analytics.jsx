@@ -16,7 +16,7 @@ export default function AnalyticsSide({
   innlogget, sider, totalVisninger, totalBotVisninger, totalUnikeSider, periode,
   enheter, kilder, totalGuideBruk, guideBransjer, totalKlikk, toppKlikk,
   totalAnnonseVisninger, totalEkteVisninger, totalPlaceholderVisninger, annonseVisningBransjer,
-  totalAnnonseKlikk, annonseKlikkBransjer, oppsettFeil,
+  totalAnnonseKlikk, annonseKlikkBransjer, nettsideForslag, oppsettFeil,
 }) {
   const [passord, setPassord] = useState('');
   const [feil, setFeil] = useState('');
@@ -91,6 +91,34 @@ export default function AnalyticsSide({
                   </a>
                 ))}
               </div>
+
+              {nettsideForslag.length > 0 && (
+                <div className={styles.tabellBoks} style={{ marginBottom: 20 }}>
+                  <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
+                    Nye nettside-forslag ({nettsideForslag.length} venter)
+                  </h2>
+                  <table className={styles.tabell}>
+                    <thead>
+                      <tr>
+                        <th>Bedrift</th>
+                        <th>Foreslått nettside</th>
+                        <th>E-post</th>
+                        <th>Dato</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {nettsideForslag.map(f => (
+                        <tr key={f.id}>
+                          <td><a href={`/bedrift/${f.bedrift_slug}`} target="_blank" rel="noopener noreferrer">{f.bedrift_navn}</a></td>
+                          <td>{f.foreslatt_nettside}</td>
+                          <td>{f.epost || '—'}</td>
+                          <td>{new Date(f.created_at).toLocaleDateString('no')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
               <div className={styles.stats}>
                 <div className={styles.stat}>
@@ -269,7 +297,7 @@ export async function getServerSideProps({ req, query }) {
     totalUnikeSider: 0, periode, enheter: [], kilder: [],
     totalGuideBruk: 0, guideBransjer: [], totalKlikk: 0, toppKlikk: [],
     totalAnnonseVisninger: 0, totalEkteVisninger: 0, totalPlaceholderVisninger: 0, annonseVisningBransjer: [],
-    totalAnnonseKlikk: 0, annonseKlikkBransjer: [], oppsettFeil: null,
+    totalAnnonseKlikk: 0, annonseKlikkBransjer: [], nettsideForslag: [], oppsettFeil: null,
   };
 
   if (!innlogget) {
@@ -283,13 +311,17 @@ export async function getServerSideProps({ req, query }) {
     if (periode === '24h') fra = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     if (periode === '7d') fra = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [sideRes, kildeRes] = await Promise.all([
+    const [sideRes, kildeRes, forslagRes] = await Promise.all([
       supabaseAdmin.rpc('page_view_counts', { fra }),
       supabaseAdmin.rpc('page_view_besokskilder', { fra }),
+      supabaseAdmin.from('nettside_forslag').select('*').eq('status', 'venter').order('created_at', { ascending: false }),
     ]);
 
     if (sideRes.error) throw new Error(sideRes.error.message);
     if (kildeRes.error) throw new Error(kildeRes.error.message);
+    if (forslagRes.error) throw new Error(forslagRes.error.message);
+
+    const nettsideForslag = forslagRes.data || [];
 
     const alle = sideRes.data || [];
     const ekte = alle.filter(r => !r.er_bot);
@@ -403,6 +435,7 @@ export async function getServerSideProps({ req, query }) {
         annonseVisningBransjer,
         totalAnnonseKlikk,
         annonseKlikkBransjer,
+        nettsideForslag,
         oppsettFeil: null,
       },
     };

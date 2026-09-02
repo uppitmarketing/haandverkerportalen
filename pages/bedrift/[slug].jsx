@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import Annonse from '../../components/Annonse';
+import NettsideForslag from '../../components/NettsideForslag';
 import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import styles from '../../styles/Bedrift.module.css';
@@ -270,11 +271,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
               >
                 Se på Brreg.no →
               </a>
-              <div className={styles.erDuEier}>
-                <strong>Er du eier?</strong>
-                <p>Krev inn profilen og legg til kontaktinfo og bilder.</p>
-                <a href="/for-bedrifter" className={styles.kreverLink}>Krev inn profil →</a>
-              </div>
+              <NettsideForslag bedrift={bedrift} />
             </div>
             <Annonse annonsor={annonsor} variant="kompakt" bransjeSlug={naering?.slug} />
           </aside>

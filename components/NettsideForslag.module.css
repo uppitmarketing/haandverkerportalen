@@ -1,0 +1,41 @@
+/* components/NettsideForslag.module.css */
+.boks {
+  background: var(--accent-lt);
+  border: 1px solid rgba(37,99,235,0.15);
+  border-radius: var(--radius);
+  padding: 14px;
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+.boks strong { display: block; color: var(--ink); font-size: 13px; margin-bottom: 4px; }
+.boks p { margin-bottom: 10px; }
+
+.skjema { display: flex; flex-direction: column; gap: 8px; }
+.input {
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  padding: 9px 11px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  background: var(--surface);
+}
+.input:focus { border-color: var(--accent); }
+
+.knapp {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 9px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.knapp:hover { background: var(--accent-dk); }
+.knapp:disabled { opacity: 0.6; cursor: default; }
+
+.feil { color: var(--red); font-size: 11px; margin: 0; }
