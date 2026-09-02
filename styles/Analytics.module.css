@@ -100,3 +100,14 @@
 .tabell td:last-child { text-align: right; font-weight: 600; color: var(--ink); }
 .tabell a { color: var(--accent); }
 .tabell a:hover { text-decoration: underline; }
+
+.handlingCelle { display: flex; gap: 6px; justify-content: flex-end; font-weight: 400; }
+.godkjennBtn, .avvisBtn {
+  font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+  padding: 5px 10px; border-radius: 6px; cursor: pointer; border: 1.5px solid transparent;
+}
+.godkjennBtn { background: var(--green-bg); color: var(--green); border-color: rgba(5,150,105,0.15); }
+.godkjennBtn:hover { background: var(--green); color: #fff; }
+.avvisBtn { background: var(--bg); color: var(--muted); border-color: var(--border); }
+.avvisBtn:hover { border-color: var(--red); color: var(--red); }
+.godkjennBtn:disabled, .avvisBtn:disabled { opacity: 0.6; cursor: default; }

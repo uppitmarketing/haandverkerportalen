@@ -21,6 +21,28 @@ export default function AnalyticsSide({
   const [passord, setPassord] = useState('');
   const [feil, setFeil] = useState('');
   const [laster, setLaster] = useState(false);
+  const [behandlerId, setBehandlerId] = useState(null);
+
+  async function handleForslag(id, handling) {
+    setBehandlerId(id);
+    try {
+      const res = await fetch('/api/analytics-godkjenn-forslag', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, handling }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(`Klarte ikke å behandle forslaget: ${data.feil || res.statusText}`);
+        setBehandlerId(null);
+        return;
+      }
+      window.location.reload();
+    } catch {
+      alert('Klarte ikke å nå serveren. Prøv igjen.');
+      setBehandlerId(null);
+    }
+  }
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -104,6 +126,7 @@ export default function AnalyticsSide({
                         <th>Foreslått nettside</th>
                         <th>E-post</th>
                         <th>Dato</th>
+                        <th>Handling</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -113,6 +136,22 @@ export default function AnalyticsSide({
                           <td>{f.foreslatt_nettside}</td>
                           <td>{f.epost || '—'}</td>
                           <td>{new Date(f.created_at).toLocaleDateString('no')}</td>
+                          <td className={styles.handlingCelle}>
+                            <button
+                              className={styles.godkjennBtn}
+                              disabled={behandlerId === f.id}
+                              onClick={() => handleForslag(f.id, 'godkjenn')}
+                            >
+                              {behandlerId === f.id ? '...' : 'Godkjenn'}
+                            </button>
+                            <button
+                              className={styles.avvisBtn}
+                              disabled={behandlerId === f.id}
+                              onClick={() => handleForslag(f.id, 'avvis')}
+                            >
+                              Avvis
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
