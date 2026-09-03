@@ -135,13 +135,9 @@ export default function HandverkerGuide() {
     <section className={styles.section}>
       <div className="container">
         <div className={styles.widget}>
-          <div className={styles.badgeRow}>
-            <span className={styles.nyBadge}>Nyhet</span>
-          </div>
           <div className={styles.top}>
             <div className={styles.topInner}>
-              <div className={styles.eyebrow}>Har du en jobb som må gjøres?</div>
-              <h2 className={styles.h}>Finn rett håndverker med vår enkle guide</h2>
+              <h2 className={styles.h}>Hva trenger du hjelp med?</h2>
               <div className={styles.progress}>
                 <span className={`${styles.dot} ${steg !== 'behov' ? styles.ferdig : styles.aktiv}`} />
                 <span className={`${styles.dot} ${steg === 'resultat' ? styles.ferdig : steg === 'sted' ? styles.aktiv : ''}`} />
@@ -233,6 +229,9 @@ export default function HandverkerGuide() {
               </div>
             )}
           </div>
+        </div>
+        <div className={styles.sokDirekte}>
+          <a href="/sok">Vet du navnet på bedriften? Søk direkte →</a>
         </div>
       </div>
     </section>

@@ -11,5 +11,39 @@
 .nav { display: flex; align-items: center; gap: 2px; flex: 1; justify-content: center; }
 .navLink { font-size: 13px; font-weight: 500; color: var(--ink-3); padding: 6px 12px; border-radius: var(--radius-sm); transition: all 0.15s; }
 .navLink:hover { color: var(--ink); background: var(--bg); }
+.right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
 .cta { font-size: 12px; padding: 7px 14px; }
-@media (max-width: 640px) { .nav { display: none; } .cta { display: none; } }
+
+.sokWrap { position: relative; }
+.sokBtn {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--surface);
+  color: var(--ink-2); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+}
+.sokBtn:hover { border-color: var(--accent); color: var(--accent); }
+
+.sokForm {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 10;
+  display: flex; background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+}
+.sokInput {
+  width: 220px; border: none; outline: none;
+  font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink);
+  padding: 10px 12px; background: transparent;
+}
+.sokInput::placeholder { color: var(--muted); }
+.sokSubmit {
+  background: var(--accent); color: #fff; border: none;
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 0 14px; cursor: pointer; transition: background 0.15s; white-space: nowrap;
+}
+.sokSubmit:hover { background: var(--accent-dk); }
+
+@media (max-width: 640px) {
+  .nav { display: none; }
+  .cta { display: none; }
+  .sokForm { position: fixed; top: 56px; left: 12px; right: 12px; }
+  .sokInput { width: auto; flex: 1; }
+}
