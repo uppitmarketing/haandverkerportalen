@@ -31,6 +31,7 @@ export default function HandverkerGuide() {
   const [forslag, setForslag] = useState([]);
   const [uthevet, setUthevet] = useState(-1);
   const [posisjonStatus, setPosisjonStatus] = useState('idle'); // idle | henter | feilet
+  const [postnrStatus, setPostnrStatus] = useState('idle'); // idle | henter | feilet
   const [kanSpore, setKanSpore] = useState(false);
   const [antall, setAntall] = useState(null);
   const inputRef = useRef(null);
@@ -51,6 +52,7 @@ export default function HandverkerGuide() {
   function oppdaterForslag(tekst) {
     setStedTekst(tekst);
     setUthevet(-1);
+    if (postnrStatus === 'feilet') setPostnrStatus('idle');
     const q = tekst.trim().toLowerCase();
     if (!q) { setForslag([]); return; }
     let treff = KOMMUNER.filter(k => k.navn.toLowerCase().startsWith(q));
@@ -78,10 +80,31 @@ export default function HandverkerGuide() {
     } else if (e.key === 'Enter') {
       if (uthevet >= 0 && forslag[uthevet]) {
         velgKommune(forslag[uthevet]);
+      } else if (/^\d{4}$/.test(stedTekst.trim())) {
+        sokPostnummer(stedTekst.trim());
       } else {
         const treff = KOMMUNER.find(k => k.navn.toLowerCase() === stedTekst.trim().toLowerCase());
         if (treff) velgKommune(treff);
       }
+    }
+  }
+
+  async function sokPostnummer(postnr) {
+    setPostnrStatus('henter');
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?postalcode=${postnr}&country=Norway&format=jsonv2&addressdetails=1&limit=1&accept-language=no`
+      );
+      const data = await res.json();
+      const treff = data?.[0];
+      const stedNavn =
+        treff?.address?.municipality || treff?.address?.city || treff?.address?.town || treff?.address?.village || null;
+      const kommune = matchKommuneFraNavn(stedNavn);
+      if (!kommune) { setPostnrStatus('feilet'); return; }
+      setPostnrStatus('idle');
+      velgKommune(kommune);
+    } catch {
+      setPostnrStatus('feilet');
     }
   }
 
@@ -118,7 +141,7 @@ export default function HandverkerGuide() {
 
   function tilbake() {
     if (steg === 'resultat') { setSteg('sted'); setValgtKommune(null); setAntall(null); }
-    else if (steg === 'sted') { setSteg('behov'); setValgtBehov(null); setStedTekst(''); setForslag([]); }
+    else if (steg === 'sted') { setSteg('behov'); setValgtBehov(null); setStedTekst(''); setForslag([]); setPostnrStatus('idle'); }
   }
 
   function startPaNytt() {
@@ -129,6 +152,7 @@ export default function HandverkerGuide() {
     setForslag([]);
     setAntall(null);
     setPosisjonStatus('idle');
+    setPostnrStatus('idle');
   }
 
   return (
@@ -169,7 +193,7 @@ export default function HandverkerGuide() {
                       📍 {posisjonStatus === 'henter' ? 'Finner posisjonen din...' : 'Bruk min posisjon'}
                     </button>
                     {posisjonStatus === 'feilet' && (
-                      <p className={styles.posisjonFeil}>Fikk ikke tilgang — skriv inn sted i stedet</p>
+                      <p className={styles.posisjonFeil}>Fikk ikke tilgang — skriv inn kommune eller postnummer i stedet</p>
                     )}
                     <div className={styles.eller}>eller skriv inn selv</div>
                   </>
@@ -178,8 +202,9 @@ export default function HandverkerGuide() {
                   <input
                     ref={inputRef}
                     className={styles.stedInput}
-                    placeholder="Skriv inn kommune..."
+                    placeholder="Skriv inn kommune eller postnummer..."
                     autoComplete="off"
+                    inputMode="text"
                     value={stedTekst}
                     onChange={e => oppdaterForslag(e.target.value)}
                     onKeyDown={handleStedKeyDown}
@@ -198,6 +223,19 @@ export default function HandverkerGuide() {
                     </div>
                   )}
                 </div>
+                {forslag.length === 0 && /^\d{4}$/.test(stedTekst.trim()) && (
+                  <button
+                    type="button"
+                    className={styles.postnrBtn}
+                    onClick={() => sokPostnummer(stedTekst.trim())}
+                    disabled={postnrStatus === 'henter'}
+                  >
+                    {postnrStatus === 'henter' ? 'Søker opp postnummer...' : `Søk opp postnummer ${stedTekst.trim()} →`}
+                  </button>
+                )}
+                {postnrStatus === 'feilet' && (
+                  <p className={styles.posisjonFeil}>Fant ikke postnummeret — prøv å skrive kommunenavn i stedet</p>
+                )}
                 <div className={styles.stedChips}>
                   {POPULAERE_STEDER.map(k => (
                     <button key={k.slug} className={styles.stedChip} onClick={() => velgKommune(k)}>

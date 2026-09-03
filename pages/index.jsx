@@ -58,7 +58,7 @@ function GuideIkon({ type }) {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="9" stroke="#2563EB" strokeWidth="1.8" />
-      <path d="M12 7v10M9.5 9.2c0-1 1-1.7 2.5-1.7s2.5.7 2.5 1.7c0 2.2-5 1.1-5 3.3 0 1 1 1.7 2.5 1.7s2.5-.7 2.5-1.7" stroke="#2563EB" strokeWidth="1.6" strokeLinecap="round" />
+      <text x="12" y="15.6" textAnchor="middle" fontSize="8.5" fontWeight="800" fill="#2563EB" fontFamily="Inter, sans-serif">kr</text>
     </svg>
   );
 }
