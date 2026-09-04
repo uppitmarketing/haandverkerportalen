@@ -17,8 +17,18 @@ export default function ForBedrifter() {
             <li className={styles.listeItem}>Kontaktinformasjon (telefon, e-post)</li>
             <li className={styles.listeItem}>Bilder og logo</li>
             <li className={styles.listeItem}>Beskrivelse av tjenester</li>
+            <li className={styles.listeItem}>Spesialiteter og hvilke type oppdrag dere tar</li>
             <li className={styles.listeItem}>Lenke til nettside</li>
           </ul>
+
+          <h2 className={styles.heading}>Mer treffsikre søk</h2>
+          <p className={styles.tekst}>
+            Mange kunder søker etter prosjektet sitt, ikke faget — «bygge garasje», «pusse opp bad», «bytte vinduer».
+            Ikke alle innenfor et fag tar alle typer jobber. Ved å registrere spesialitetene deres blir bedriften
+            deres mer synlig nettopp for de søkene som faktisk passer det dere tilbyr, i stedet for å bli listet
+            sammen med alle andre i samme bransje.
+          </p>
+
           <h2 className={styles.heading}>Annonsering</h2>
           <p className={styles.tekst}>Vi tilbyr også bannerannonser og sponsede kategorier. Ta kontakt for priser.</p>
           <div className={styles.cta}>
