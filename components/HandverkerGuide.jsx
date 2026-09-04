@@ -19,12 +19,28 @@ const POPULAERE_STEDER = ['oslo', 'bergen', 'trondheim', 'stavanger', 'drammen']
   .map(slug => KOMMUNER.find(k => k.slug === slug))
   .filter(Boolean);
 
+const PROSJEKTER = [
+  { navn: 'Pusse opp bad', icon: '🛁', bransjeSlug: 'rorlegger' },
+  { navn: 'Bygge garasje', icon: '🚗', bransjeSlug: 'tomrer' },
+  { navn: 'Bytte vinduer', icon: '🪟', bransjeSlug: 'tomrer' },
+  { navn: 'Bygge tilbygg', icon: '🏠', bransjeSlug: 'byggmester' },
+  { navn: 'Male utvendig', icon: '🖌️', bransjeSlug: 'maler' },
+  { navn: 'Male innvendig', icon: '🎨', bransjeSlug: 'maler' },
+  { navn: 'Legge nytt gulv', icon: '🪵', bransjeSlug: 'gulvlegger' },
+  { navn: 'Fikse taklekkasje', icon: '🏚️', bransjeSlug: 'taklegger' },
+  { navn: 'Nytt sikringsskap', icon: '⚡', bransjeSlug: 'elektriker' },
+  { navn: 'Fikse rørlekkasje', icon: '🔧', bransjeSlug: 'rorlegger' },
+  { navn: 'Grave grunnmur', icon: '🌍', bransjeSlug: 'grunnarbeid' },
+  { navn: 'Opparbeide tomt', icon: '🌳', bransjeSlug: 'grunnarbeid' },
+];
+
 function sporGuideValg(bransjeSlug, kommuneSlug) {
   sporInternHendelse(`/_guide/${bransjeSlug}/${kommuneSlug}`);
 }
 
 export default function HandverkerGuide() {
   const [steg, setSteg] = useState('behov'); // behov | sted | resultat
+  const [visning, setVisning] = useState('prosjekt'); // prosjekt | fag
   const [valgtBehov, setValgtBehov] = useState(null);
   const [valgtKommune, setValgtKommune] = useState(null);
   const [stedTekst, setStedTekst] = useState('');
@@ -172,15 +188,51 @@ export default function HandverkerGuide() {
 
           <div className={styles.body}>
             {steg === 'behov' && (
-              <div className={styles.behovGrid}>
-                {NAERINGSKODER.map(n => (
-                  <button key={n.slug} className={styles.behovKort} onClick={() => velgBehov(n)}>
-                    <span className={styles.ic}>{n.icon}</span>
-                    <span className={styles.navn}>{n.visningsnavn}</span>
-                    <span className={styles.eks}>{EKSEMPLER[n.slug]}</span>
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className={styles.toggleRow}>
+                  <div className={styles.toggle}>
+                    <button
+                      type="button"
+                      className={`${styles.toggleBtn} ${visning === 'prosjekt' ? styles.aktivToggle : ''}`}
+                      onClick={() => setVisning('prosjekt')}
+                    >
+                      Etter prosjekt
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.toggleBtn} ${visning === 'fag' ? styles.aktivToggle : ''}`}
+                      onClick={() => setVisning('fag')}
+                    >
+                      Etter fag
+                    </button>
+                  </div>
+                </div>
+
+                {visning === 'prosjekt' ? (
+                  <div className={styles.prosjektGrid}>
+                    {PROSJEKTER.map((p, i) => {
+                      const bransje = NAERINGSKODER.find(n => n.slug === p.bransjeSlug);
+                      return (
+                        <button key={i} className={styles.prosjektKort} onClick={() => bransje && velgBehov(bransje)}>
+                          <span className={styles.ic}>{p.icon}</span>
+                          <span className={styles.pNavn}>{p.navn}</span>
+                          <span className={styles.pFag}>→ {bransje?.visningsnavn}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className={styles.behovGrid}>
+                    {NAERINGSKODER.map(n => (
+                      <button key={n.slug} className={styles.behovKort} onClick={() => velgBehov(n)}>
+                        <span className={styles.ic}>{n.icon}</span>
+                        <span className={styles.navn}>{n.visningsnavn}</span>
+                        <span className={styles.eks}>{EKSEMPLER[n.slug]}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
 
             {steg === 'sted' && (
