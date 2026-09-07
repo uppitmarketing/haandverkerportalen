@@ -18,14 +18,26 @@ ${urls.map(({ url, priority, changefreq }) => `  <url>
 }
 
 async function hentBransjeKommuneAntall(supabase) {
-  const { data, error } = await supabase.rpc('bransje_kommune_antall');
-  if (error || !data) return null; // RPC-funksjonen finnes kanskje ikke ennå
-
   const map = new Map();
-  for (const rad of data) {
-    const key = `${rad.naeringskode}|${rad.kommunenummer}`;
-    map.set(key, (map.get(key) || 0) + Number(rad.antall));
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .rpc('bransje_kommune_antall')
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (error) return null; // RPC-funksjonen finnes kanskje ikke ennå
+    if (!data || data.length === 0) break;
+
+    for (const rad of data) {
+      const key = `${rad.naeringskode}|${rad.kommunenummer}`;
+      map.set(key, (map.get(key) || 0) + Number(rad.antall));
+    }
+
+    if (data.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
   }
+
   return map;
 }
 
