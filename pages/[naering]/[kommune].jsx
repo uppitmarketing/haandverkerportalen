@@ -1,11 +1,102 @@
 // pages/[naering]/[kommune].jsx
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import Annonse from '../../components/Annonse';
 import { NAERINGSKODER, getBedrifterByKategoriOgKommune, getNaeringBySlug } from '../../lib/db';
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
+import { safeJsonLd } from '../../lib/jsonLd';
 import styles from '../../styles/Kategori.module.css';
+
+const BASE_URL = 'https://haandverkerportalen.no';
+
+// Bransje-spesifikt innhold – unngår at alle 2856 bransje×kommune-sider
+// deler ordrett samme prisavsnitt og tips (leser som tynt/duplisert innhold for søkemotorer).
+const BRANSJE_INNSIKT = {
+  elektriker: {
+    prisTekst: 'Timeprisen for elektrikere ligger normalt mellom 600 og 1200 kroner inkl. mva, avhengig av bedrift og type oppdrag. Enkle jobber som bytte av kontakter koster mindre enn nytt sikringsskap eller større installasjonsarbeid.',
+    punkter: [
+      'Sjekk at foretaket er registrert som elektroforetak',
+      'Elektroarbeid skal utføres av eller under tilsyn av kvalifisert personell',
+      'Be om referanser fra tidligere oppdrag',
+      'Krev skriftlig tilbud med spesifisert pris',
+    ],
+  },
+  rorlegger: {
+    prisTekst: 'Prisen på rørleggerarbeid varierer mye med type jobb — fra enkle reparasjoner til full baderomsrenovering. Akutte utrykninger på kveld og helg koster normalt mer enn planlagte oppdrag i vanlig arbeidstid.',
+    punkter: [
+      'Sjekk godkjenning for våtromsarbeid ved baderomsjobber',
+      'Be om referanser, spesielt for større prosjekter',
+      'Spør om forsikring og garanti på utført arbeid',
+      'Innhent minst tre tilbud før du bestemmer deg',
+    ],
+  },
+  tomrer: {
+    prisTekst: 'Timeprisen for tømrere ligger normalt mellom 600 og 1200 kroner inkl. mva. Større prosjekter som tilbygg eller full renovering prises ofte som en kombinasjon av timepris og materialkostnader, eller som fastpris.',
+    punkter: [
+      'Be om skriftlig tilbud med spesifisert pris',
+      'Avklar hvem som står for eventuell byggesøknad',
+      'Sjekk referanser fra lignende prosjekter',
+      'Innhent minst tre tilbud på større jobber',
+    ],
+  },
+  byggmester: {
+    prisTekst: 'Prisen på et byggeprosjekt avhenger sterkt av størrelse, kompleksitet og om det kreves byggesøknad eller ansvarsrett. Be alltid om et detaljert kostnadsoverslag før du starter.',
+    punkter: [
+      'Sjekk om bedriften har sentral godkjenning hos DiBK for større prosjekter',
+      'Avklar ansvarsforhold og eventuell byggesøknad tidlig',
+      'Krev skriftlig, spesifisert tilbud',
+      'Innhent flere tilbud på større prosjekter',
+    ],
+  },
+  maler: {
+    prisTekst: 'Prisen på malerarbeid avhenger av flatestørrelse, antall strøk, og om jobben er innvendig eller utvendig. Spør alltid om prisen inkluderer materialer eller om det kommer i tillegg.',
+    punkter: [
+      'Be om referanser og se eksempler på tidligere arbeid',
+      'Avklar om tilbudet inkluderer maling og materialer',
+      'Sjekk erfaring med akkurat den overflaten du skal ha behandlet',
+      'Innhent flere tilbud før du bestemmer deg',
+    ],
+  },
+  taklegger: {
+    prisTekst: 'Prisen på takarbeid avhenger av takets størrelse, helningsgrad og om det er en akutt lekkasjereparasjon eller planlagt tekking. Akutte oppdrag koster normalt mer enn planlagte.',
+    punkter: [
+      'Sjekk erfaring med høydearbeid og at sikkerhetsrutiner følges',
+      'Spør om garanti på tekking og tetting',
+      'Be om referanser fra lignende tak',
+      'Innhent flere tilbud på større jobber',
+    ],
+  },
+  gulvlegger: {
+    prisTekst: 'Prisen på gulvlegging avhenger av flatestørrelse, materialvalg og om gammelt gulv må fjernes først. Be om at tilbudet spesifiserer både arbeid og materialer.',
+    punkter: [
+      'Be om referanser og se eksempler på tidligere arbeid',
+      'Avklar om prisen inkluderer forarbeid og fjerning av gammelt gulv',
+      'Sjekk garantivilkår på utført arbeid',
+      'Innhent flere tilbud før du bestemmer deg',
+    ],
+  },
+  grunnarbeid: {
+    prisTekst: 'Prisen på grunnarbeid avhenger sterkt av grunnforhold, maskinbehov og omfanget av jobben. Enkle jobber koster vesentlig mindre enn graving og klargjøring av større tomter.',
+    punkter: [
+      'Sjekk erfaring med maskinpark og grunnforhold i området',
+      'Avklar ansvar for eventuell grunnundersøkelse',
+      'Be om referanser fra lignende prosjekter',
+      'Innhent flere tilbud før du bestemmer deg',
+    ],
+  },
+};
+
+const FALLBACK_INNSIKT = {
+  prisTekst: 'Prisen varierer med jobbens omfang og kompleksitet. Innhent alltid minst tre tilbud før du bestemmer deg.',
+  punkter: [
+    'Sjekk at bedriften er aktiv i Brønnøysundregistrene',
+    'Be om referanser fra tidligere oppdrag',
+    'Krev skriftlig tilbud med spesifisert pris',
+    'Kontroller nødvendige sertifiseringer for jobben',
+  ],
+};
 
 export default function KategoriSide({ bedrifter, naering, kommune, total, annonsor }) {
   const router = useRouter();
@@ -28,13 +119,52 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
   );
 
   const tittel = `${naering.visningsnavn} i ${kommune}`;
+  const kommuneSlugUrl = kommune.toLowerCase().replace(/\s/g, '-');
+  const innsikt = BRANSJE_INNSIKT[naering.slug] || FALLBACK_INNSIKT;
+
+  const faq = [
+    {
+      sp: `Hvor mange ${naering.visningsnavn.toLowerCase()}er er det i ${kommune}?`,
+      sv: `Det er registrert ${total} bedrifter innen ${naering.visningsnavn.toLowerCase()} i ${kommune} ifølge Brønnøysundregistrene.`,
+    },
+    {
+      sp: `Er bedriftene på HåndverkerPortalen godkjente?`,
+      sv: `Alle bedrifter er hentet direkte fra Brønnøysundregistrene og er registrerte norske foretak. Vi anbefaler alltid å sjekke referanser og innhente flere tilbud.`,
+    },
+  ];
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map(item => ({
+      '@type': 'Question',
+      name: item.sp,
+      acceptedAnswer: { '@type': 'Answer', text: item.sv },
+    })),
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Forside', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: naering.visningsnavn, item: `${BASE_URL}/${naering.slug}` },
+      { '@type': 'ListItem', position: 3, name: kommune, item: `${BASE_URL}/${naering.slug}/${kommuneSlugUrl}` },
+    ],
+  };
 
   return (
     <Layout
       title={tittel}
       description={`Finn ${naering.visningsnavn.toLowerCase()} i ${kommune}. ${total} registrerte bedrifter. Verifisert mot Brønnøysundregistrene.`}
-      canonical={`/${naering.slug}/${kommune.toLowerCase().replace(/\s/g, '-')}`}
+      canonical={`/${naering.slug}/${kommuneSlugUrl}`}
     >
+      <Head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbSchema) }} />
+        {total === 0 && <meta name="robots" content="noindex,follow" />}
+      </Head>
+
       <section className={styles.hero}>
         <div className="container">
           <nav className="breadcrumb">
@@ -96,17 +226,10 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
       <section className={styles.seoTekst}>
         <div className="container--narrow">
           <h2>Hva koster en {naering.visningsnavn.toLowerCase()} i {kommune}?</h2>
-          <p>
-            Priser for {naering.visningsnavn.toLowerCase()} i {kommune} varierer avhengig av oppdragets
-            omfang og kompleksitet. Timeprisen ligger typisk mellom 600 og 1200 kroner inkl. mva.
-            Innhent alltid minst tre tilbud før du bestemmer deg.
-          </p>
+          <p>{innsikt.prisTekst}</p>
           <h2>Slik finner du riktig {naering.visningsnavn.toLowerCase()}</h2>
           <ul>
-            <li>Sjekk at bedriften er aktiv i Brønnøysundregistrene</li>
-            <li>Be om referanser fra tidligere oppdrag</li>
-            <li>Krev skriftlig tilbud med spesifisert pris</li>
-            <li>Kontroller nødvendige sertifiseringer for jobben</li>
+            {innsikt.punkter.map((punkt, i) => <li key={i}>{punkt}</li>)}
           </ul>
         </div>
       </section>
@@ -115,16 +238,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
         <div className="container--narrow">
           <h2 className={styles.faqTitle}>Vanlige spørsmål</h2>
           <div className={styles.faqListe}>
-            {[
-              {
-                sp: `Hvor mange ${naering.visningsnavn.toLowerCase()}er er det i ${kommune}?`,
-                sv: `Det er registrert ${total} bedrifter innen ${naering.visningsnavn.toLowerCase()} i ${kommune} ifølge Brønnøysundregistrene.`
-              },
-              {
-                sp: `Er bedriftene på HåndverkerPortalen godkjente?`,
-                sv: `Alle bedrifter er hentet direkte fra Brønnøysundregistrene og er registrerte norske foretak. Vi anbefaler alltid å sjekke referanser og innhente flere tilbud.`
-              },
-            ].map((item, i) => (
+            {faq.map((item, i) => (
               <details key={i} className={styles.faqItem}>
                 <summary className={styles.faqSpm}>{item.sp}</summary>
                 <p className={styles.faqSvar}>{item.sv}</p>
@@ -139,7 +253,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
           <h2 className={styles.secTitle}>Andre bransjer i {kommune}</h2>
           <div className={styles.relaterteGrid}>
             {NAERINGSKODER.filter(n => n.slug !== naering.slug).slice(0, 4).map(n => (
-              <a key={n.slug} href={`/${n.slug}/${kommune.toLowerCase().replace(/\s/g, '-')}`} className={styles.relKort}>
+              <a key={n.slug} href={`/${n.slug}/${kommuneSlugUrl}`} className={styles.relKort}>
                 <span>{n.icon}</span>
                 <span>{n.visningsnavn} i {kommune}</span>
                 <span>→</span>

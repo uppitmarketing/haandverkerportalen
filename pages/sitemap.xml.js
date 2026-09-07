@@ -17,6 +17,23 @@ ${urls.map(({ url, priority, changefreq }) => `  <url>
 </urlset>`;
 }
 
+async function hentBransjeKommuneAntall(supabase) {
+  const { data, error } = await supabase.rpc('bransje_kommune_antall');
+  if (error || !data) return null; // RPC-funksjonen finnes kanskje ikke ennå
+
+  const map = new Map();
+  for (const rad of data) {
+    const key = `${rad.naeringskode}|${rad.kommunenummer}`;
+    map.set(key, (map.get(key) || 0) + Number(rad.antall));
+  }
+  return map;
+}
+
+function finnAntall(antallMap, naering, kommune) {
+  const koder = naering.slug === 'rorlegger' ? ['43.221', '43.222', '43.223'] : [naering.kode];
+  return koder.reduce((sum, kode) => sum + (antallMap.get(`${kode}|${kommune.nummer}`) || 0), 0);
+}
+
 async function hentAlleSlugs(supabase) {
   const alle = [];
   let from = 0;
@@ -44,6 +61,22 @@ export async function getServerSideProps({ res }) {
   );
 
   const bedrifter = await hentAlleSlugs(supabase);
+  const antallMap = await hentBransjeKommuneAntall(supabase);
+
+  // Faller tilbake til uten filtrering hvis RPC-funksjonen ikke er satt opp i Supabase ennå
+  const bransjeKommuneUrls = antallMap
+    ? NAERINGSKODER.flatMap(n =>
+        KOMMUNER.map(k => ({ naering: n, kommune: k, antall: finnAntall(antallMap, n, k) }))
+      )
+        .filter(({ antall }) => antall > 0)
+        .map(({ naering, kommune, antall }) => ({
+          url: `/${naering.slug}/${kommune.slug}`,
+          priority: antall >= 50 ? '0.8' : antall >= 10 ? '0.6' : '0.4',
+          changefreq: 'weekly',
+        }))
+    : NAERINGSKODER.flatMap(n =>
+        KOMMUNER.map(k => ({ url: `/${n.slug}/${k.slug}`, priority: '0.7', changefreq: 'weekly' }))
+      );
 
   const urls = [
     { url: '/', priority: '1.0', changefreq: 'daily' },
@@ -66,13 +99,7 @@ export async function getServerSideProps({ res }) {
       changefreq: 'monthly',
     })),
 
-    ...NAERINGSKODER.flatMap(n =>
-      KOMMUNER.map(k => ({
-        url: `/${n.slug}/${k.slug}`,
-        priority: '0.7',
-        changefreq: 'weekly',
-      }))
-    ),
+    ...bransjeKommuneUrls,
 
     ...bedrifter.map(b => ({
       url: `/bedrift/${b.slug}`,
