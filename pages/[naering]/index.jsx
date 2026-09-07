@@ -1,20 +1,63 @@
 // pages/[naering]/index.jsx
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
-import { NAERINGSKODER, KOMMUNER, getNaeringBySlug } from '../../lib/db';
+import { NAERINGSKODER, KOMMUNER, getNaeringBySlug, getAntallPerNaering } from '../../lib/db';
+import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt';
+import { safeJsonLd } from '../../lib/jsonLd';
 import styles from '../../styles/NaeringIndex.module.css';
 
-export default function NaeringIndexSide({ naering, kommuner }) {
+const BASE_URL = 'https://haandverkerportalen.no';
+
+export default function NaeringIndexSide({ naering, kommuner, total }) {
   const router = useRouter();
   if (router.isFallback) return <Layout title="Laster..."><div style={{padding:'80px 40px',textAlign:'center'}}>Laster...</div></Layout>;
   if (!naering) return <Layout title="Ikke funnet"><div style={{padding:'80px 40px',textAlign:'center'}}>Ikke funnet</div></Layout>;
 
+  const innsikt = getBransjeInnsikt(naering.slug);
+  const navnFlertall = getBransjeFlertall(naering.slug, naering.visningsnavn);
+
+  const faq = [
+    {
+      sp: `Hvor mange ${navnFlertall} er registrert på HåndverkerPortalen?`,
+      sv: `Vi har ${total.toLocaleString('no')} registrerte ${navnFlertall} fordelt over hele Norge, hentet direkte fra Brønnøysundregistrene.`,
+    },
+    {
+      sp: `Er det gratis å søke opp ${navnFlertall}?`,
+      sv: `Ja, det er 100 % gratis å søke og se kontaktinformasjon — ingen registrering eller skjulte kostnader.`,
+    },
+  ];
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map(item => ({
+      '@type': 'Question',
+      name: item.sp,
+      acceptedAnswer: { '@type': 'Answer', text: item.sv },
+    })),
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Forside', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: naering.visningsnavn, item: `${BASE_URL}/${naering.slug}` },
+    ],
+  };
+
   return (
     <Layout
       title={`${naering.visningsnavn} i Norge`}
-      description={`Finn ${naering.visningsnavn.toLowerCase()} i din kommune. Oversikt over alle kommuner i Norge.`}
+      description={`Finn ${naering.visningsnavn.toLowerCase()} i din kommune. ${total} registrerte bedrifter i hele Norge.`}
       canonical={`/${naering.slug}`}
     >
+      <Head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbSchema) }} />
+      </Head>
+
       <section className={styles.hero}>
         <div className="container">
           <nav className="breadcrumb">
@@ -25,7 +68,8 @@ export default function NaeringIndexSide({ naering, kommuner }) {
           <div className={styles.heroIcon}>{naering.icon}</div>
           <h1 className={styles.heroTitle}>{naering.visningsnavn} i Norge</h1>
           <p className={styles.heroDesc}>
-            Velg din kommune for å se alle registrerte {naering.visningsnavn.toLowerCase()}er i ditt område.
+            Velg din kommune for å se alle registrerte {navnFlertall} i ditt område.
+            {' '}Totalt <strong>{total.toLocaleString('no')} registrerte bedrifter</strong> i hele Norge.
           </p>
         </div>
       </section>
@@ -40,14 +84,41 @@ export default function NaeringIndexSide({ naering, kommuner }) {
                 href={`/${naering.slug}/${k.slug}`}
                 className={styles.kommuneKort}
               >
-                <div className={styles.kommuneNavn}>{k.navn}</div>
-                <div className={styles.kommuneFylke}>{k.fylke || ''}</div>
+                <div className={styles.kommuneInfo}>
+                  <div className={styles.kommuneNavn}>{k.navn}</div>
+                  <div className={styles.kommuneFylke}>{k.fylke || ''}</div>
+                </div>
                 <span className={styles.kommuneArr}>→</span>
               </a>
             ))}
           </div>
         </div>
       </div>
+
+      <section className={styles.seoTekst}>
+        <div className="container--narrow">
+          <h2>Hva koster en {naering.visningsnavn.toLowerCase()}?</h2>
+          <p>{innsikt.prisTekst}</p>
+          <h2>Slik finner du riktig {naering.visningsnavn.toLowerCase()}</h2>
+          <ul>
+            {innsikt.punkter.map((punkt, i) => <li key={i}>{punkt}</li>)}
+          </ul>
+        </div>
+      </section>
+
+      <section className={styles.faq}>
+        <div className="container--narrow">
+          <h2 className={styles.faqTitle}>Vanlige spørsmål</h2>
+          <div className={styles.faqListe}>
+            {faq.map((item, i) => (
+              <details key={i} className={styles.faqItem}>
+                <summary className={styles.faqSpm}>{item.sp}</summary>
+                <p className={styles.faqSvar}>{item.sv}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
     </Layout>
   );
 }
@@ -61,8 +132,11 @@ export async function getStaticProps({ params }) {
   const naering = getNaeringBySlug(params.naering);
   if (!naering) return { notFound: true };
 
+  const antallPerNaering = await getAntallPerNaering();
+  const total = antallPerNaering[naering.kode] || 0;
+
   return {
-    props: { naering, kommuner: KOMMUNER },
+    props: { naering, kommuner: KOMMUNER, total },
     revalidate: 86400,
   };
 }
