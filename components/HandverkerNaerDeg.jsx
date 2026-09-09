@@ -1,5 +1,6 @@
 // components/HandverkerNaerDeg.jsx
 import { useState, useEffect } from 'react';
+import { MapPin } from 'lucide-react';
 import BedriftKort from './BedriftKort';
 import { matchKommuneFraNavn, getBedrifterNaerDeg } from '../lib/db';
 import styles from './HandverkerNaerDeg.module.css';
@@ -91,7 +92,7 @@ export default function HandverkerNaerDeg({ standardBedrifter, standardKommuneNa
 
           {kanSpore && status === 'idle' && (
             <button onClick={hentPosisjon} className={styles.knapp}>
-              📍 Vis nær meg
+              <MapPin size={14} /> Vis nær meg
             </button>
           )}
           {status === 'henter' && <span className={styles.laster}>Finner posisjonen din...</span>}

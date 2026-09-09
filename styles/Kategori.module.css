@@ -1,7 +1,7 @@
 /* styles/Kategori.module.css */
 .hero { background: var(--ink); color: white; padding: 44px 0 48px; }
 .heroInner { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; }
-.heroIcon { font-size: 36px; margin-bottom: 8px; }
+.heroIcon { color: #fff; margin-bottom: 8px; }
 .heroTitle { font-size: clamp(24px, 4vw, 40px); font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin-bottom: 10px; }
 .heroDesc { font-size: 14px; color: #9CA3AF; line-height: 1.6; max-width: 500px; }
 .heroDesc strong { color: white; }

@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Layout from '../components/Layout';
 import { NAERINGSKODER, getAntallPerNaering } from '../lib/db';
 import { safeJsonLd } from '../lib/jsonLd';
+import { BransjeIkon } from '../components/icons';
 import styles from '../styles/NaeringIndex.module.css';
 
 const BASE_URL = 'https://haandverkerportalen.no';
@@ -69,7 +70,7 @@ export default function BransjerSide({ antallPerNaering }) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {NAERINGSKODER.map(n => (
               <a key={n.slug} href={`/${n.slug}`} className={styles.kommuneKort}>
-                <span style={{ fontSize: 24 }}>{n.icon}</span>
+                <BransjeIkon slug={n.slug} size={22} style={{ color: 'var(--accent)', flexShrink: 0 }} />
                 <div className={styles.kommuneInfo}>
                   <div className={styles.kommuneNavn}>{n.visningsnavn}</div>
                   <div className={styles.kommuneFylke}>{(antallPerNaering[n.kode] || 0).toLocaleString('no')} bedrifter</div>

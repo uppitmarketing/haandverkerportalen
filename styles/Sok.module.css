@@ -77,7 +77,7 @@
   color: var(--muted);
 }
 
-.ingenIcon, .startIcon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+.ingenIcon, .startIcon { display: flex; justify-content: center; margin-bottom: 16px; opacity: 0.5; }
 .ingenTreff h2 { font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
 .ingenTreff p, .start p { font-size: 14px; }
 

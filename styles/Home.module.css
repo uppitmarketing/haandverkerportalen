@@ -70,7 +70,7 @@
 .katIcon {
   width: 38px; height: 38px; border-radius: 10px;
   background: linear-gradient(155deg, var(--accent-lt), #E0EAFD);
-  display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0;
 }
 .kat:hover .katIcon { background: #fff; }
 .katInfo { flex: 1; min-width: 0; }

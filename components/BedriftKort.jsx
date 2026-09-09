@@ -1,5 +1,6 @@
 // components/BedriftKort.jsx
 import Link from 'next/link';
+import { MapPin, Users, Globe } from 'lucide-react';
 import styles from './BedriftKort.module.css';
 
 export default function BedriftKort({ bedrift }) {
@@ -23,11 +24,11 @@ export default function BedriftKort({ bedrift }) {
       )}
       <ul className={styles.meta}>
         <li>
-          <span>📍</span>
+          <span><MapPin size={13} /></span>
           <span>{adresse ? `${adresse}, ` : ''}{postnummer} {poststed}</span>
         </li>
         <li>
-          <span>👥</span>
+          <span><Users size={13} /></span>
           <span>
             {antall_ansatte != null ? `${antall_ansatte} ansatte` : 'Ukjent antall'}
             {organisasjonsform ? ` · ${organisasjonsform}` : ''}
@@ -36,7 +37,7 @@ export default function BedriftKort({ bedrift }) {
         </li>
         {hjemmeside && (
           <li>
-            <span>🌐</span>
+            <span><Globe size={13} /></span>
             <span className={styles.nettside}>
               {hjemmeside.replace(/^https?:\/\//, '').replace(/\/$/, '')}
             </span>

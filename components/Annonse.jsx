@@ -1,5 +1,6 @@
 // components/Annonse.jsx
 import { useEffect } from 'react';
+import { Megaphone } from 'lucide-react';
 import { sporInternHendelse } from '../lib/internAnalytics';
 import styles from './Annonse.module.css';
 
@@ -19,7 +20,7 @@ export default function Annonse({ annonsor, variant = 'bred', bransjeSlug }) {
   if (!annonsor) {
     return (
       <div className={variant === 'kompakt' ? styles.plassholderKompakt : styles.plassholder}>
-        📢 Annonseplass ledig — <a href="/annonsering" onClick={sporKlikk}>se annonsemuligheter</a>
+        <Megaphone size={14} style={{ verticalAlign: -2, marginRight: 4 }} /> Annonseplass ledig — <a href="/annonsering" onClick={sporKlikk}>se annonsemuligheter</a>
       </div>
     );
   }

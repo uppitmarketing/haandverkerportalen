@@ -12,6 +12,8 @@ import { safeJsonLd } from '../../lib/jsonLd';
 import { sporHendelse } from '../../lib/gtag';
 import { sporInternHendelse } from '../../lib/internAnalytics';
 import Kart from '../../components/Kart';
+import { Globe, Check, Hourglass } from 'lucide-react';
+import { BransjeIkon } from '../../components/icons';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 
@@ -33,7 +35,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
     return (
       <Layout title="Laster...">
         <div style={{ padding: '80px 40px', textAlign: 'center', color: '#6B7280' }}>
-          <div style={{ fontSize: 32, marginBottom: 16 }}>⏳</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}><Hourglass size={32} /></div>
           <div style={{ fontSize: 16, fontWeight: 600 }}>Henter bedriftsinformasjon...</div>
         </div>
       </Layout>
@@ -142,7 +144,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
           </nav>
 
           <div className={styles.heroInner}>
-            <div className={styles.heroIcon}>{naering?.icon || '🏗️'}</div>
+            <div className={styles.heroIcon}><BransjeIkon slug={naering?.slug} size={34} /></div>
             <div>
               <div className={styles.tagger}>
                 <span className={`tag ${bedrift.er_aktiv && !bedrift.konkurs ? 'tag--green' : 'tag--red'}`}>{status}</span>
@@ -250,7 +252,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                     sporInternHendelse(`/_klikk/bedrift/${bedrift.slug}`);
                   }}
                 >
-                  🌐 Gå til nettside
+                  <Globe size={16} /> Gå til nettside
                 </a>
               ) : (
                 <a
@@ -274,9 +276,9 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                 <strong>Er dette bedriften din?</strong>
                 <p>Bli fremhevet øverst i søkeresultatene og vis frem det dere er best på.</p>
                 <ul className={styles.forBedrifterListe}>
-                  <li>✓ Øverst i søkeresultatene</li>
-                  <li>✓ Bilder, logo og beskrivelse</li>
-                  <li>✓ Spesialiteter for mer treffsikre søk</li>
+                  <li><Check size={13} strokeWidth={3} /> Øverst i søkeresultatene</li>
+                  <li><Check size={13} strokeWidth={3} /> Bilder, logo og beskrivelse</li>
+                  <li><Check size={13} strokeWidth={3} /> Spesialiteter for mer treffsikre søk</li>
                 </ul>
                 <a href="/for-bedrifter" className={`btn btn--primary ${styles.forBedrifterBtn}`}>
                   Se hva vi tilbyr →

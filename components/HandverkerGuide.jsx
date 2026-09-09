@@ -1,7 +1,9 @@
 // components/HandverkerGuide.jsx
 import { useState, useEffect, useRef } from 'react';
+import { MapPin, Check } from 'lucide-react';
 import { NAERINGSKODER, KOMMUNER, matchKommuneFraNavn, getAntallForBransjeKommune } from '../lib/db';
 import { sporInternHendelse } from '../lib/internAnalytics';
+import { BransjeIkon } from './icons';
 import styles from './HandverkerGuide.module.css';
 
 const EKSEMPLER = {
@@ -20,18 +22,18 @@ const POPULAERE_STEDER = ['oslo', 'bergen', 'trondheim', 'stavanger', 'drammen']
   .filter(Boolean);
 
 const PROSJEKTER = [
-  { navn: 'Pusse opp bad', icon: '🛁', bransjeSlug: 'rorlegger' },
-  { navn: 'Bygge garasje', icon: '🚗', bransjeSlug: 'tomrer' },
-  { navn: 'Bytte vinduer', icon: '🪟', bransjeSlug: 'tomrer' },
-  { navn: 'Bygge tilbygg', icon: '🏠', bransjeSlug: 'byggmester' },
-  { navn: 'Male utvendig', icon: '🖌️', bransjeSlug: 'maler' },
-  { navn: 'Male innvendig', icon: '🎨', bransjeSlug: 'maler' },
-  { navn: 'Legge nytt gulv', icon: '🪵', bransjeSlug: 'gulvlegger' },
-  { navn: 'Fikse taklekkasje', icon: '🏚️', bransjeSlug: 'taklegger' },
-  { navn: 'Nytt sikringsskap', icon: '⚡', bransjeSlug: 'elektriker' },
-  { navn: 'Fikse rørlekkasje', icon: '🔧', bransjeSlug: 'rorlegger' },
-  { navn: 'Grave grunnmur', icon: '🌍', bransjeSlug: 'grunnarbeid' },
-  { navn: 'Opparbeide tomt', icon: '🌳', bransjeSlug: 'grunnarbeid' },
+  { navn: 'Pusse opp bad', bransjeSlug: 'rorlegger' },
+  { navn: 'Bygge garasje', bransjeSlug: 'tomrer' },
+  { navn: 'Bytte vinduer', bransjeSlug: 'tomrer' },
+  { navn: 'Bygge tilbygg', bransjeSlug: 'byggmester' },
+  { navn: 'Male utvendig', bransjeSlug: 'maler' },
+  { navn: 'Male innvendig', bransjeSlug: 'maler' },
+  { navn: 'Legge nytt gulv', bransjeSlug: 'gulvlegger' },
+  { navn: 'Fikse taklekkasje', bransjeSlug: 'taklegger' },
+  { navn: 'Nytt sikringsskap', bransjeSlug: 'elektriker' },
+  { navn: 'Fikse rørlekkasje', bransjeSlug: 'rorlegger' },
+  { navn: 'Grave grunnmur', bransjeSlug: 'grunnarbeid' },
+  { navn: 'Opparbeide tomt', bransjeSlug: 'grunnarbeid' },
 ];
 
 function sporGuideValg(bransjeSlug, kommuneSlug) {
@@ -214,7 +216,7 @@ export default function HandverkerGuide() {
                       const bransje = NAERINGSKODER.find(n => n.slug === p.bransjeSlug);
                       return (
                         <button key={i} className={styles.prosjektKort} onClick={() => bransje && velgBehov(bransje)}>
-                          <span className={styles.ic}>{p.icon}</span>
+                          <span className={styles.ic}><BransjeIkon slug={p.bransjeSlug} size={19} /></span>
                           <span className={styles.pNavn}>{p.navn}</span>
                           <span className={styles.pFag}>→ {bransje?.visningsnavn}</span>
                         </button>
@@ -225,7 +227,7 @@ export default function HandverkerGuide() {
                   <div className={styles.behovGrid}>
                     {NAERINGSKODER.map(n => (
                       <button key={n.slug} className={styles.behovKort} onClick={() => velgBehov(n)}>
-                        <span className={styles.ic}>{n.icon}</span>
+                        <span className={styles.ic}><BransjeIkon slug={n.slug} size={19} /></span>
                         <span className={styles.navn}>{n.visningsnavn}</span>
                         <span className={styles.eks}>{EKSEMPLER[n.slug]}</span>
                       </button>
@@ -242,7 +244,7 @@ export default function HandverkerGuide() {
                 {kanSpore && (
                   <>
                     <button className={styles.posisjonBtn} onClick={brukPosisjon} disabled={posisjonStatus === 'henter'}>
-                      📍 {posisjonStatus === 'henter' ? 'Finner posisjonen din...' : 'Bruk min posisjon'}
+                      <MapPin size={14} /> {posisjonStatus === 'henter' ? 'Finner posisjonen din...' : 'Bruk min posisjon'}
                     </button>
                     {posisjonStatus === 'feilet' && (
                       <p className={styles.posisjonFeil}>Fikk ikke tilgang — skriv inn kommune eller postnummer i stedet</p>
@@ -302,7 +304,7 @@ export default function HandverkerGuide() {
               <div className={styles.narrow}>
                 <button className={styles.tilbake} onClick={tilbake}>← Tilbake</button>
                 <div className={styles.resultatWrap}>
-                  <div className={styles.resultatIkon}>✓</div>
+                  <div className={styles.resultatIkon}><Check size={22} strokeWidth={3} /></div>
                   {antall === null ? (
                     <div className={styles.resultatTekst}>Teller opp…</div>
                   ) : (

@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { getSupabaseAdmin } from '../../lib/supabaseAdmin';
 import { erGyldigToken } from '../../lib/analyticsAuth';
 import { NAERINGSKODER } from '../../lib/db';
+import { BransjeIkon } from '../../components/icons';
 import styles from '../../styles/Analytics.module.css';
 
 const PERIODER = [
@@ -241,7 +242,10 @@ export default function AnalyticsSide({
                   ) : (
                     guideBransjer.map(g => (
                       <div key={g.navn} className={styles.kildeRad}>
-                        <span className={styles.kildeNavn}>{g.ikon} {g.visningsnavn}</span>
+                        <span className={styles.kildeNavn}>
+                          <BransjeIkon slug={g.navn} size={13} style={{ verticalAlign: -2, marginRight: 4 }} />
+                          {g.visningsnavn}
+                        </span>
                         <div className={styles.kildeBar}>
                           <div className={styles.kildeBarFyll} style={{ width: `${g.andel}%` }} />
                         </div>
@@ -279,7 +283,10 @@ export default function AnalyticsSide({
                   ) : (
                     annonseVisningBransjer.map(b => (
                       <div key={b.navn} className={styles.kildeRad}>
-                        <span className={styles.kildeNavn}>{b.ikon} {b.visningsnavn}</span>
+                        <span className={styles.kildeNavn}>
+                          <BransjeIkon slug={b.navn} size={13} style={{ verticalAlign: -2, marginRight: 4 }} />
+                          {b.visningsnavn}
+                        </span>
                         <div className={styles.kildeBar}>
                           <div className={styles.kildeBarFyll} style={{ width: `${b.andel}%` }} />
                         </div>
@@ -297,7 +304,10 @@ export default function AnalyticsSide({
                   ) : (
                     annonseKlikkBransjer.map(b => (
                       <div key={b.navn} className={styles.kildeRad}>
-                        <span className={styles.kildeNavn}>{b.ikon} {b.visningsnavn}</span>
+                        <span className={styles.kildeNavn}>
+                          <BransjeIkon slug={b.navn} size={13} style={{ verticalAlign: -2, marginRight: 4 }} />
+                          {b.visningsnavn}
+                        </span>
                         <div className={styles.kildeBar}>
                           <div className={styles.kildeBarFyll} style={{ width: `${b.andel}%` }} />
                         </div>
@@ -469,7 +479,6 @@ export async function getServerSideProps({ req, query }) {
           return {
             navn: slug,
             visningsnavn: naering?.visningsnavn || slug,
-            ikon: naering?.icon || '🔧',
             antall,
             andel: totalGuideBruk > 0 ? Math.round((antall / totalGuideBruk) * 1000) / 10 : 0,
           };
@@ -500,7 +509,6 @@ export async function getServerSideProps({ req, query }) {
           return {
             navn: slug,
             visningsnavn: naering?.visningsnavn || slug,
-            ikon: naering?.icon || '📢',
             antall,
             andel: total > 0 ? Math.round((antall / total) * 1000) / 10 : 0,
           };

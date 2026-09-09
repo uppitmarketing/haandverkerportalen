@@ -8,6 +8,8 @@ import { NAERINGSKODER, getBedrifterByKategoriOgKommune, getNaeringBySlug } from
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import { safeJsonLd } from '../../lib/jsonLd';
 import { getBransjeInnsikt } from '../../lib/bransjeInnsikt';
+import { BransjeIkon } from '../../components/icons';
+import { Hourglass } from 'lucide-react';
 import styles from '../../styles/Kategori.module.css';
 
 const BASE_URL = 'https://haandverkerportalen.no';
@@ -19,7 +21,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
     return (
       <Layout title="Laster...">
         <div style={{ padding: '80px 40px', textAlign: 'center', color: '#6B7280' }}>
-          <div style={{ fontSize: 32, marginBottom: 16 }}>⏳</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}><Hourglass size={32} /></div>
           <div style={{ fontSize: 16, fontWeight: 600 }}>Henter bedrifter...</div>
         </div>
       </Layout>
@@ -90,7 +92,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
           </nav>
           <div className={styles.heroInner}>
             <div>
-              <div className={styles.heroIcon}>{naering.icon}</div>
+              <div className={styles.heroIcon}><BransjeIkon slug={naering.slug} size={28} /></div>
               <h1 className={styles.heroTitle}>{naering.visningsnavn} i {kommune}</h1>
               <p className={styles.heroDesc}>
                 <strong>{total} registrerte bedrifter</strong> innen {naering.visningsnavn.toLowerCase()} i {kommune}.
@@ -168,7 +170,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
           <div className={styles.relaterteGrid}>
             {NAERINGSKODER.filter(n => n.slug !== naering.slug).slice(0, 4).map(n => (
               <a key={n.slug} href={`/${n.slug}/${kommuneSlugUrl}`} className={styles.relKort}>
-                <span>{n.icon}</span>
+                <BransjeIkon slug={n.slug} size={15} />
                 <span>{n.visningsnavn} i {kommune}</span>
                 <span>→</span>
               </a>

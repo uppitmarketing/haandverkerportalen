@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import BedriftKort from '../components/BedriftKort';
 import { NAERINGSKODER, sokBedrifter } from '../lib/db';
+import { MapPin, Type, Search, Hammer } from 'lucide-react';
+import { BransjeIkon } from '../components/icons';
 import styles from '../styles/Sok.module.css';
 
 const BRANSJE_SOKEORD = {
@@ -142,9 +144,21 @@ export default function SokSide() {
         {sokt && !laster && parsed && (funnetBransje || funnetKommune) && (
           <div className={styles.parsedInfo}>
             <span>Søkte etter:</span>
-            {funnetBransje && <span className={styles.parsedTag}>{funnetBransje.icon} {funnetBransje.visningsnavn}</span>}
-            {funnetKommune && <span className={styles.parsedTag}>📍 {funnetKommune}</span>}
-            {parsed.navn && <span className={styles.parsedTag}>🔤 "{parsed.navn}"</span>}
+            {funnetBransje && (
+              <span className={styles.parsedTag}>
+                <BransjeIkon slug={funnetBransje.slug} size={12} style={{ verticalAlign: -2, marginRight: 3 }} /> {funnetBransje.visningsnavn}
+              </span>
+            )}
+            {funnetKommune && (
+              <span className={styles.parsedTag}>
+                <MapPin size={12} style={{ verticalAlign: -2, marginRight: 3 }} /> {funnetKommune}
+              </span>
+            )}
+            {parsed.navn && (
+              <span className={styles.parsedTag}>
+                <Type size={12} style={{ verticalAlign: -2, marginRight: 3 }} /> "{parsed.navn}"
+              </span>
+            )}
           </div>
         )}
 
@@ -152,7 +166,7 @@ export default function SokSide() {
 
         {!laster && sokt && resultater.length === 0 && (
           <div className={styles.ingenTreff}>
-            <div className={styles.ingenIcon}>🔍</div>
+            <div className={styles.ingenIcon}><Search size={40} /></div>
             <h2>Ingen treff</h2>
             <p>Prøv et annet søk, f.eks. "elektriker oslo".</p>
           </div>
@@ -173,7 +187,7 @@ export default function SokSide() {
 
         {!sokt && (
           <div className={styles.start}>
-            <div className={styles.startIcon}>🔨</div>
+            <div className={styles.startIcon}><Hammer size={40} /></div>
             <p>Skriv inn et søk over – prøv f.eks. "elektriker oslo"</p>
           </div>
         )}

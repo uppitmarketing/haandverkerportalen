@@ -5,6 +5,7 @@ import Layout from '../../components/Layout';
 import { NAERINGSKODER, KOMMUNER, getNaeringBySlug, getAntallPerNaering } from '../../lib/db';
 import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt';
 import { safeJsonLd } from '../../lib/jsonLd';
+import { BransjeIkon } from '../../components/icons';
 import styles from '../../styles/NaeringIndex.module.css';
 
 const BASE_URL = 'https://haandverkerportalen.no';
@@ -65,7 +66,7 @@ export default function NaeringIndexSide({ naering, kommuner, total }) {
             <span className="breadcrumb__sep">/</span>
             <span>{naering.visningsnavn}</span>
           </nav>
-          <div className={styles.heroIcon}>{naering.icon}</div>
+          <div className={styles.heroIcon}><BransjeIkon slug={naering.slug} size={28} /></div>
           <h1 className={styles.heroTitle}>{naering.visningsnavn} i Norge</h1>
           <p className={styles.heroDesc}>
             Velg din kommune for å se alle registrerte {navnFlertall} i ditt område.

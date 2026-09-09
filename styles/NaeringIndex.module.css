@@ -5,7 +5,7 @@
   padding: 44px 0 48px;
 }
 
-.heroIcon { font-size: 40px; margin-bottom: 10px; }
+.heroIcon { color: #fff; margin-bottom: 10px; }
 
 .heroTitle {
   font-size: clamp(28px, 4vw, 44px);

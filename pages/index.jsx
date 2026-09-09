@@ -6,6 +6,8 @@ import HandverkerGuide from '../components/HandverkerGuide';
 import { NAERINGSKODER, getAntallPerNaering, getBedrifterNaerDeg } from '../lib/db';
 import { ARTIKLER, getLesetid } from '../lib/artikler';
 import { safeJsonLd } from '../lib/jsonLd';
+import { BransjeIkon } from '../components/icons';
+import { Check } from 'lucide-react';
 import styles from '../styles/Home.module.css';
 
 const GUIDE_LABEL = {
@@ -111,19 +113,19 @@ export default function Home({ antallPerNaering, standardBedrifter }) {
         <div className="container">
           <div className={styles.trustRow}>
             <div className={styles.trustItem}>
-              <span className={styles.trustCheck}>✓</span>
+              <span className={styles.trustCheck}><Check size={12} strokeWidth={3} /></span>
               <span className={styles.trustText}>Sjekket mot Brønnøysundregisteret</span>
             </div>
             <div className={styles.trustItem}>
-              <span className={styles.trustCheck}>✓</span>
+              <span className={styles.trustCheck}><Check size={12} strokeWidth={3} /></span>
               <span className={styles.trustText}>100 % gratis, alltid</span>
             </div>
             <div className={styles.trustItem}>
-              <span className={styles.trustCheck}>✓</span>
+              <span className={styles.trustCheck}><Check size={12} strokeWidth={3} /></span>
               <span className={styles.trustText}>Ingen spam, ingen forpliktelser</span>
             </div>
             <div className={styles.trustItem}>
-              <span className={styles.trustCheck}>✓</span>
+              <span className={styles.trustCheck}><Check size={12} strokeWidth={3} /></span>
               <span className={styles.trustText}>Alle {totalBedrifter.toLocaleString('no')}+ bedrifter i 357 kommuner</span>
             </div>
           </div>
@@ -175,7 +177,7 @@ export default function Home({ antallPerNaering, standardBedrifter }) {
           <div className={styles.katGrid}>
             {NAERINGSKODER.map(n => (
               <a key={n.slug} href={`/${n.slug}`} className={styles.kat}>
-                <div className={styles.katIcon}>{n.icon}</div>
+                <div className={styles.katIcon}><BransjeIkon slug={n.slug} size={18} /></div>
                 <div className={styles.katInfo}>
                   <div className={styles.katName}>{n.visningsnavn}</div>
                   <div className={styles.katCount}>
