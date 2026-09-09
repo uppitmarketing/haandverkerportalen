@@ -90,9 +90,6 @@ export default function Home({ antallPerNaering, standardBedrifter }) {
 
       {/* HERO */}
       <section className={styles.hero}>
-        <div className={styles.heroGlowA} />
-        <div className={styles.heroGlowB} />
-        <div className={styles.heroDots} />
         <div className={`container ${styles.heroInner}`}>
           <div className={styles.badge}>
             <span className={styles.badgeDot} />

@@ -1,27 +1,22 @@
 /* styles/Home.module.css */
 
 /* HERO */
-.hero { position: relative; background: var(--ink); padding: 56px 0 132px; text-align: center; overflow: hidden; }
-.heroGlowA { position: absolute; top: -140px; right: -100px; width: 420px; height: 420px; border-radius: 50%; background: var(--accent); opacity: 0.20; filter: blur(90px); pointer-events: none; }
-.heroGlowB { position: absolute; bottom: -160px; left: -120px; width: 360px; height: 360px; border-radius: 50%; background: var(--accent); opacity: 0.14; filter: blur(90px); pointer-events: none; }
-.heroDots {
-  position: absolute; inset: 0;
-  background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
-  background-size: 26px 26px;
-  -webkit-mask-image: radial-gradient(ellipse 700px 320px at 50% 0%, #000 0%, transparent 75%);
-  mask-image: radial-gradient(ellipse 700px 320px at 50% 0%, #000 0%, transparent 75%);
+.hero {
+  position: relative;
+  background: radial-gradient(ellipse 900px 460px at 50% -12%, var(--accent-lt) 0%, var(--bg) 55%, var(--surface) 100%);
+  padding: 56px 0 132px; text-align: center; overflow: hidden;
 }
 .heroInner { position: relative; max-width: 620px; margin: 0 auto; }
 .badge {
   display: inline-flex; align-items: center; gap: 7px;
   font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-  color: #93C5FD; background: rgba(37,99,235,0.15); border: 1px solid rgba(147,197,253,0.25);
-  border-radius: 20px; padding: 6px 14px; margin-bottom: 20px;
+  color: var(--accent-dk); background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 14px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(15,17,23,0.05);
 }
-.badgeDot { width: 6px; height: 6px; border-radius: 50%; background: #4ADE80; flex-shrink: 0; }
-.title { font-size: 40px; font-weight: 800; letter-spacing: -1.3px; line-height: 1.14; margin: 0 0 12px; color: #fff; }
-.title span { color: #60A5FA; }
-.sub { font-size: 15.5px; color: #9CA3AF; margin: 0; line-height: 1.6; }
+.badgeDot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.title { font-size: 40px; font-weight: 800; letter-spacing: -1.3px; line-height: 1.14; margin: 0 0 12px; color: var(--ink); }
+.title span { color: var(--accent); }
+.sub { font-size: 15.5px; color: var(--ink-3); margin: 0; line-height: 1.6; }
 
 /* TRUST STRIP */
 .trustStrip { padding: 24px 0 8px; }

@@ -1,15 +1,18 @@
 /* styles/Kategori.module.css */
-.hero { background: var(--ink); color: white; padding: 44px 0 48px; }
+.hero {
+  background: radial-gradient(ellipse 900px 320px at 50% -25%, var(--accent-lt) 0%, var(--bg) 60%, var(--surface) 100%);
+  color: var(--ink); padding: 44px 0 48px;
+}
 .heroInner { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; }
-.heroIcon { color: #fff; margin-bottom: 8px; }
+.heroIcon { color: var(--accent); margin-bottom: 8px; }
 .heroTitle { font-size: clamp(24px, 4vw, 40px); font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin-bottom: 10px; }
-.heroDesc { font-size: 14px; color: #9CA3AF; line-height: 1.6; max-width: 500px; }
-.heroDesc strong { color: white; }
-.heroStats { display: flex; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); flex-shrink: 0; }
-.heroStat { display: flex; flex-direction: column; align-items: center; padding: 18px 24px; border-right: 1px solid rgba(255,255,255,0.08); }
+.heroDesc { font-size: 14px; color: var(--ink-3); line-height: 1.6; max-width: 500px; }
+.heroDesc strong { color: var(--ink); }
+.heroStats { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); flex-shrink: 0; box-shadow: var(--shadow-sm); }
+.heroStat { display: flex; flex-direction: column; align-items: center; padding: 18px 24px; border-right: 1px solid var(--border); }
 .heroStat:last-child { border-right: none; }
-.heroStatNum { font-size: 28px; font-weight: 800; color: #60A5FA; letter-spacing: -1px; line-height: 1; margin-bottom: 3px; }
-.heroStatLabel { font-size: 10px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; }
+.heroStatNum { font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: -1px; line-height: 1; margin-bottom: 3px; }
+.heroStatLabel { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
 .bedrifterSection { padding: 0 0 48px; }
 .secHeader { display: flex; align-items: baseline; gap: 10px; margin-bottom: 18px; }

@@ -1,7 +1,10 @@
 /* styles/Bedrift.module.css */
-.hero { background: var(--ink); color: white; padding: 36px 0 40px; }
+.hero {
+  background: radial-gradient(ellipse 900px 260px at 50% -40%, var(--accent-lt) 0%, var(--bg) 60%, var(--surface) 100%);
+  color: var(--ink); padding: 36px 0 40px;
+}
 .heroInner { display: flex; align-items: center; gap: 16px; }
-.heroIcon { color: #fff; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.heroIcon { color: var(--accent); background: var(--accent-lt); border: 1px solid var(--border); border-radius: var(--radius-lg); width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .tagger { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
 .navn { font-size: clamp(20px, 3.5vw, 34px); font-weight: 800; letter-spacing: -0.8px; line-height: 1.1; margin-bottom: 5px; }
 .adresse { font-size: 13px; color: #6B7280; }
