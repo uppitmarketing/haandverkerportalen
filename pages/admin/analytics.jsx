@@ -7,7 +7,6 @@ import { NAERINGSKODER } from '../../lib/db';
 import styles from '../../styles/Analytics.module.css';
 
 const PERIODER = [
-  { key: '24h', label: 'Siste 24 timer' },
   { key: '7d', label: 'Siste 7 dager' },
   { key: 'all', label: 'Totalt' },
 ];
@@ -16,21 +15,13 @@ export default function AnalyticsSide({
   innlogget, sider, totalVisninger, totalBotVisninger, totalUnikeSider, periode,
   enheter, kilder, totalGuideBruk, guideBransjer, totalKlikk, toppKlikk,
   totalAnnonseVisninger, totalEkteVisninger, totalPlaceholderVisninger, annonseVisningBransjer,
-  totalAnnonseKlikk, annonseKlikkBransjer, nettsideForslag, leads, oppsettFeil,
+  totalAnnonseKlikk, annonseKlikkBransjer, nettsideForslag,
+  trafikkPerDag, totalForBedrifter, forBedrifterFraProfil, forBedrifterAndre, oppsettFeil,
 }) {
   const [passord, setPassord] = useState('');
   const [feil, setFeil] = useState('');
   const [laster, setLaster] = useState(false);
   const [behandlerId, setBehandlerId] = useState(null);
-  const [kopiert, setKopiert] = useState(false);
-
-  function kopierEposter() {
-    const tekst = leads.map(l => l.epost).join(', ');
-    navigator.clipboard.writeText(tekst).then(() => {
-      setKopiert(true);
-      setTimeout(() => setKopiert(false), 2000);
-    });
-  }
 
   async function handleForslag(id, handling) {
     setBehandlerId(id);
@@ -168,43 +159,22 @@ export default function AnalyticsSide({
                 </div>
               )}
 
-              {leads.length > 0 && (
-                <div className={styles.tabellBoks} style={{ marginBottom: 20 }}>
-                  <div className={styles.leadHeader}>
-                    <h2 className={styles.kildeTittel} style={{ margin: 0 }}>
-                      E-post-leads ({leads.length.toLocaleString('no')} unike)
-                    </h2>
-                    <button className={styles.godkjennBtn} onClick={kopierEposter}>
-                      {kopiert ? 'Kopiert ✓' : 'Kopiér alle e-poster'}
-                    </button>
-                  </div>
-                  <table className={styles.tabell}>
-                    <thead>
-                      <tr>
-                        <th>E-post</th>
-                        <th>Bedrift(er)</th>
-                        <th>Sist aktiv</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {leads.map(l => (
-                        <tr key={l.epost}>
-                          <td>{l.epost}</td>
-                          <td>
-                            {l.bedrifter.map((b, i) => (
-                              <span key={b.slug}>
-                                {i > 0 && ', '}
-                                <a href={`/bedrift/${b.slug}`} target="_blank" rel="noopener noreferrer">{b.navn}</a>
-                              </span>
-                            ))}
-                          </td>
-                          <td>{new Date(l.sistAktiv).toLocaleDateString('no')}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              <div className={styles.dagPanel}>
+                <h2 className={styles.kildeTittel}>Trafikk per dag (siste 30 dager)</h2>
+                {trafikkPerDag.length === 0 ? (
+                  <p className={styles.tomtLite}>Ingen data ennå.</p>
+                ) : (
+                  trafikkPerDag.map(d => (
+                    <div key={d.dato} className={styles.kildeRad}>
+                      <span className={styles.kildeNavn}>{d.label}</span>
+                      <div className={styles.kildeBar}>
+                        <div className={styles.kildeBarFyll} style={{ width: `${d.andel}%` }} />
+                      </div>
+                      <span className={styles.kildeTall}>{d.antall.toLocaleString('no')}</span>
+                    </div>
+                  ))
+                )}
+              </div>
 
               <div className={styles.stats}>
                 <div className={styles.stat}>
@@ -332,6 +302,33 @@ export default function AnalyticsSide({
                 </div>
               </div>
 
+              <div className={styles.kildeSeksjon}>
+                <div className={styles.kildePanel}>
+                  <h2 className={styles.kildeTittel}>For bedrifter-besøk ({totalForBedrifter.toLocaleString('no')} totalt)</h2>
+                  <p className={styles.kildeSub}>Andel som kom fra en bedriftsprofil — sannsynlig bedriftseier</p>
+                  {totalForBedrifter === 0 ? (
+                    <p className={styles.tomtLite}>Ingen besøk registrert ennå.</p>
+                  ) : (
+                    <>
+                      <div className={styles.kildeRad}>
+                        <span className={styles.kildeNavn}>Fra bedriftsprofil</span>
+                        <div className={styles.kildeBar}>
+                          <div className={styles.kildeBarFyll} style={{ width: `${Math.round((forBedrifterFraProfil / totalForBedrifter) * 100)}%` }} />
+                        </div>
+                        <span className={styles.kildeTall}>{forBedrifterFraProfil.toLocaleString('no')}</span>
+                      </div>
+                      <div className={styles.kildeRad}>
+                        <span className={styles.kildeNavn}>Andre kilder</span>
+                        <div className={styles.kildeBar}>
+                          <div className={styles.kildeBarFyll} style={{ width: `${Math.round((forBedrifterAndre / totalForBedrifter) * 100)}%` }} />
+                        </div>
+                        <span className={styles.kildeTall}>{forBedrifterAndre.toLocaleString('no')}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
               <div className={styles.tabellBoks}>
                 {sider.length === 0 ? (
                   <p className={styles.tomt}>Ingen sidevisninger registrert i denne perioden.</p>
@@ -383,7 +380,9 @@ export async function getServerSideProps({ req, query }) {
     totalUnikeSider: 0, periode, enheter: [], kilder: [],
     totalGuideBruk: 0, guideBransjer: [], totalKlikk: 0, toppKlikk: [],
     totalAnnonseVisninger: 0, totalEkteVisninger: 0, totalPlaceholderVisninger: 0, annonseVisningBransjer: [],
-    totalAnnonseKlikk: 0, annonseKlikkBransjer: [], nettsideForslag: [], leads: [], oppsettFeil: null,
+    totalAnnonseKlikk: 0, annonseKlikkBransjer: [], nettsideForslag: [],
+    trafikkPerDag: [], totalForBedrifter: 0, forBedrifterFraProfil: 0, forBedrifterAndre: 0,
+    oppsettFeil: null,
   };
 
   if (!innlogget) {
@@ -394,37 +393,39 @@ export async function getServerSideProps({ req, query }) {
     const supabaseAdmin = getSupabaseAdmin();
 
     let fra = null;
-    if (periode === '24h') fra = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     if (periode === '7d') fra = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [sideRes, kildeRes, forslagRes, alleForslagRes] = await Promise.all([
+    const [sideRes, kildeRes, forslagRes, dagRes, forBedrifterRes] = await Promise.all([
       supabaseAdmin.rpc('page_view_counts', { fra }),
       supabaseAdmin.rpc('page_view_besokskilder', { fra }),
       supabaseAdmin.from('nettside_forslag').select('*').eq('status', 'venter').order('created_at', { ascending: false }),
-      supabaseAdmin.from('nettside_forslag').select('epost, bedrift_navn, bedrift_slug, created_at').order('created_at', { ascending: false }),
+      supabaseAdmin.rpc('page_views_per_dag', { dager: 30 }),
+      supabaseAdmin.rpc('for_bedrifter_kilder', { fra }),
     ]);
 
     if (sideRes.error) throw new Error(sideRes.error.message);
     if (kildeRes.error) throw new Error(kildeRes.error.message);
     if (forslagRes.error) throw new Error(forslagRes.error.message);
-    if (alleForslagRes.error) throw new Error(alleForslagRes.error.message);
+    if (dagRes.error) throw new Error(dagRes.error.message);
+    if (forBedrifterRes.error) throw new Error(forBedrifterRes.error.message);
 
     const nettsideForslag = forslagRes.data || [];
 
-    // Leadbase: unike e-poster på tvers av alle innsendinger (uansett status),
-    // med hvilke(n) bedrift(er) de er knyttet til og siste aktivitet.
-    const leadKart = new Map();
-    for (const f of alleForslagRes.data || []) {
-      if (!f.epost) continue;
-      if (!leadKart.has(f.epost)) {
-        leadKart.set(f.epost, { epost: f.epost, bedrifter: [], sistAktiv: f.created_at });
-      }
-      const lead = leadKart.get(f.epost);
-      if (!lead.bedrifter.some(b => b.slug === f.bedrift_slug)) {
-        lead.bedrifter.push({ navn: f.bedrift_navn, slug: f.bedrift_slug });
-      }
-    }
-    const leads = Array.from(leadKart.values()).sort((a, b) => new Date(b.sistAktiv) - new Date(a.sistAktiv));
+    const dagRader = dagRes.data || [];
+    const maxDag = Math.max(1, ...dagRader.map(d => Number(d.antall)));
+    const trafikkPerDag = [...dagRader]
+      .sort((a, b) => new Date(b.dato) - new Date(a.dato))
+      .map(d => ({
+        dato: d.dato,
+        antall: Number(d.antall),
+        andel: Math.round((Number(d.antall) / maxDag) * 100),
+        label: new Date(d.dato).toLocaleDateString('no', { day: 'numeric', month: 'short' }),
+      }));
+
+    const forBedrifterRader = forBedrifterRes.data || [];
+    const forBedrifterFraProfil = forBedrifterRader.find(r => r.fra_bedriftsprofil)?.antall ?? 0;
+    const forBedrifterAndre = forBedrifterRader.find(r => !r.fra_bedriftsprofil)?.antall ?? 0;
+    const totalForBedrifter = Number(forBedrifterFraProfil) + Number(forBedrifterAndre);
 
     const alle = sideRes.data || [];
     const ekte = alle.filter(r => !r.er_bot);
@@ -539,7 +540,10 @@ export async function getServerSideProps({ req, query }) {
         totalAnnonseKlikk,
         annonseKlikkBransjer,
         nettsideForslag,
-        leads,
+        trafikkPerDag,
+        totalForBedrifter,
+        forBedrifterFraProfil: Number(forBedrifterFraProfil),
+        forBedrifterAndre: Number(forBedrifterAndre),
         oppsettFeil: null,
       },
     };

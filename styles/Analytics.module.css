@@ -112,4 +112,4 @@
 .avvisBtn:hover { border-color: var(--red); color: var(--red); }
 .godkjennBtn:disabled, .avvisBtn:disabled { opacity: 0.6; cursor: default; }
 
-.leadHeader { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 0; margin-bottom: 6px; }
+.dagPanel { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; max-width: 900px; margin: 0 auto 20px; }
