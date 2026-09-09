@@ -7,7 +7,9 @@ import { NAERINGSKODER } from '../../lib/db';
 import styles from '../../styles/Analytics.module.css';
 
 const PERIODER = [
+  { key: 'today', label: 'I dag' },
   { key: '7d', label: 'Siste 7 dager' },
+  { key: '30d', label: 'Siste 30 dager' },
   { key: 'all', label: 'Totalt' },
 ];
 
@@ -22,6 +24,8 @@ export default function AnalyticsSide({
   const [feil, setFeil] = useState('');
   const [laster, setLaster] = useState(false);
   const [behandlerId, setBehandlerId] = useState(null);
+
+  const andelFraProfil = totalForBedrifter > 0 ? Math.round((forBedrifterFraProfil / totalForBedrifter) * 100) : 0;
 
   async function handleForslag(id, handling) {
     setBehandlerId(id);
@@ -160,7 +164,9 @@ export default function AnalyticsSide({
               )}
 
               <div className={styles.dagPanel}>
-                <h2 className={styles.kildeTittel}>Trafikk per dag (siste 30 dager)</h2>
+                <h2 className={styles.kildeTittel}>
+                  Trafikk per dag ({(PERIODER.find(p => p.key === periode)?.label || 'Totalt').toLowerCase()})
+                </h2>
                 {trafikkPerDag.length === 0 ? (
                   <p className={styles.tomtLite}>Ingen data ennå.</p>
                 ) : (
@@ -313,17 +319,22 @@ export default function AnalyticsSide({
                       <div className={styles.kildeRad}>
                         <span className={styles.kildeNavn}>Fra bedriftsprofil</span>
                         <div className={styles.kildeBar}>
-                          <div className={styles.kildeBarFyll} style={{ width: `${Math.round((forBedrifterFraProfil / totalForBedrifter) * 100)}%` }} />
+                          <div className={styles.kildeBarFyll} style={{ width: `${andelFraProfil}%` }} />
                         </div>
                         <span className={styles.kildeTall}>{forBedrifterFraProfil.toLocaleString('no')}</span>
                       </div>
                       <div className={styles.kildeRad}>
                         <span className={styles.kildeNavn}>Andre kilder</span>
                         <div className={styles.kildeBar}>
-                          <div className={styles.kildeBarFyll} style={{ width: `${Math.round((forBedrifterAndre / totalForBedrifter) * 100)}%` }} />
+                          <div className={styles.kildeBarFyll} style={{ width: `${100 - andelFraProfil}%` }} />
                         </div>
                         <span className={styles.kildeTall}>{forBedrifterAndre.toLocaleString('no')}</span>
                       </div>
+                      <p className={styles.kommentar}>
+                        {andelFraProfil >= 50
+                          ? `${andelFraProfil} % av besøkene kommer fra en bedriftsprofil — de fleste besøkende ser altså ut til å være bedriftseiere som sjekker sin egen oppføring, ikke kunder på jakt etter en håndverker.`
+                          : `${andelFraProfil} % av besøkene kommer fra en bedriftsprofil (sannsynlig bedriftseier). Resten, ${100 - andelFraProfil} %, finner siden via andre veier — som forsiden eller søk.`}
+                      </p>
                     </>
                   )}
                 </div>
@@ -393,13 +404,19 @@ export async function getServerSideProps({ req, query }) {
     const supabaseAdmin = getSupabaseAdmin();
 
     let fra = null;
+    if (periode === 'today') {
+      const start = new Date();
+      start.setUTCHours(0, 0, 0, 0);
+      fra = start.toISOString();
+    }
     if (periode === '7d') fra = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    if (periode === '30d') fra = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
     const [sideRes, kildeRes, forslagRes, dagRes, forBedrifterRes] = await Promise.all([
       supabaseAdmin.rpc('page_view_counts', { fra }),
       supabaseAdmin.rpc('page_view_besokskilder', { fra }),
       supabaseAdmin.from('nettside_forslag').select('*').eq('status', 'venter').order('created_at', { ascending: false }),
-      supabaseAdmin.rpc('page_views_per_dag', { dager: 30 }),
+      supabaseAdmin.rpc('page_views_per_dag', { fra }),
       supabaseAdmin.rpc('for_bedrifter_kilder', { fra }),
     ]);
 
