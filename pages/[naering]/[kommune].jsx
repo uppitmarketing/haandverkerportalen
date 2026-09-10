@@ -7,14 +7,14 @@ import Annonse from '../../components/Annonse';
 import { NAERINGSKODER, getBedrifterByKategoriOgKommune, getNaeringBySlug } from '../../lib/db';
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import { safeJsonLd } from '../../lib/jsonLd';
-import { getBransjeInnsikt } from '../../lib/bransjeInnsikt';
+import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt';
 import { BransjeIkon } from '../../components/icons';
 import { Hourglass } from 'lucide-react';
 import styles from '../../styles/Kategori.module.css';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 
-export default function KategoriSide({ bedrifter, naering, kommune, total, annonsor }) {
+export default function KategoriSide({ bedrifter, naering, kommune, total, totalMedNettside, annonsor }) {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -37,15 +37,16 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
   const tittel = `${naering.visningsnavn} i ${kommune}`;
   const kommuneSlugUrl = kommune.toLowerCase().replace(/\s/g, '-');
   const innsikt = getBransjeInnsikt(naering.slug);
+  const flertall = getBransjeFlertall(naering.slug, naering.visningsnavn);
 
   const faq = [
     {
-      sp: `Hvor mange ${naering.visningsnavn.toLowerCase()}er er det i ${kommune}?`,
-      sv: `Det er registrert ${total} bedrifter innen ${naering.visningsnavn.toLowerCase()} i ${kommune} ifølge Brønnøysundregistrene.`,
+      sp: `Hvor mange ${flertall} er det i ${kommune}?`,
+      sv: `${total} ${flertall} er registrert i ${kommune} ifølge Brønnøysundregistrene, hvorav ${totalMedNettside} har egen nettside.`,
     },
     {
       sp: `Er bedriftene på HåndverkerPortalen godkjente?`,
-      sv: `Alle bedrifter er hentet direkte fra Brønnøysundregistrene og er registrerte norske foretak. Vi anbefaler alltid å sjekke referanser og innhente flere tilbud.`,
+      sv: `Ja — alle bedrifter er hentet direkte fra Brønnøysundregistrene og er registrerte norske foretak. Vi anbefaler alltid å sjekke referanser og innhente flere tilbud.`,
     },
   ];
 
@@ -105,11 +106,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
                 <span className={styles.heroStatLabel}>Bedrifter</span>
               </div>
               <div className={styles.heroStat}>
-                <span className={styles.heroStatNum}>{bedrifter.filter(b => b.er_aktiv).length}</span>
-                <span className={styles.heroStatLabel}>Aktive</span>
-              </div>
-              <div className={styles.heroStat}>
-                <span className={styles.heroStatNum}>{bedrifter.filter(b => b.hjemmeside).length}</span>
+                <span className={styles.heroStatNum}>{totalMedNettside}</span>
                 <span className={styles.heroStatLabel}>Med nettside</span>
               </div>
             </div>
@@ -124,7 +121,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
       <section className={styles.bedrifterSection}>
         <div className="container">
           <div className={styles.secHeader}>
-            <h2 className={styles.secTitle}>Alle {naering.visningsnavn.toLowerCase()}er i {kommune}</h2>
+            <h2 className={styles.secTitle}>Alle {flertall} i {kommune}</h2>
             <span className={styles.antall}>{total} bedrifter</span>
           </div>
           {bedrifter.length > 0 ? (
@@ -141,6 +138,9 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, annon
 
       <section className={styles.seoTekst}>
         <div className="container--narrow">
+          <p>
+            HåndverkerPortalen har <strong>{total} registrerte {flertall} i {kommune}</strong>, ifølge Brønnøysundregistrene, hvorav {totalMedNettside} har egen nettside.
+          </p>
           <h2>Hva koster en {naering.visningsnavn.toLowerCase()} i {kommune}?</h2>
           <p>{innsikt.prisTekst}</p>
           <h2>Slik finner du riktig {naering.visningsnavn.toLowerCase()}</h2>
@@ -188,14 +188,14 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const { naering: naeringSlug, kommune: kommuneSlug } = params;
-  const { bedrifter, naering, kommuneNavn, total } = await getBedrifterByKategoriOgKommune(naeringSlug, kommuneSlug);
+  const { bedrifter, naering, kommuneNavn, total, totalMedNettside } = await getBedrifterByKategoriOgKommune(naeringSlug, kommuneSlug);
 
   if (!naering || !kommuneNavn) return { notFound: true };
 
   const annonsor = await getAnnonsorForBransje(naering.slug);
 
   return {
-    props: { bedrifter, naering, kommune: kommuneNavn, total, annonsor },
+    props: { bedrifter, naering, kommune: kommuneNavn, total, totalMedNettside, annonsor },
     revalidate: 86400,
   };
 }
