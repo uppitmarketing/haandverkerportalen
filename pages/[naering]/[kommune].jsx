@@ -14,7 +14,7 @@ import styles from '../../styles/Kategori.module.css';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 
-export default function KategoriSide({ bedrifter, naering, kommune, total, totalMedNettside, annonsor }) {
+export default function KategoriSide({ bedrifter, naering, kommune, fylke, total, totalMedNettside, annonsor }) {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -38,6 +38,20 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, total
   const kommuneSlugUrl = kommune.toLowerCase().replace(/\s/g, '-');
   const innsikt = getBransjeInnsikt(naering.slug);
   const flertall = getBransjeFlertall(naering.slug, naering.visningsnavn);
+
+  const stiftelsesAar = bedrifter
+    .map(b => b.stiftelsesdato ? parseInt(b.stiftelsesdato.substring(0, 4), 10) : null)
+    .filter(aar => aar && !Number.isNaN(aar));
+  const eldsteAar = stiftelsesAar.length ? Math.min(...stiftelsesAar) : null;
+
+  const ansatteTall = bedrifter
+    .map(b => b.antall_ansatte)
+    .filter(n => typeof n === 'number' && n > 0);
+  const storsteAntallAnsatte = ansatteTall.length ? Math.max(...ansatteTall) : null;
+
+  let stedTekst = fylke ? `${kommune} ligger i ${fylke} fylke.` : '';
+  if (eldsteAar) stedTekst += ` Den eldste bedriften i oversikten ble etablert i ${eldsteAar}.`;
+  if (storsteAntallAnsatte) stedTekst += ` Den største har ${storsteAntallAnsatte} ansatte.`;
 
   const faq = [
     {
@@ -141,6 +155,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, total, total
           <p>
             HåndverkerPortalen har <strong>{total} registrerte {flertall} i {kommune}</strong>, ifølge Brønnøysundregistrene, hvorav {totalMedNettside} har egen nettside.
           </p>
+          {stedTekst && <p>{stedTekst}</p>}
           <h2>Hva koster en {naering.visningsnavn.toLowerCase()} i {kommune}?</h2>
           <p>{innsikt.prisTekst}</p>
           <h2>Slik finner du riktig {naering.visningsnavn.toLowerCase()}</h2>
@@ -188,14 +203,14 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const { naering: naeringSlug, kommune: kommuneSlug } = params;
-  const { bedrifter, naering, kommuneNavn, total, totalMedNettside } = await getBedrifterByKategoriOgKommune(naeringSlug, kommuneSlug);
+  const { bedrifter, naering, kommuneNavn, fylke, total, totalMedNettside } = await getBedrifterByKategoriOgKommune(naeringSlug, kommuneSlug);
 
   if (!naering || !kommuneNavn) return { notFound: true };
 
   const annonsor = await getAnnonsorForBransje(naering.slug);
 
   return {
-    props: { bedrifter, naering, kommune: kommuneNavn, total, totalMedNettside, annonsor },
+    props: { bedrifter, naering, kommune: kommuneNavn, fylke, total, totalMedNettside, annonsor },
     revalidate: 86400,
   };
 }
