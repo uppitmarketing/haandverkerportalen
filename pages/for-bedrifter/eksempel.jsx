@@ -27,7 +27,9 @@ export default function FremhevetProfilEksempel() {
         <div className={styles.kort}>
           <div className={styles.hero}>
             <div className={styles.heroInner}>
-              <div className={styles.avatar}>NB</div>
+              <div className={styles.avatar}>
+                <img src="/demo-nordvik-logo.svg" alt="Nordvik Byggmester AS logo" />
+              </div>
               <div>
                 <div className={styles.tagger}>
                   <span className={styles.badgeFremhevet}>
