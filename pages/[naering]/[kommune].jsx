@@ -14,7 +14,7 @@ import styles from '../../styles/Kategori.module.css';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 
-export default function KategoriSide({ bedrifter, naering, kommune, fylke, total, totalMedNettside, annonsor }) {
+export default function KategoriSide({ bedrifter, naering, kommune, fylke, total, annonsor }) {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -56,7 +56,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
   const faq = [
     {
       sp: `Hvor mange ${flertall} er det i ${kommune}?`,
-      sv: `${total} ${flertall} er registrert i ${kommune} ifølge Brønnøysundregistrene, hvorav ${totalMedNettside} har egen nettside.`,
+      sv: `${total} ${flertall} er registrert i ${kommune} ifølge Brønnøysundregistrene.`,
     },
     {
       sp: `Er bedriftene på HåndverkerPortalen godkjente?`,
@@ -119,10 +119,6 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
                 <span className={styles.heroStatNum}>{total}</span>
                 <span className={styles.heroStatLabel}>Bedrifter</span>
               </div>
-              <div className={styles.heroStat}>
-                <span className={styles.heroStatNum}>{totalMedNettside}</span>
-                <span className={styles.heroStatLabel}>Med nettside</span>
-              </div>
             </div>
           </div>
         </div>
@@ -153,7 +149,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
       <section className={styles.seoTekst}>
         <div className="container--narrow">
           <p>
-            HåndverkerPortalen har <strong>{total} registrerte {flertall} i {kommune}</strong>, ifølge Brønnøysundregistrene, hvorav {totalMedNettside} har egen nettside.
+            HåndverkerPortalen har <strong>{total} registrerte {flertall} i {kommune}</strong>, ifølge Brønnøysundregistrene.
           </p>
           {stedTekst && <p>{stedTekst}</p>}
           <h2>Hva koster en {naering.visningsnavn.toLowerCase()} i {kommune}?</h2>
@@ -203,14 +199,14 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const { naering: naeringSlug, kommune: kommuneSlug } = params;
-  const { bedrifter, naering, kommuneNavn, fylke, total, totalMedNettside } = await getBedrifterByKategoriOgKommune(naeringSlug, kommuneSlug);
+  const { bedrifter, naering, kommuneNavn, fylke, total } = await getBedrifterByKategoriOgKommune(naeringSlug, kommuneSlug);
 
   if (!naering || !kommuneNavn) return { notFound: true };
 
   const annonsor = await getAnnonsorForBransje(naering.slug);
 
   return {
-    props: { bedrifter, naering, kommune: kommuneNavn, fylke, total, totalMedNettside, annonsor },
+    props: { bedrifter, naering, kommune: kommuneNavn, fylke, total, annonsor },
     revalidate: 86400,
   };
 }
