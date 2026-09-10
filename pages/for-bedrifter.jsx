@@ -20,6 +20,7 @@ export default function ForBedrifter() {
             <li className={styles.listeItem}>Spesialiteter og hvilke type oppdrag dere tar</li>
             <li className={styles.listeItem}>Lenke til nettside</li>
           </ul>
+          <p className={styles.tekst}><a href="/for-bedrifter/eksempel" className={styles.lenke}>Se et eksempel på en fremhevet profil →</a></p>
 
           <h2 className={styles.heading}>Mer treffsikre søk</h2>
           <p className={styles.tekst}>
