@@ -12,6 +12,7 @@ const PAKKER = [
       'Logo og bilder',
       'Beskrivelse av tjenester',
     ],
+    demoLink: '/for-bedrifter/eksempel',
   },
   {
     navn: 'Bannerplass',
@@ -59,6 +60,11 @@ export default function Annonsering() {
                     <li key={punkt} className={styles.listeItem}>{punkt}</li>
                   ))}
                 </ul>
+                {p.demoLink && (
+                  <a href={p.demoLink} className={styles.lenke} style={{ fontSize: 14, fontWeight: 600 }}>
+                    Se eksempel →
+                  </a>
+                )}
               </div>
             ))}
           </div>
