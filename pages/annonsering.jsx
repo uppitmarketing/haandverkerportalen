@@ -13,6 +13,7 @@ const PAKKER = [
       'Beskrivelse av tjenester',
     ],
     demoLink: '/for-bedrifter/eksempel',
+    introLink: '/for-bedrifter/intro',
   },
   {
     navn: 'Bannerplass',
@@ -60,11 +61,18 @@ export default function Annonsering() {
                     <li key={punkt} className={styles.listeItem}>{punkt}</li>
                   ))}
                 </ul>
-                {p.demoLink && (
-                  <a href={p.demoLink} className={styles.lenke} style={{ fontSize: 14, fontWeight: 600 }}>
-                    Se eksempel →
-                  </a>
-                )}
+                <div style={{ display: 'flex', gap: 16 }}>
+                  {p.demoLink && (
+                    <a href={p.demoLink} className={styles.lenke} style={{ fontSize: 14, fontWeight: 600 }}>
+                      Se eksempel →
+                    </a>
+                  )}
+                  {p.introLink && (
+                    <a href={p.introLink} className={styles.lenke} style={{ fontSize: 14, fontWeight: 600 }}>
+                      Introtilbud: gratis for de 10 første →
+                    </a>
+                  )}
+                </div>
               </div>
             ))}
           </div>

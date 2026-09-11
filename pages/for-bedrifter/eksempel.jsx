@@ -122,8 +122,8 @@ export default function FremhevetProfilEksempel() {
         </div>
 
         <div className={styles.ctaBunn}>
-          <p>Vil du ha en tilsvarende profil for din bedrift?</p>
-          <a href="mailto:petter@uppit.no" className="btn btn--primary">Kontakt oss →</a>
+          <p>Vil du ha en tilsvarende profil for din bedrift? De 10 første i september får den helt gratis.</p>
+          <a href="/for-bedrifter/intro" className="btn btn--primary">Meld deg på gratis →</a>
         </div>
       </div>
     </Layout>

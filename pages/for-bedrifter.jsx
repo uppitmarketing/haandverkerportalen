@@ -9,6 +9,13 @@ export default function ForBedrifter() {
         <div className="container--narrow">
           <h1 className={styles.title}>For bedrifter</h1>
           <p className={styles.lead}>Er du håndverker? Nå ut til flere kunder i ditt område.</p>
+
+          <div className={styles.cta}>
+            <h3 className={styles.ctaTitle}>Introtilbud: Gratis Fremhevet profil, for alltid</h3>
+            <p className={styles.ctaTekst}>De 10 første bedriftene som melder seg på i september får Fremhevet profil helt gratis — ingen bindingstid, koster aldri noe.</p>
+            <a href="/for-bedrifter/intro" className="btn btn--primary">Meld deg på →</a>
+          </div>
+
           <h2 className={styles.heading}>Gratis bedriftsprofil</h2>
           <p className={styles.tekst}>Alle bedrifter registrert i Brønnøysundregistrene får automatisk en gratis profil på HåndverkerPortalen.</p>
           <h2 className={styles.heading}>Fremhevet profil</h2>
