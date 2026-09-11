@@ -22,7 +22,7 @@ export default function ForBedrifter() {
           <p className={styles.tekst}>Med en fremhevet profil vises din bedrift øverst i søkeresultatene. Du kan også legge til:</p>
           <ul className={styles.liste}>
             <li className={styles.listeItem}>Kontaktinformasjon (telefon, e-post)</li>
-            <li className={styles.listeItem}>Bilder og logo</li>
+            <li className={styles.listeItem}>Logo</li>
             <li className={styles.listeItem}>Beskrivelse av tjenester</li>
             <li className={styles.listeItem}>Spesialiteter og hvilke type oppdrag dere tar</li>
             <li className={styles.listeItem}>Lenke til nettside</li>

@@ -107,7 +107,7 @@ export default function FremhevetIntroTilbud({ antallPameldt }) {
             <ul className={styles.liste}>
               <li className={styles.listeItem}>Vises øverst i din bransje og kommune</li>
               <li className={styles.listeItem}>Legg til telefon og e-post</li>
-              <li className={styles.listeItem}>Logo og bilder</li>
+              <li className={styles.listeItem}>Logo</li>
               <li className={styles.listeItem}>Beskrivelse av tjenester og spesialiteter</li>
             </ul>
             <a href="/for-bedrifter/eksempel" className={styles.demoLenke}>Se hvordan en fremhevet profil ser ut →</a>

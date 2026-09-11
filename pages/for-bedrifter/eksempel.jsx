@@ -2,7 +2,7 @@
 import Head from 'next/head';
 import Layout from '../../components/Layout';
 import styles from '../../styles/FremhevetEksempel.module.css';
-import { Info, BadgeCheck, Star, MessageCircle, Phone, MapPin, Mail, Image as ImageIcon } from 'lucide-react';
+import { Info, BadgeCheck, Star, MessageCircle, Phone, MapPin, Mail } from 'lucide-react';
 
 export default function FremhevetProfilEksempel() {
   return (
@@ -20,7 +20,7 @@ export default function FremhevetProfilEksempel() {
           <Info size={17} />
           <div>
             <strong>Demoside — ikke en ekte bedrift</strong>
-            Dette er et eksempel på hvordan en fremhevet profil kan se ut for bedrifter som oppgraderer fra standardoppføringen. Navn, tall og bilder under er kun illustrasjon.
+            Dette er et eksempel på hvordan en fremhevet profil kan se ut for bedrifter som oppgraderer fra standardoppføringen. Navn og tall under er kun illustrasjon.
           </div>
         </div>
 
@@ -53,14 +53,12 @@ export default function FremhevetProfilEksempel() {
               <div className={styles.stat}><div className={styles.statNum}>2011</div><div className={styles.statLabel}>Etablert</div></div>
               <div className={styles.stat}><div className={styles.statNum}>18</div><div className={styles.statLabel}>Ansatte</div></div>
               <div className={styles.stat}><div className={styles.statNum}>4,9</div><div className={styles.statLabel}>Snittvurdering</div></div>
-              <div className={styles.stat}><div className={styles.statNum}>140+</div><div className={styles.statLabel}>Prosjekter</div></div>
             </div>
           </div>
 
           <div className={styles.faner}>
             <div className={`${styles.fane} ${styles.faneAktiv}`}>Om</div>
             <div className={styles.fane}>Tjenester</div>
-            <div className={styles.fane}>Prosjekter</div>
             <div className={styles.fane}>Anmeldelser</div>
             <div className={styles.fane}>Kontakt</div>
           </div>
@@ -79,15 +77,6 @@ export default function FremhevetProfilEksempel() {
                 <span className={styles.tag}>Bad – totalrenovering</span>
                 <span className={styles.tag}>Enebolig nybygg</span>
                 <span className={styles.tag}>Takterrasse</span>
-              </div>
-            </div>
-
-            <div className={styles.boks}>
-              <div className={styles.boksTittel}>Nylige prosjekter</div>
-              <div className={styles.galleri}>
-                <div className={styles.gItem}><ImageIcon size={26} /></div>
-                <div className={styles.gItem}><ImageIcon size={26} /></div>
-                <div className={styles.gItem}><ImageIcon size={26} /></div>
               </div>
             </div>
           </div>
@@ -116,7 +105,7 @@ export default function FremhevetProfilEksempel() {
 
             <div className={styles.fremhevetInfo}>
               <strong>Dette er en fremhevet profil</strong>
-              <p>Bedriften har oppgradert fra standardoppføringen for å vise fram spesialiteter, prosjekter og anmeldelser til flere kunder.</p>
+              <p>Bedriften har oppgradert fra standardoppføringen for å vise fram spesialiteter og anmeldelser til flere kunder.</p>
             </div>
           </div>
         </div>

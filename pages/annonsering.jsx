@@ -9,7 +9,7 @@ const PAKKER = [
     punkter: [
       'Vises øverst i din bransje og kommune',
       'Legg til telefon og e-post',
-      'Logo og bilder',
+      'Logo',
       'Beskrivelse av tjenester',
     ],
     demoLink: '/for-bedrifter/eksempel',
