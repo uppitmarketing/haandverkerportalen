@@ -90,6 +90,16 @@
 .klikkNavn:hover { text-decoration: underline; }
 .tomtLite { font-size: 13px; color: var(--muted); }
 
+.foresporslerSeksjon {
+  max-width: 900px; margin: 0 auto 28px; background: var(--accent-lt);
+  border: 1px solid rgba(37,99,235,0.15); border-radius: var(--radius-lg); padding: 16px;
+}
+.foresporslerTittel {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--accent-dk); margin-bottom: 14px; padding: 0 4px;
+}
+
 .tabellBoks { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 8px; max-width: 900px; margin: 0 auto; overflow-x: auto; }
 .tomt { padding: 40px; text-align: center; color: var(--muted); font-size: 14px; }
 

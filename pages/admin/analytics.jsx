@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from '../../lib/supabaseAdmin';
 import { erGyldigToken } from '../../lib/analyticsAuth';
 import { NAERINGSKODER } from '../../lib/db';
 import { BransjeIkon } from '../../components/icons';
+import { Inbox } from 'lucide-react';
 import styles from '../../styles/Analytics.module.css';
 
 const PERIODER = [
@@ -142,6 +143,10 @@ export default function AnalyticsSide({
                 ))}
               </div>
 
+              {(nettsideForslag.length > 0 || fremhevetIntro.length > 0) && (
+                <div className={styles.foresporslerSeksjon}>
+                  <h2 className={styles.foresporslerTittel}><Inbox size={15} /> Innkommende forespørsler</h2>
+
               {nettsideForslag.length > 0 && (
                 <div className={styles.tabellBoks} style={{ marginBottom: 20 }}>
                   <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
@@ -242,6 +247,8 @@ export default function AnalyticsSide({
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
                 </div>
               )}
 
