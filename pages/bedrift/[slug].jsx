@@ -12,7 +12,7 @@ import { safeJsonLd } from '../../lib/jsonLd';
 import { sporHendelse } from '../../lib/gtag';
 import { sporInternHendelse } from '../../lib/internAnalytics';
 import Kart from '../../components/Kart';
-import { Globe, Check, Hourglass } from 'lucide-react';
+import { Globe, Check, Hourglass, Star } from 'lucide-react';
 import { BransjeIkon } from '../../components/icons';
 
 const BASE_URL = 'https://haandverkerportalen.no';
@@ -144,9 +144,20 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
           </nav>
 
           <div className={styles.heroInner}>
-            <div className={styles.heroIcon}><BransjeIkon slug={naering?.slug} size={34} /></div>
+            <div className={styles.heroIcon}>
+              {bedrift.logo_url ? (
+                <img src={bedrift.logo_url} alt={`${bedrift.navn} logo`} />
+              ) : (
+                <BransjeIkon slug={naering?.slug} size={34} />
+              )}
+            </div>
             <div>
               <div className={styles.tagger}>
+                {bedrift.er_fremhevet && (
+                  <span className={styles.badgeFremhevet}>
+                    <Star size={10} fill="currentColor" strokeWidth={0} /> Fremhevet profil
+                  </span>
+                )}
                 <span className={`tag ${bedrift.er_aktiv && !bedrift.konkurs ? 'tag--green' : 'tag--red'}`}>{status}</span>
                 {naering && <span className="tag tag--blue">{naering.visningsnavn}</span>}
                 {bedrift.mva_registrert && <span className="tag tag--muted">MVA-reg.</span>}
@@ -156,6 +167,22 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                 {bedrift.adresse ? `${bedrift.adresse}, ` : ''}{bedrift.postnummer} {bedrift.poststed}
               </p>
             </div>
+            {bedrift.er_fremhevet && (
+              <div className={styles.heroStats}>
+                {stiftetAar && (
+                  <div className={styles.heroStat}>
+                    <span className={styles.heroStatNum}>{stiftetAar}</span>
+                    <span className={styles.heroStatLabel}>Etablert</span>
+                  </div>
+                )}
+                {bedrift.antall_ansatte != null && (
+                  <div className={styles.heroStat}>
+                    <span className={styles.heroStatNum}>{bedrift.antall_ansatte}</span>
+                    <span className={styles.heroStatLabel}>Ansatte</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -164,9 +191,16 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
         <div className={styles.layout}>
           <main className={styles.main}>
 
-            {beskrivelse && (
+            {(bedrift.egen_beskrivelse || beskrivelse) && (
               <div className={styles.boks}>
-                <p className={styles.beskrivelse}>{beskrivelse}</p>
+                <p className={styles.beskrivelse}>{bedrift.egen_beskrivelse || beskrivelse}</p>
+                {bedrift.er_fremhevet && bedrift.spesialiteter && (
+                  <div className={styles.tagRad}>
+                    {bedrift.spesialiteter.split(',').map(s => s.trim()).filter(Boolean).map(s => (
+                      <span key={s} className={styles.spesialitetTag}>{s}</span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
             <div className={styles.boks}>
@@ -272,18 +306,20 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
               >
                 Se på Brreg.no →
               </a>
-              <div className={styles.forBedrifterBoks}>
-                <strong>Er dette bedriften din?</strong>
-                <p>Bli fremhevet øverst i søkeresultatene og vis frem det dere er best på.</p>
-                <ul className={styles.forBedrifterListe}>
-                  <li><Check size={13} strokeWidth={3} /> Øverst i søkeresultatene</li>
-                  <li><Check size={13} strokeWidth={3} /> Bilder, logo og beskrivelse</li>
-                  <li><Check size={13} strokeWidth={3} /> Spesialiteter for mer treffsikre søk</li>
-                </ul>
-                <a href="/for-bedrifter" className={`btn btn--primary ${styles.forBedrifterBtn}`}>
-                  Se hva vi tilbyr →
-                </a>
-              </div>
+              {!bedrift.er_fremhevet && (
+                <div className={styles.forBedrifterBoks}>
+                  <strong>Er dette bedriften din?</strong>
+                  <p>Bli fremhevet øverst i søkeresultatene og vis frem det dere er best på.</p>
+                  <ul className={styles.forBedrifterListe}>
+                    <li><Check size={13} strokeWidth={3} /> Øverst i søkeresultatene</li>
+                    <li><Check size={13} strokeWidth={3} /> Logo og beskrivelse</li>
+                    <li><Check size={13} strokeWidth={3} /> Spesialiteter for mer treffsikre søk</li>
+                  </ul>
+                  <a href="/for-bedrifter" className={`btn btn--primary ${styles.forBedrifterBtn}`}>
+                    Se hva vi tilbyr →
+                  </a>
+                </div>
+              )}
             </div>
             <Annonse annonsor={annonsor} variant="kompakt" bransjeSlug={naering?.slug} />
           </aside>

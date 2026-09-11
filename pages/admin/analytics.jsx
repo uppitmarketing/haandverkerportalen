@@ -73,6 +73,28 @@ export default function AnalyticsSide({
     }
   }
 
+  async function handleKonverter(id) {
+    if (!confirm('Konvertere denne bedriften til fremhevet profil nå?')) return;
+    setBehandlerIntroId(id);
+    try {
+      const res = await fetch('/api/analytics-konverter-fremhevet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(`Klarte ikke å konvertere: ${data.feil || res.statusText}`);
+        setBehandlerIntroId(null);
+        return;
+      }
+      window.location.reload();
+    } catch {
+      alert('Klarte ikke å nå serveren. Prøv igjen.');
+      setBehandlerIntroId(null);
+    }
+  }
+
   async function handleLogin(e) {
     e.preventDefault();
     setLaster(true);
@@ -210,6 +232,7 @@ export default function AnalyticsSide({
                         <th>Beskrivelse</th>
                         <th>Dato</th>
                         <th>Kontaktet</th>
+                        <th>Konverter</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -240,6 +263,19 @@ export default function AnalyticsSide({
                                 onClick={() => handleKontaktet(p.id, true)}
                               >
                                 {behandlerIntroId === p.id ? '...' : 'Marker som kontaktet'}
+                              </button>
+                            )}
+                          </td>
+                          <td className={styles.handlingCelle}>
+                            {p.konvertert ? (
+                              <span style={{ color: 'var(--green)', fontWeight: 600, fontSize: 11 }}>Konvertert ✓</span>
+                            ) : (
+                              <button
+                                className={styles.godkjennBtn}
+                                disabled={behandlerIntroId === p.id}
+                                onClick={() => handleKonverter(p.id)}
+                              >
+                                {behandlerIntroId === p.id ? '...' : 'Konverter til fremhevet →'}
                               </button>
                             )}
                           </td>

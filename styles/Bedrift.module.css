@@ -3,9 +3,29 @@
   background: radial-gradient(ellipse 900px 260px at 50% -40%, var(--accent-lt) 0%, var(--bg) 60%, var(--surface) 100%);
   color: var(--ink); padding: 36px 0 40px;
 }
-.heroInner { display: flex; align-items: center; gap: 16px; }
-.heroIcon { color: var(--accent); background: var(--accent-lt); border: 1px solid var(--border); border-radius: var(--radius-lg); width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.tagger { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.heroInner { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.heroIcon { color: var(--accent); background: var(--accent-lt); border: 1px solid var(--border); border-radius: var(--radius-lg); width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+.heroIcon img { width: 100%; height: 100%; object-fit: cover; }
+.tagger { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
+
+.badgeFremhevet {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
+  color: var(--accent-dk); background: var(--accent-lt); border: 1px solid rgba(37,99,235,0.16);
+  padding: 3px 8px 3px 6px; border-radius: 20px;
+}
+
+.heroStats { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); flex-shrink: 0; box-shadow: var(--shadow-sm); margin-left: auto; }
+.heroStat { display: flex; flex-direction: column; align-items: center; padding: 14px 20px; border-right: 1px solid var(--border); }
+.heroStat:last-child { border-right: none; }
+.heroStatNum { font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: -0.6px; line-height: 1; margin-bottom: 3px; }
+.heroStatLabel { font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.tagRad { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.spesialitetTag {
+  font-size: 12px; font-weight: 600; color: var(--accent-dk); background: var(--accent-lt);
+  border: 1px solid rgba(37,99,235,0.14); padding: 5px 10px; border-radius: var(--radius-sm);
+}
 .navn { font-size: clamp(20px, 3.5vw, 34px); font-weight: 800; letter-spacing: -0.8px; line-height: 1.1; margin-bottom: 5px; }
 .adresse { font-size: 13px; color: #6B7280; }
 
