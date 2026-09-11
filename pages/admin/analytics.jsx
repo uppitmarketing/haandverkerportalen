@@ -20,11 +20,13 @@ export default function AnalyticsSide({
   totalAnnonseVisninger, totalEkteVisninger, totalPlaceholderVisninger, annonseVisningBransjer,
   totalAnnonseKlikk, annonseKlikkBransjer, nettsideForslag,
   trafikkPerDag, totalForBedrifter, forBedrifterFraProfil, forBedrifterAndre, oppsettFeil,
+  fremhevetIntro,
 }) {
   const [passord, setPassord] = useState('');
   const [feil, setFeil] = useState('');
   const [laster, setLaster] = useState(false);
   const [behandlerId, setBehandlerId] = useState(null);
+  const [behandlerIntroId, setBehandlerIntroId] = useState(null);
 
   const andelFraProfil = totalForBedrifter > 0 ? Math.round((forBedrifterFraProfil / totalForBedrifter) * 100) : 0;
 
@@ -46,6 +48,27 @@ export default function AnalyticsSide({
     } catch {
       alert('Klarte ikke å nå serveren. Prøv igjen.');
       setBehandlerId(null);
+    }
+  }
+
+  async function handleKontaktet(id, kontaktet) {
+    setBehandlerIntroId(id);
+    try {
+      const res = await fetch('/api/analytics-marker-kontaktet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, kontaktet }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(`Klarte ikke å oppdatere: ${data.feil || res.statusText}`);
+        setBehandlerIntroId(null);
+        return;
+      }
+      window.location.reload();
+    } catch {
+      alert('Klarte ikke å nå serveren. Prøv igjen.');
+      setBehandlerIntroId(null);
     }
   }
 
@@ -156,6 +179,58 @@ export default function AnalyticsSide({
                             >
                               Avvis
                             </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {fremhevetIntro.length > 0 && (
+                <div className={styles.tabellBoks} style={{ marginBottom: 20 }}>
+                  <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
+                    Introtilbud – Fremhevet profil ({fremhevetIntro.length} påmeldt)
+                  </h2>
+                  <table className={styles.tabell}>
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Bedrift</th>
+                        <th>Org.nr</th>
+                        <th>E-post</th>
+                        <th>Telefon</th>
+                        <th>Dato</th>
+                        <th>Kontaktet</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {fremhevetIntro.map((p, i) => (
+                        <tr key={p.id} style={i >= 10 ? { opacity: 0.5 } : undefined}>
+                          <td>{i + 1}{i >= 10 ? ' (utenfor de 10)' : ''}</td>
+                          <td>{p.bedriftsnavn}</td>
+                          <td>{p.org_nr}</td>
+                          <td>{p.epost}</td>
+                          <td>{p.telefon || '—'}</td>
+                          <td>{new Date(p.opprettet_at).toLocaleDateString('no')}</td>
+                          <td className={styles.handlingCelle}>
+                            {p.kontaktet ? (
+                              <button
+                                className={styles.avvisBtn}
+                                disabled={behandlerIntroId === p.id}
+                                onClick={() => handleKontaktet(p.id, false)}
+                              >
+                                {behandlerIntroId === p.id ? '...' : 'Kontaktet ✓ (angre)'}
+                              </button>
+                            ) : (
+                              <button
+                                className={styles.godkjennBtn}
+                                disabled={behandlerIntroId === p.id}
+                                onClick={() => handleKontaktet(p.id, true)}
+                              >
+                                {behandlerIntroId === p.id ? '...' : 'Marker som kontaktet'}
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -403,6 +478,7 @@ export async function getServerSideProps({ req, query }) {
     totalAnnonseVisninger: 0, totalEkteVisninger: 0, totalPlaceholderVisninger: 0, annonseVisningBransjer: [],
     totalAnnonseKlikk: 0, annonseKlikkBransjer: [], nettsideForslag: [],
     trafikkPerDag: [], totalForBedrifter: 0, forBedrifterFraProfil: 0, forBedrifterAndre: 0,
+    fremhevetIntro: [],
     oppsettFeil: null,
   };
 
@@ -422,12 +498,13 @@ export async function getServerSideProps({ req, query }) {
     if (periode === '7d') fra = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     if (periode === '30d') fra = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [sideRes, kildeRes, forslagRes, dagRes, forBedrifterRes] = await Promise.all([
+    const [sideRes, kildeRes, forslagRes, dagRes, forBedrifterRes, introRes] = await Promise.all([
       supabaseAdmin.rpc('page_view_counts', { fra }),
       supabaseAdmin.rpc('page_view_besokskilder', { fra }),
       supabaseAdmin.from('nettside_forslag').select('*').eq('status', 'venter').order('created_at', { ascending: false }),
       supabaseAdmin.rpc('page_views_per_dag', { fra }),
       supabaseAdmin.rpc('for_bedrifter_kilder', { fra }),
+      supabaseAdmin.from('fremhevet_intro_pamelding').select('*').order('opprettet_at', { ascending: true }),
     ]);
 
     if (sideRes.error) throw new Error(sideRes.error.message);
@@ -435,8 +512,10 @@ export async function getServerSideProps({ req, query }) {
     if (forslagRes.error) throw new Error(forslagRes.error.message);
     if (dagRes.error) throw new Error(dagRes.error.message);
     if (forBedrifterRes.error) throw new Error(forBedrifterRes.error.message);
+    if (introRes.error) throw new Error(introRes.error.message);
 
     const nettsideForslag = forslagRes.data || [];
+    const fremhevetIntro = introRes.data || [];
 
     const dagRader = dagRes.data || [];
     const maxDag = Math.max(1, ...dagRader.map(d => Number(d.antall)));
@@ -569,6 +648,7 @@ export async function getServerSideProps({ req, query }) {
         totalForBedrifter,
         forBedrifterFraProfil: Number(forBedrifterFraProfil),
         forBedrifterAndre: Number(forBedrifterAndre),
+        fremhevetIntro,
         oppsettFeil: null,
       },
     };
