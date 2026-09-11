@@ -249,7 +249,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
 
             <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering?.slug} />
 
-            {relaterte.length > 0 && (
+            {!bedrift.er_fremhevet && relaterte.length > 0 && (
               <div className={styles.relaterteSection}>
                 <h3 className={styles.relTitle}>
                   Andre {naering?.visningsnavn?.toLowerCase()}er i {bedrift.kommune}
