@@ -27,8 +27,11 @@
 .finskrift { font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 
 .boks { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
-.boksTittel { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
-.boksSub { font-size: 13px; color: var(--ink-3); margin-bottom: 18px; }
+
+.stegIndikator { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.stegStrek { flex: 1; height: 1px; background: var(--border); }
+.stegAktiv { color: var(--accent); }
+.stegFerdig { color: var(--ink-2); }
 
 .skjema { display: flex; flex-direction: column; gap: 12px; }
 .felt { display: flex; flex-direction: column; gap: 5px; }
@@ -40,13 +43,33 @@
 }
 .input:focus { border-color: var(--accent); background: var(--surface); }
 
+.textarea {
+  width: 100%; font-family: 'Inter', sans-serif; font-size: 14px;
+  padding: 11px 13px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  outline: none; background: var(--bg); color: var(--ink); resize: vertical; line-height: 1.5;
+}
+.textarea:focus { border-color: var(--accent); background: var(--surface); }
+
+.oppslagInfo { font-size: 12px; color: var(--muted); }
+.oppslagFunnet { font-size: 12px; color: var(--green); font-weight: 500; }
+.oppslagIkkeFunnet { font-size: 12px; color: var(--ink-3); }
+
 .knapp {
   background: var(--accent); color: #fff; border: none; font-family: 'Inter', sans-serif;
   font-size: 14px; font-weight: 700; padding: 12px; border-radius: var(--radius-sm);
-  cursor: pointer; margin-top: 4px;
+  cursor: pointer; margin-top: 4px; flex: 1;
 }
 .knapp:hover { background: var(--accent-dk); }
 .knapp:disabled { opacity: 0.6; cursor: default; }
+
+.stegKnapper { display: flex; gap: 10px; align-items: center; }
+.tilbakeKnapp {
+  background: transparent; color: var(--ink-2); border: none; font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600; padding: 12px 4px; cursor: pointer;
+}
+.tilbakeKnapp:hover { color: var(--accent); }
+
+.finskriftLite { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
 
 .feil { color: var(--red); font-size: 12.5px; margin: 0; }
 

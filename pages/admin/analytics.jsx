@@ -200,6 +200,9 @@ export default function AnalyticsSide({
                         <th>Org.nr</th>
                         <th>E-post</th>
                         <th>Telefon</th>
+                        <th>Nettside</th>
+                        <th>Spesialiteter</th>
+                        <th>Beskrivelse</th>
                         <th>Dato</th>
                         <th>Kontaktet</th>
                       </tr>
@@ -212,6 +215,9 @@ export default function AnalyticsSide({
                           <td>{p.org_nr}</td>
                           <td>{p.epost}</td>
                           <td>{p.telefon || '—'}</td>
+                          <td>{p.nettside || '—'}</td>
+                          <td>{p.spesialiteter || '—'}</td>
+                          <td style={{ maxWidth: 220, whiteSpace: 'normal' }}>{p.beskrivelse || '—'}</td>
                           <td>{new Date(p.opprettet_at).toLocaleDateString('no')}</td>
                           <td className={styles.handlingCelle}>
                             {p.kontaktet ? (
