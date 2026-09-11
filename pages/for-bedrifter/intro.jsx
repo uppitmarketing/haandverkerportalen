@@ -86,24 +86,29 @@ export default function FremhevetIntroTilbud({ antallPameldt }) {
       description="De 10 første bedriftene som melder seg på i september får Fremhevet profil helt gratis, for alltid."
       canonical="/for-bedrifter/intro"
     >
-      <div className={`container ${styles.side}`}>
-        <div className={styles.badge}>
-          <span className={styles.badgeDot} />
-          Introtilbud – kun september 2026
+      <section className={styles.hero}>
+        <div className="container">
+          <div className={styles.badge}>
+            <span className={styles.badgeDot} />
+            Introtilbud – kun september 2026
+          </div>
+          <h1 className={styles.title}>Gratis Fremhevet profil, for alltid</h1>
+          <p className={styles.lead}>
+            <span className={styles.leadStrong}>De 10 første bedriftene</span> som melder seg på i september får
+            Fremhevet profil helt gratis, uten bindingstid og uten at det noensinne begynner å koste noe.
+          </p>
+          {tilbudetErAktivt ? (
+            <p className={styles.plasser}><strong>{plasserIgjen}</strong> av {MAKS_PLASSER} plasser igjen.</p>
+          ) : (
+            <p className={styles.plasser}>Tilbudet er dessverre avsluttet.</p>
+          )}
         </div>
-        <h1 className={styles.title}>Gratis Fremhevet profil, for alltid</h1>
-        <p className={styles.lead}>
-          <span className={styles.leadStrong}>De 10 første bedriftene</span> som melder seg på i september får
-          Fremhevet profil helt gratis, uten bindingstid og uten at det noensinne begynner å koste noe.
-        </p>
-        {tilbudetErAktivt ? (
-          <p className={styles.plasser}><strong>{plasserIgjen}</strong> av {MAKS_PLASSER} plasser igjen.</p>
-        ) : (
-          <p className={styles.plasser}>Tilbudet er dessverre avsluttet.</p>
-        )}
+      </section>
 
+      <div className={`container ${styles.side}`}>
         <div className={styles.grid}>
-          <div>
+          <div className={styles.infoBoks}>
+            <div className={styles.infoTittel}>Dette får du</div>
             <ul className={styles.liste}>
               <li className={styles.listeItem}>Vises øverst i din bransje og kommune</li>
               <li className={styles.listeItem}>Legg til telefon og e-post</li>
