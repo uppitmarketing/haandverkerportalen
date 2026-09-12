@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import { NAERINGSKODER, KOMMUNER, getNaeringBySlug, getAntallPerNaering } from '../../lib/db';
 import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt';
+import { getArtiklerForBransje, getGenerelleArtikler } from '../../lib/artikler';
 import { safeJsonLd } from '../../lib/jsonLd';
 import { BransjeIkon } from '../../components/icons';
 import styles from '../../styles/NaeringIndex.module.css';
@@ -17,6 +18,7 @@ export default function NaeringIndexSide({ naering, kommuner, total }) {
 
   const innsikt = getBransjeInnsikt(naering.slug);
   const navnFlertall = getBransjeFlertall(naering.slug, naering.visningsnavn);
+  const relevanteArtikler = [...getArtiklerForBransje(naering.slug), ...getGenerelleArtikler()];
 
   const faq = [
     {
@@ -106,6 +108,22 @@ export default function NaeringIndexSide({ naering, kommuner, total }) {
           </ul>
         </div>
       </section>
+
+      {relevanteArtikler.length > 0 && (
+        <section className={styles.guider}>
+          <div className="container--narrow">
+            <h2 className={styles.secTitle}>Nyttige guider</h2>
+            <div className={styles.guiderGrid}>
+              {relevanteArtikler.map(a => (
+                <a key={a.slug} href={`/artikler/${a.slug}`} className={styles.guideKort}>
+                  <span>{a.tittel}</span>
+                  <span>→</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className={styles.faq}>
         <div className="container--narrow">

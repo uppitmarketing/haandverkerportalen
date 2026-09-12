@@ -65,6 +65,13 @@
 .seoTekst ul { padding-left: 18px; margin-bottom: 10px; }
 .seoTekst li { font-size: 14px; color: var(--ink-2); line-height: 1.7; margin-bottom: 3px; }
 
+.guider { padding: 0 0 48px; }
+.guiderGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+.guideKort { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; font-size: 13px; font-weight: 500; color: var(--ink-2); transition: all 0.15s; }
+.guideKort:hover { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 768px) { .guiderGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .guiderGrid { grid-template-columns: 1fr; } }
+
 .faq { padding: 40px 0 64px; }
 .faqTitle { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 16px; color: var(--ink); }
 .faqListe { display: flex; flex-direction: column; gap: 8px; }

@@ -8,6 +8,7 @@ import { NAERINGSKODER, getBedrifterByKategoriOgKommune, getNaeringBySlug } from
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import { safeJsonLd } from '../../lib/jsonLd';
 import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt';
+import { getArtiklerForBransje, getGenerelleArtikler } from '../../lib/artikler';
 import { BransjeIkon } from '../../components/icons';
 import { Hourglass } from 'lucide-react';
 import styles from '../../styles/Kategori.module.css';
@@ -38,6 +39,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
   const kommuneSlugUrl = kommune.toLowerCase().replace(/\s/g, '-');
   const innsikt = getBransjeInnsikt(naering.slug);
   const flertall = getBransjeFlertall(naering.slug, naering.visningsnavn);
+  const relevanteArtikler = [...getArtiklerForBransje(naering.slug), ...getGenerelleArtikler()];
 
   const stiftelsesAar = bedrifter
     .map(b => b.stiftelsesdato ? parseInt(b.stiftelsesdato.substring(0, 4), 10) : null)
@@ -174,6 +176,22 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
           </div>
         </div>
       </section>
+
+      {relevanteArtikler.length > 0 && (
+        <section className={styles.relaterte}>
+          <div className="container">
+            <h2 className={styles.secTitle}>Nyttige guider</h2>
+            <div className={styles.relaterteGrid}>
+              {relevanteArtikler.map(a => (
+                <a key={a.slug} href={`/artikler/${a.slug}`} className={styles.relKort}>
+                  <span>{a.tittel}</span>
+                  <span>→</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className={styles.relaterte}>
         <div className="container">
