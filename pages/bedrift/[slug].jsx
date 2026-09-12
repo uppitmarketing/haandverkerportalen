@@ -25,7 +25,7 @@ const SCHEMA_TYPE = {
   '43.223': 'Plumber',
   '41.000': 'GeneralContractor',
   '43.340': 'HousePainter',
-  '43.910': 'RoofingContractor',
+  '43.410': 'RoofingContractor',
 };
 
 export default function BedriftSide({ bedrift, relaterte, annonsor }) {

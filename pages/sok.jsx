@@ -14,7 +14,7 @@ const BRANSJE_SOKEORD = {
   'tømrer': '43.320', 'tomrer': '43.320', 'snekker': '43.320', 'tømrere': '43.320',
   'maler': '43.340', 'malerfirma': '43.340', 'glass': '43.340', 'glassmester': '43.340',
   'byggmester': '41.000', 'bygg': '41.000', 'byggefirma': '41.000', 'entreprenør': '41.000',
-  'taklegger': '43.910', 'tak': '43.910', 'taket': '43.910',
+  'taklegger': '43.410', 'tak': '43.410', 'taket': '43.410',
   'gulvlegger': '43.330', 'gulv': '43.330', 'parkett': '43.330',
   'grunnarbeid': '43.120', 'graving': '43.120', 'grunnentreprenør': '43.120',
 };

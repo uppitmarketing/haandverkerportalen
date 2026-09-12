@@ -19,7 +19,7 @@ const NAERINGSKODER = [
   { kode: '43.320', navn: 'Tømrer' },
   { kode: '41.000', navn: 'Byggmester' },
   { kode: '43.340', navn: 'Maler/Glassmester' },
-  { kode: '43.910', navn: 'Taklegger' },
+  { kode: '43.410', navn: 'Taklegger' },
   { kode: '43.330', navn: 'Gulvlegger' },
   { kode: '43.120', navn: 'Grunnarbeid' },
 ];
