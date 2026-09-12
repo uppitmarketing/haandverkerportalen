@@ -38,6 +38,31 @@
 }
 .aktivToggle { background: var(--accent); color: #fff; }
 
+.sokFelt { position: relative; margin-bottom: 8px; }
+.sokIkon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.sokInput {
+  width: 100%; font-family: inherit; font-size: 14px; padding: 12px 14px 12px 38px;
+  border: 1.5px solid var(--border); border-radius: var(--radius); outline: none;
+}
+.sokInput:focus { border-color: var(--accent); }
+
+.treff {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--accent-lt); border: 1px solid rgba(37,99,235,0.18); border-radius: var(--radius);
+  padding: 10px 12px; margin-bottom: 8px;
+}
+.treffTekst { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-2); }
+.treffTekst svg { color: var(--green); flex-shrink: 0; }
+.treffBtn {
+  background: var(--accent); color: #fff; font-size: 12px; font-weight: 700;
+  padding: 7px 12px; border-radius: 8px; border: none; font-family: inherit; cursor: pointer; white-space: nowrap;
+}
+.treffBtn:hover { background: var(--accent-dk); }
+
+.divider { display: flex; align-items: center; gap: 10px; margin: 12px 0 10px; }
+.divider span { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
 .prosjektGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .prosjektKort {
   display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;

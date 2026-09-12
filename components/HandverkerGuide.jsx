@@ -1,7 +1,8 @@
 // components/HandverkerGuide.jsx
 import { useState, useEffect, useRef } from 'react';
-import { MapPin, Check } from 'lucide-react';
+import { MapPin, Check, Search } from 'lucide-react';
 import { NAERINGSKODER, KOMMUNER, matchKommuneFraNavn, getAntallForBransjeKommune } from '../lib/db';
+import { finnNaeringskodeFraTekst } from '../lib/bransjeSokeord';
 import { sporInternHendelse } from '../lib/internAnalytics';
 import { BransjeIkon } from './icons';
 import styles from './HandverkerGuide.module.css';
@@ -37,6 +38,8 @@ const PROSJEKTER = [
   { navn: 'Fikse rørlekkasje', bransjeSlug: 'rorlegger' },
   { navn: 'Grave grunnmur', bransjeSlug: 'grunnarbeid' },
   { navn: 'Opparbeide tomt', bransjeSlug: 'grunnarbeid' },
+  { navn: 'Montere varmepumpe', bransjeSlug: 'varmepumpe' },
+  { navn: 'Pusse opp pipe', bransjeSlug: 'murer' },
 ];
 
 function sporGuideValg(bransjeSlug, kommuneSlug) {
@@ -55,7 +58,11 @@ export default function HandverkerGuide() {
   const [postnrStatus, setPostnrStatus] = useState('idle'); // idle | henter | feilet
   const [kanSpore, setKanSpore] = useState(false);
   const [antall, setAntall] = useState(null);
+  const [prosjektTekst, setProsjektTekst] = useState('');
   const inputRef = useRef(null);
+
+  const prosjektTreffKode = finnNaeringskodeFraTekst(prosjektTekst);
+  const prosjektTreff = prosjektTreffKode ? NAERINGSKODER.find(n => n.kode === prosjektTreffKode) : null;
 
   useEffect(() => {
     if (typeof navigator !== 'undefined' && 'geolocation' in navigator) setKanSpore(true);
@@ -214,6 +221,29 @@ export default function HandverkerGuide() {
                 </div>
 
                 {visning === 'prosjekt' ? (
+                  <>
+                    <div className={styles.sokFelt}>
+                      <span className={styles.sokIkon}><Search size={16} /></span>
+                      <input
+                        type="text"
+                        className={styles.sokInput}
+                        placeholder='F.eks. "Montere varmepumpe"'
+                        value={prosjektTekst}
+                        onChange={e => setProsjektTekst(e.target.value)}
+                      />
+                    </div>
+                    {prosjektTreff && (
+                      <div className={styles.treff}>
+                        <span className={styles.treffTekst}>
+                          <Check size={14} strokeWidth={3} />
+                          Fant match: <strong>{prosjektTreff.visningsnavn}</strong>
+                        </span>
+                        <button type="button" className={styles.treffBtn} onClick={() => velgBehov(prosjektTreff)}>
+                          Fortsett →
+                        </button>
+                      </div>
+                    )}
+                    <div className={styles.divider}><span>Eller velg et populært prosjekt</span></div>
                   <div className={styles.prosjektGrid}>
                     {PROSJEKTER.map((p, i) => {
                       const bransje = NAERINGSKODER.find(n => n.slug === p.bransjeSlug);
@@ -226,6 +256,7 @@ export default function HandverkerGuide() {
                       );
                     })}
                   </div>
+                  </>
                 ) : (
                   <div className={styles.behovGrid}>
                     {NAERINGSKODER.map(n => (
