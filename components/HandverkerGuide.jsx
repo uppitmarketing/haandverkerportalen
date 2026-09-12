@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { MapPin, Check, Search } from 'lucide-react';
 import { NAERINGSKODER, KOMMUNER, matchKommuneFraNavn, getAntallForBransjeKommune } from '../lib/db';
 import { finnNaeringskodeFraTekst } from '../lib/bransjeSokeord';
-import { sporInternHendelse } from '../lib/internAnalytics';
+import { sporInternHendelse, loggSokUtenTreff } from '../lib/internAnalytics';
 import { BransjeIkon } from './icons';
 import styles from './HandverkerGuide.module.css';
 
@@ -230,6 +230,7 @@ export default function HandverkerGuide() {
                         placeholder='F.eks. "Montere varmepumpe"'
                         value={prosjektTekst}
                         onChange={e => setProsjektTekst(e.target.value)}
+                        onBlur={() => { if (prosjektTekst && !prosjektTreff) loggSokUtenTreff(prosjektTekst); }}
                       />
                     </div>
                     {prosjektTreff && (

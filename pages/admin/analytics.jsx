@@ -21,7 +21,7 @@ export default function AnalyticsSide({
   totalAnnonseVisninger, totalEkteVisninger, totalPlaceholderVisninger, annonseVisningBransjer,
   totalAnnonseKlikk, annonseKlikkBransjer, nettsideForslag,
   trafikkPerDag, totalForBedrifter, forBedrifterFraProfil, forBedrifterAndre, oppsettFeil,
-  fremhevetIntro,
+  fremhevetIntro, sokUtenTreff,
 }) {
   const [passord, setPassord] = useState('');
   const [feil, setFeil] = useState('');
@@ -165,7 +165,7 @@ export default function AnalyticsSide({
                 ))}
               </div>
 
-              {(nettsideForslag.length > 0 || fremhevetIntro.length > 0) && (
+              {(nettsideForslag.length > 0 || fremhevetIntro.length > 0 || sokUtenTreff.length > 0) && (
                 <div className={styles.foresporslerSeksjon}>
                   <h2 className={styles.foresporslerTittel}><Inbox size={15} /> Innkommende forespørsler</h2>
 
@@ -279,6 +279,34 @@ export default function AnalyticsSide({
                               </button>
                             )}
                           </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {sokUtenTreff.length > 0 && (
+                <div className={styles.tabellBoks}>
+                  <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
+                    Søk uten treff ({sokUtenTreff.length} unike)
+                  </h2>
+                  <table className={styles.tabell}>
+                    <thead>
+                      <tr>
+                        <th>Søketekst</th>
+                        <th>Antall</th>
+                        <th>Kilde</th>
+                        <th>Sist sett</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sokUtenTreff.map(s => (
+                        <tr key={s.tekst}>
+                          <td>{s.tekst}</td>
+                          <td>{s.antall}</td>
+                          <td>{s.kilder.join(', ')}</td>
+                          <td>{new Date(s.sistSett).toLocaleDateString('no')}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -528,6 +556,7 @@ export async function getServerSideProps({ req, query }) {
     totalAnnonseKlikk: 0, annonseKlikkBransjer: [], nettsideForslag: [],
     trafikkPerDag: [], totalForBedrifter: 0, forBedrifterFraProfil: 0, forBedrifterAndre: 0,
     fremhevetIntro: [],
+    sokUtenTreff: [],
     oppsettFeil: null,
   };
 
@@ -547,13 +576,14 @@ export async function getServerSideProps({ req, query }) {
     if (periode === '7d') fra = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     if (periode === '30d') fra = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [sideRes, kildeRes, forslagRes, dagRes, forBedrifterRes, introRes] = await Promise.all([
+    const [sideRes, kildeRes, forslagRes, dagRes, forBedrifterRes, introRes, sokUtenTreffRes] = await Promise.all([
       supabaseAdmin.rpc('page_view_counts', { fra }),
       supabaseAdmin.rpc('page_view_besokskilder', { fra }),
       supabaseAdmin.from('nettside_forslag').select('*').eq('status', 'venter').order('created_at', { ascending: false }),
       supabaseAdmin.rpc('page_views_per_dag', { fra }),
       supabaseAdmin.rpc('for_bedrifter_kilder', { fra }),
       supabaseAdmin.from('fremhevet_intro_pamelding').select('*').order('opprettet_at', { ascending: true }),
+      supabaseAdmin.from('sok_uten_treff').select('*').order('opprettet_at', { ascending: false }).limit(1000),
     ]);
 
     if (sideRes.error) throw new Error(sideRes.error.message);
@@ -562,9 +592,32 @@ export async function getServerSideProps({ req, query }) {
     if (dagRes.error) throw new Error(dagRes.error.message);
     if (forBedrifterRes.error) throw new Error(forBedrifterRes.error.message);
     if (introRes.error) throw new Error(introRes.error.message);
+    if (sokUtenTreffRes.error) throw new Error(sokUtenTreffRes.error.message);
 
     const nettsideForslag = forslagRes.data || [];
     const fremhevetIntro = introRes.data || [];
+
+    const sokUtenTreffKart = new Map();
+    for (const rad of sokUtenTreffRes.data || []) {
+      const nokkel = rad.tekst.trim().toLowerCase();
+      const eksisterende = sokUtenTreffKart.get(nokkel);
+      if (eksisterende) {
+        eksisterende.antall += 1;
+        eksisterende.kilder.add(rad.kilde);
+        if (rad.opprettet_at > eksisterende.sistSett) eksisterende.sistSett = rad.opprettet_at;
+      } else {
+        sokUtenTreffKart.set(nokkel, {
+          tekst: rad.tekst.trim(),
+          antall: 1,
+          kilder: new Set([rad.kilde]),
+          sistSett: rad.opprettet_at,
+        });
+      }
+    }
+    const sokUtenTreff = Array.from(sokUtenTreffKart.values())
+      .map(s => ({ ...s, kilder: Array.from(s.kilder) }))
+      .sort((a, b) => b.antall - a.antall)
+      .slice(0, 100);
 
     const dagRader = dagRes.data || [];
     const maxDag = Math.max(1, ...dagRader.map(d => Number(d.antall)));
@@ -698,6 +751,7 @@ export async function getServerSideProps({ req, query }) {
         forBedrifterFraProfil: Number(forBedrifterFraProfil),
         forBedrifterAndre: Number(forBedrifterAndre),
         fremhevetIntro,
+        sokUtenTreff,
         oppsettFeil: null,
       },
     };

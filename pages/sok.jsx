@@ -5,6 +5,7 @@ import Layout from '../components/Layout';
 import BedriftKort from '../components/BedriftKort';
 import { NAERINGSKODER, sokBedrifter } from '../lib/db';
 import { BRANSJE_SOKEORD } from '../lib/bransjeSokeord';
+import { loggSokUtenTreff } from '../lib/internAnalytics';
 import { MapPin, Type, Search, Hammer } from 'lucide-react';
 import { BransjeIkon } from '../components/icons';
 import styles from '../styles/Sok.module.css';
@@ -91,6 +92,7 @@ export default function SokSide() {
     });
     setResultater(data);
     setLaster(false);
+    if (!p.naeringskode && data.length === 0) loggSokUtenTreff(q_val, 'sok');
   }
 
   function handleSubmit(e) {
