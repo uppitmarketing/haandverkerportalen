@@ -21,8 +21,8 @@ const BASE_URL = 'https://haandverkerportalen.no';
 const SCHEMA_TYPE = {
   '43.210': 'Electrician',
   '43.221': 'Plumber',
-  '43.222': 'Plumber',
-  '43.223': 'Plumber',
+  '43.222': 'HVACBusiness',
+  '43.223': 'HVACBusiness',
   '41.000': 'GeneralContractor',
   '43.340': 'HousePainter',
   '43.410': 'RoofingContractor',

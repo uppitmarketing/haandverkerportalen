@@ -42,8 +42,7 @@ async function hentBransjeKommuneAntall(supabase) {
 }
 
 function finnAntall(antallMap, naering, kommune) {
-  const koder = naering.slug === 'rorlegger' ? ['43.221', '43.222', '43.223'] : [naering.kode];
-  return koder.reduce((sum, kode) => sum + (antallMap.get(`${kode}|${kommune.nummer}`) || 0), 0);
+  return antallMap.get(`${naering.kode}|${kommune.nummer}`) || 0;
 }
 
 async function hentAlleSlugs(supabase) {

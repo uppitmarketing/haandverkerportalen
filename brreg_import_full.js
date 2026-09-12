@@ -14,14 +14,15 @@ const DELAY_MS = 250;
 const NAERINGSKODER = [
   { kode: '43.210', navn: 'Elektriker' },
   { kode: '43.221', navn: 'Rørlegger' },
-  { kode: '43.222', navn: 'Rørlegger/Kuldeanlegg' },
-  { kode: '43.223', navn: 'Rørlegger/Ventilasjon' },
+  { kode: '43.222', navn: 'Varmepumpemontør' },
+  { kode: '43.223', navn: 'Ventilasjonsmontør' },
   { kode: '43.320', navn: 'Tømrer' },
   { kode: '41.000', navn: 'Byggmester' },
   { kode: '43.340', navn: 'Maler/Glassmester' },
   { kode: '43.410', navn: 'Taklegger' },
   { kode: '43.330', navn: 'Gulvlegger' },
   { kode: '43.120', navn: 'Grunnarbeid' },
+  { kode: '43.910', navn: 'Murer' },
 ];
 
 const KOMMUNER = [

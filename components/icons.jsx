@@ -3,7 +3,7 @@
 // pluss ett håndtegnet ikon (tak) der Lucide ikke har noe godt alternativ.
 // Alle egne ikoner følger samme konvensjon som Lucide selv: 24x24 viewBox,
 // strokeWidth 2, avrundede ender/hjørner, farge arves via currentColor.
-import { Zap, Wrench, Hammer, HardHat, PaintRoller, Grid2x2, Shovel } from 'lucide-react';
+import { Zap, Wrench, Hammer, HardHat, PaintRoller, Grid2x2, Shovel, ThermometerSnowflake, Fan, BrickWall } from 'lucide-react';
 
 export function RoofIcon({ size = 24, ...props }) {
   return (
@@ -27,6 +27,9 @@ const BRANSJE_IKON = {
   taklegger: RoofIcon,
   gulvlegger: Grid2x2,
   grunnarbeid: Shovel,
+  varmepumpe: ThermometerSnowflake,
+  ventilasjon: Fan,
+  murer: BrickWall,
 };
 
 export function BransjeIkon({ slug, size = 20, ...props }) {

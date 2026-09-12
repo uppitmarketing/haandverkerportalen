@@ -9,12 +9,15 @@ import styles from './HandverkerGuide.module.css';
 const EKSEMPLER = {
   elektriker: 'strøm, sikringsskap, belysning',
   rorlegger: 'vann, avløp, bad',
+  varmepumpe: 'luft-luft, luft-vann, service',
+  ventilasjon: 'balansert ventilasjon, avtrekk',
   tomrer: 'snekring, ombygging, tilbygg',
   byggmester: 'nybygg, større prosjekter',
   maler: 'innvendig, utvendig, tapetsering',
   taklegger: 'tekking, taklekkasje',
   gulvlegger: 'parkett, laminat, flis',
   grunnarbeid: 'graving, drenering, tomt',
+  murer: 'pipe, grunnmur, fasade',
 };
 
 const POPULAERE_STEDER = ['oslo', 'bergen', 'trondheim', 'stavanger', 'drammen']
