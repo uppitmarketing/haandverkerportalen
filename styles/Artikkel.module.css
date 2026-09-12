@@ -1,13 +1,17 @@
 /* styles/Artikkel.module.css */
-.hero { background: var(--ink); color: white; padding: 44px 0 40px; }
+.hero {
+  background: radial-gradient(ellipse 900px 320px at 50% -25%, var(--accent-lt) 0%, var(--bg) 60%, var(--surface) 100%);
+  color: var(--ink); padding: 44px 0 40px;
+}
 .bransjeTag {
   display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1px;
-  text-transform: uppercase; color: #60A5FA; background: rgba(96,165,250,0.12);
+  text-transform: uppercase; color: var(--accent); background: var(--accent-lt);
+  border: 1px solid rgba(37,99,235,0.15);
   padding: 4px 10px; border-radius: 4px; margin-bottom: 14px;
 }
 .title { font-size: clamp(26px, 4vw, 40px); font-weight: 800; letter-spacing: -1px; line-height: 1.15; margin-bottom: 12px; }
-.ingress { font-size: 15px; color: #9CA3AF; line-height: 1.7; max-width: 620px; }
-.meta { font-size: 12px; color: #6B7280; margin-top: 16px; }
+.ingress { font-size: 15px; color: var(--ink-3); line-height: 1.7; max-width: 620px; }
+.meta { font-size: 12px; color: var(--muted); margin-top: 16px; }
 
 .body { padding: 48px 0 24px; }
 .body h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; color: var(--ink); margin-top: 32px; margin-bottom: 10px; }
