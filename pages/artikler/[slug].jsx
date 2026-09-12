@@ -107,6 +107,13 @@ export default function ArtikkelSide({ artikkel }) {
                   {seksjon.liste.map((item, k) => <li key={k}>{item}</li>)}
                 </ul>
               )}
+              {seksjon.lenke && (
+                <p>
+                  <a href={seksjon.lenke.url} target="_blank" rel="noopener noreferrer" className={styles.eksternLenke}>
+                    {seksjon.lenke.tekst} ↗
+                  </a>
+                </p>
+              )}
             </div>
           ))}
 
