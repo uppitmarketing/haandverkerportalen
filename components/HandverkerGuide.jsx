@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { MapPin, Check, Search } from 'lucide-react';
 import { NAERINGSKODER, KOMMUNER, matchKommuneFraNavn, getAntallForBransjeKommune } from '../lib/db';
 import { finnNaeringskodeFraTekst } from '../lib/bransjeSokeord';
+import { getBransjeFlertall } from '../lib/bransjeInnsikt';
 import { sporInternHendelse, loggSokUtenTreff } from '../lib/internAnalytics';
 import { BransjeIkon } from './icons';
 import styles from './HandverkerGuide.module.css';
@@ -344,12 +345,12 @@ export default function HandverkerGuide() {
                     <div className={styles.resultatTekst}>Teller opp…</div>
                   ) : (
                     <div className={styles.resultatTekst}>
-                      Fant <span>{antall} {valgtBehov.visningsnavn.toLowerCase()}er</span> i {valgtKommune.navn}
+                      Fant <span>{antall} {getBransjeFlertall(valgtBehov.slug, valgtBehov.visningsnavn)}</span> i {valgtKommune.navn}
                     </div>
                   )}
                   <p className={styles.resultatSub}>Alle er ekte, registrerte bedrifter — sjekket mot Brønnøysundregistrene.</p>
                   <a href={`/${valgtBehov.slug}/${valgtKommune.slug}`} className={styles.resultatBtn}>
-                    Se {valgtBehov.visningsnavn.toLowerCase()}er i {valgtKommune.navn} →
+                    Se {getBransjeFlertall(valgtBehov.slug, valgtBehov.visningsnavn)} i {valgtKommune.navn} →
                   </a>
                   <button className={styles.startPaNytt} onClick={startPaNytt}>Start på nytt</button>
                 </div>

@@ -14,6 +14,7 @@ import { sporInternHendelse } from '../../lib/internAnalytics';
 import Kart from '../../components/Kart';
 import { Globe, Check, Hourglass, Star } from 'lucide-react';
 import { BransjeIkon } from '../../components/icons';
+import { getBransjeFlertall } from '../../lib/bransjeInnsikt';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 
@@ -252,7 +253,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
             {!bedrift.er_fremhevet && relaterte.length > 0 && (
               <div className={styles.relaterteSection}>
                 <h3 className={styles.relTitle}>
-                  Andre {naering?.visningsnavn?.toLowerCase()}er i {bedrift.kommune}
+                  Andre {naering ? getBransjeFlertall(naering.slug, naering.visningsnavn) : ''} i {bedrift.kommune}
                 </h3>
                 <div className={styles.relGrid}>
                   {relaterte.map(b => <BedriftKort key={b.organisasjonsnummer} bedrift={b} />)}
