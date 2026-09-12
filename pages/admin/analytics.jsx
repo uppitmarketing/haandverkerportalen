@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { getSupabaseAdmin } from '../../lib/supabaseAdmin';
 import { erGyldigToken } from '../../lib/analyticsAuth';
 import { NAERINGSKODER } from '../../lib/db';
+import { finnNaeringskodeFraTekst } from '../../lib/bransjeSokeord';
 import { BransjeIkon } from '../../components/icons';
 import { Inbox } from 'lucide-react';
 import styles from '../../styles/Analytics.module.css';
@@ -21,7 +22,7 @@ export default function AnalyticsSide({
   totalAnnonseVisninger, totalEkteVisninger, totalPlaceholderVisninger, annonseVisningBransjer,
   totalAnnonseKlikk, annonseKlikkBransjer, nettsideForslag,
   trafikkPerDag, totalForBedrifter, forBedrifterFraProfil, forBedrifterAndre, oppsettFeil,
-  fremhevetIntro, sokUtenTreff,
+  fremhevetIntro, sokUtenTreff, sokAlleredeLost,
 }) {
   const [passord, setPassord] = useState('');
   const [feil, setFeil] = useState('');
@@ -289,7 +290,7 @@ export default function AnalyticsSide({
               {sokUtenTreff.length > 0 && (
                 <div className={styles.tabellBoks}>
                   <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
-                    Søk uten treff ({sokUtenTreff.length} unike)
+                    Søk uten treff ({sokUtenTreff.length} unike{sokAlleredeLost > 0 ? `, ${sokAlleredeLost} løst siden loggført` : ''})
                   </h2>
                   <table className={styles.tabell}>
                     <thead>
@@ -557,6 +558,7 @@ export async function getServerSideProps({ req, query }) {
     trafikkPerDag: [], totalForBedrifter: 0, forBedrifterFraProfil: 0, forBedrifterAndre: 0,
     fremhevetIntro: [],
     sokUtenTreff: [],
+    sokAlleredeLost: 0,
     oppsettFeil: null,
   };
 
@@ -614,10 +616,12 @@ export async function getServerSideProps({ req, query }) {
         });
       }
     }
-    const sokUtenTreff = Array.from(sokUtenTreffKart.values())
-      .map(s => ({ ...s, kilder: Array.from(s.kilder) }))
+    const alleUnikeSok = Array.from(sokUtenTreffKart.values()).map(s => ({ ...s, kilder: Array.from(s.kilder) }));
+    const sokUtenTreff = alleUnikeSok
+      .filter(s => !finnNaeringskodeFraTekst(s.tekst))
       .sort((a, b) => b.antall - a.antall)
       .slice(0, 100);
+    const sokAlleredeLost = alleUnikeSok.length - sokUtenTreff.length;
 
     const dagRader = dagRes.data || [];
     const maxDag = Math.max(1, ...dagRader.map(d => Number(d.antall)));
@@ -752,6 +756,7 @@ export async function getServerSideProps({ req, query }) {
         forBedrifterAndre: Number(forBedrifterAndre),
         fremhevetIntro,
         sokUtenTreff,
+        sokAlleredeLost,
         oppsettFeil: null,
       },
     };
