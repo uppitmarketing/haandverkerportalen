@@ -75,7 +75,7 @@
 .kat:hover .katArr { transform: translateX(3px); }
 
 /* GUIDER (prisguider/kjøpsguider) */
-.guiderGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.guiderGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
 .guideKort { position: relative; overflow: hidden; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px; }
 .guideBar { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), #93C5FD); }
 .guideIcon { margin-bottom: 12px; }

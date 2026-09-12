@@ -15,6 +15,7 @@ const GUIDE_LABEL = {
   'velge-rorlegger': 'Kjøpsguide',
   'hva-koster-tomrer': 'Prisguide',
   'krav-handverkere': 'Trygghet',
+  'priser-og-betaling-rettigheter': 'Rettigheter',
 };
 
 const GUIDE_IKON = {
@@ -22,6 +23,7 @@ const GUIDE_IKON = {
   'velge-rorlegger': 'valg',
   'hva-koster-tomrer': 'pris',
   'krav-handverkere': 'trygghet',
+  'priser-og-betaling-rettigheter': 'trygghet',
 };
 
 const FAQ = [
@@ -67,7 +69,7 @@ function GuideIkon({ type }) {
 
 export default function Home({ antallPerNaering, standardBedrifter }) {
   const totalBedrifter = Object.values(antallPerNaering).reduce((a, b) => a + b, 0);
-  const guider = ARTIKLER.slice(0, 4);
+  const guider = ARTIKLER.slice(0, 5);
 
   const faqSchema = {
     '@context': 'https://schema.org',
