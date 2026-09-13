@@ -59,6 +59,8 @@
 }
 .treffBtn:hover { background: var(--accent-dk); }
 
+.ingenTreff { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+
 .divider { display: flex; align-items: center; gap: 10px; margin: 12px 0 10px; }
 .divider span { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }

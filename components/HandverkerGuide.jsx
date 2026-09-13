@@ -245,6 +245,9 @@ export default function HandverkerGuide() {
                         </button>
                       </div>
                     )}
+                    {!prosjektTreff && prosjektTekst.trim().length >= 3 && (
+                      <p className={styles.ingenTreff}>Fant ingen direkte treff — prøv et annet ord, eller velg et prosjekt under.</p>
+                    )}
                     <div className={styles.divider}><span>Eller velg et populært prosjekt</span></div>
                   <div className={styles.prosjektGrid}>
                     {PROSJEKTER.map((p, i) => {
