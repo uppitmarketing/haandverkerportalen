@@ -42,7 +42,7 @@
 .felt { display: flex; flex-direction: column; gap: 5px; }
 .label { font-size: 12px; font-weight: 600; color: var(--ink-2); }
 .input {
-  width: 100%; font-family: 'Inter', sans-serif; font-size: 14px;
+  width: 100%; font-family: 'Inter', sans-serif; font-size: 16px;
   padding: 11px 13px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
   outline: none; background: var(--surface); color: var(--ink);
 }
@@ -50,7 +50,7 @@
 .input::placeholder { color: var(--muted); }
 
 .textarea {
-  width: 100%; font-family: 'Inter', sans-serif; font-size: 14px;
+  width: 100%; font-family: 'Inter', sans-serif; font-size: 16px;
   padding: 11px 13px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
   outline: none; background: var(--surface); color: var(--ink); resize: vertical; line-height: 1.5;
 }

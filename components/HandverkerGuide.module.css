@@ -41,7 +41,7 @@
 .sokFelt { position: relative; margin-bottom: 8px; }
 .sokIkon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
 .sokInput {
-  width: 100%; font-family: inherit; font-size: 14px; padding: 12px 14px 12px 38px;
+  width: 100%; font-family: inherit; font-size: 16px; padding: 12px 14px 12px 38px;
   border: 1.5px solid var(--border); border-radius: var(--radius); outline: none;
 }
 .sokInput:focus { border-color: var(--accent); }
@@ -109,7 +109,7 @@
 
 .stedWrap { position: relative; margin-bottom: 12px; }
 .stedInput {
-  width: 100%; font-family: inherit; font-size: 14px; padding: 12px 14px;
+  width: 100%; font-family: inherit; font-size: 16px; padding: 12px 14px;
   border: 1.5px solid var(--border); border-radius: var(--radius); outline: none;
 }
 .stedInput:focus { border-color: var(--accent); }
