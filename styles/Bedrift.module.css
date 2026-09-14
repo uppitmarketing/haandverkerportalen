@@ -80,9 +80,25 @@
 .relGrid { display: flex; flex-direction: column; gap: 10px; }
 .seAlle { display: block; margin-top: 10px; font-size: 11px; font-weight: 600; color: var(--accent); text-align: center; }
 
+.seksjonAnnonse { display: flex; flex-direction: column; gap: 16px; }
+
+/* Rekkefølge på mobil skal avvike fra desktop (tekst, annonse, kontakt,
+   adresse, FAQ, resten) - "contents" løser opp main/aside-boksene slik at
+   alle seksjonene kan omorganiseres fritt med "order" i samme grid. */
 @media (max-width: 768px) {
   .layout { grid-template-columns: 1fr; }
   .rad { grid-template-columns: 120px 1fr; }
+
+  .main, .aside { display: contents; }
+
+  .seksjonBeskrivelse { order: 1; }
+  .seksjonAnnonse { order: 2; }
+  .kontaktBoks { order: 3; }
+  .seksjonAdresse { order: 4; }
+  .seksjonFaq { order: 5; }
+  .seksjonFakta { order: 6; }
+  .seksjonAnnonseBred { order: 7; }
+  .relaterteSection { order: 8; }
 }
 
 .beskrivelse {

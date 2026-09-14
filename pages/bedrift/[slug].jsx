@@ -199,7 +199,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
           <main className={styles.main}>
 
             {(bedrift.egen_beskrivelse || beskrivelse) && (
-              <div className={styles.boks}>
+              <div className={`${styles.boks} ${styles.seksjonBeskrivelse}`}>
                 <p className={styles.beskrivelse}>{bedrift.egen_beskrivelse || beskrivelse}</p>
                 {bedrift.er_fremhevet && bedrift.spesialiteter && (
                   <div className={styles.tagRad}>
@@ -210,7 +210,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                 )}
               </div>
             )}
-            <div className={styles.boks}>
+            <div className={`${styles.boks} ${styles.seksjonFakta}`}>
               <h2 className={styles.boksTitle}>Om bedriften</h2>
               <dl className={styles.detaljer}>
                 {[
@@ -230,7 +230,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
               </dl>
             </div>
 
-            <div className={styles.boks}>
+            <div className={`${styles.boks} ${styles.seksjonAdresse}`}>
               <h2 className={styles.boksTitle}>Adresse og kart</h2>
               <p className={styles.adresseTekst}>
                 {bedrift.adresse && <span>{bedrift.adresse}<br /></span>}
@@ -241,7 +241,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
             </div>
 
             {faq.length > 0 && (
-              <div className={styles.boks}>
+              <div className={`${styles.boks} ${styles.seksjonFaq}`}>
                 <h2 className={styles.faqTitle}>Ofte stilte spørsmål</h2>
                 <div className={styles.faqListe}>
                   {faq.map((item, i) => (
@@ -254,7 +254,9 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
               </div>
             )}
 
-            <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering?.slug} />
+            <div className={styles.seksjonAnnonseBred}>
+              <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering?.slug} />
+            </div>
 
             {!bedrift.er_fremhevet && relaterte.length > 0 && (
               <div className={styles.relaterteSection}>
@@ -328,10 +330,12 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                 </div>
               )}
             </div>
-            {BWW_PILOT_SLUGS.includes(bedrift.slug) && (
-              <AnnonseBww bransjeSlug={naering?.slug} />
-            )}
-            <Annonse annonsor={annonsor} variant="kompakt" bransjeSlug={naering?.slug} />
+            <div className={styles.seksjonAnnonse}>
+              {BWW_PILOT_SLUGS.includes(bedrift.slug) && (
+                <AnnonseBww bransjeSlug={naering?.slug} />
+              )}
+              <Annonse annonsor={annonsor} variant="kompakt" bransjeSlug={naering?.slug} />
+            </div>
           </aside>
         </div>
       </div>
