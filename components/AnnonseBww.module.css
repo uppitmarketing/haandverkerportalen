@@ -1,7 +1,7 @@
 /* components/AnnonseBww.module.css */
 .kort {
   display: block; border: 1.5px solid var(--ad-border, #E9E5DC); border-radius: var(--radius);
-  overflow: hidden; background: var(--surface); text-decoration: none; margin-top: 4px;
+  overflow: hidden; background: var(--surface); text-decoration: none;
 }
 .header {
   display: flex; align-items: center;

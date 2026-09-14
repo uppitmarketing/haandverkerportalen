@@ -327,10 +327,10 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                   </a>
                 </div>
               )}
-              {BWW_PILOT_SLUGS.includes(bedrift.slug) && (
-                <AnnonseBww bransjeSlug={naering?.slug} />
-              )}
             </div>
+            {BWW_PILOT_SLUGS.includes(bedrift.slug) && (
+              <AnnonseBww bransjeSlug={naering?.slug} />
+            )}
             <Annonse annonsor={annonsor} variant="kompakt" bransjeSlug={naering?.slug} />
           </aside>
         </div>
