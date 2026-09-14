@@ -20,7 +20,9 @@ const TITTEL = {
 };
 const FALLBACK_TITTEL = 'Better WorkWear – arbeidsklær for håndverkere';
 
-const FOTO_URL = 'https://www.betterworkwear.no/media/wysiwyg/hero-test3.jpg';
+// Hostet selv (ikke hotlinket) - se public/assets/annonsorer/bww-hero-elektriker.jpg.
+// Må lastes ned og committes på nytt manuelt hvis Better WorkWear bytter bilde.
+const FOTO_URL = '/assets/annonsorer/bww-hero-elektriker.jpg';
 
 function byggLenke(bransjeSlug) {
   const params = new URLSearchParams({
