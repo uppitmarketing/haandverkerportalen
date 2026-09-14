@@ -4,12 +4,10 @@
   overflow: hidden; background: var(--surface); text-decoration: none; margin-top: 4px;
 }
 .header {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center;
   background: var(--ad-bg, #FAFAF8); padding: 7px 12px; border-bottom: 1px solid var(--ad-border, #E9E5DC);
 }
 .label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ad-label, #8A8272); }
-.logo { height: 16px; display: flex; align-items: center; }
-.logo img { height: 16px; width: auto; }
 
 .innhold { display: flex; gap: 11px; padding: 13px 12px 10px; align-items: flex-start; }
 .ikon {

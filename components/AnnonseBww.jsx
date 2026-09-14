@@ -9,15 +9,16 @@ import { BransjeIkon } from './icons';
 import { sporHendelse } from '../lib/gtag';
 import styles from './AnnonseBww.module.css';
 
-// Næringskategori -> tittel. Fallback dekker alt annet.
+// Næringskategori -> tittel. Merkenavnet står i selve tittelen for
+// gjenkjennelse, siden vi ikke lenger viser logo. Fallback dekker alt annet.
 const TITTEL = {
-  elektriker: 'Arbeidsklær for elektrikere',
-  tomrer: 'Arbeidsklær for tømrere',
-  rorlegger: 'Arbeidsklær for rørleggere',
-  maler: 'Arbeidsklær for malere',
-  grunnarbeid: 'Arbeidsklær for utendørsarbeid',
+  elektriker: 'Better WorkWear – arbeidsklær for elektrikere',
+  tomrer: 'Better WorkWear – arbeidsklær for tømrere',
+  rorlegger: 'Better WorkWear – arbeidsklær for rørleggere',
+  maler: 'Better WorkWear – arbeidsklær for malere',
+  grunnarbeid: 'Better WorkWear – arbeidsklær for utendørsarbeid',
 };
-const FALLBACK_TITTEL = 'Arbeidsklær for håndverkere';
+const FALLBACK_TITTEL = 'Better WorkWear – arbeidsklær for håndverkere';
 
 function byggLenke(bransjeSlug) {
   const params = new URLSearchParams({
@@ -77,15 +78,12 @@ export default function AnnonseBww({ bransjeSlug }) {
     >
       <div className={styles.header}>
         <span className={styles.label}>Annonse</span>
-        <span className={styles.logo}>
-          <img src="/assets/annonsorer/betterworkwear-logo-v1.svg" alt="Better WorkWear" />
-        </span>
       </div>
       <div className={styles.innhold}>
         <div className={styles.ikon}><BransjeIkon slug={bransjeSlug} size={26} /></div>
         <div className={styles.tekst}>
           <div className={styles.tittel}>{tittel}</div>
-          <div className={styles.undertekst}>Better WorkWear · faste priser og rabatt for bedrifter</div>
+          <div className={styles.undertekst}>Faste priser og rabatt for bedrifter</div>
         </div>
       </div>
       <div className={styles.merker}>Bulldog · L.Brador · Wrks · Snickers Workwear</div>
