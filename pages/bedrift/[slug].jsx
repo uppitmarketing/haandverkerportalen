@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import Annonse from '../../components/Annonse';
+import AnnonseBww from '../../components/AnnonseBww';
 import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import styles from '../../styles/Bedrift.module.css';
@@ -17,6 +18,11 @@ import { BransjeIkon } from '../../components/icons';
 import { getBransjeFlertall } from '../../lib/bransjeInnsikt';
 
 const BASE_URL = 'https://haandverkerportalen.no';
+
+// Pilot: Better WorkWear-annonsen vises kun på disse bedriftene til å begynne
+// med, mens vi venter på tilbakemelding fra kunden. Utvid listen (eller bytt
+// til en ekte regel, f.eks. næringskategori) når pilotresultatene er klare.
+const BWW_PILOT_SLUGS = ['aba-elektro-as-950572701'];
 
 // Kartlegger til spesifikke schema.org-typer der de finnes, ellers en generisk håndverkertype
 const SCHEMA_TYPE = {
@@ -320,6 +326,9 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                     Se hva vi tilbyr →
                   </a>
                 </div>
+              )}
+              {BWW_PILOT_SLUGS.includes(bedrift.slug) && (
+                <AnnonseBww bransjeSlug={naering?.slug} />
               )}
             </div>
             <Annonse annonsor={annonsor} variant="kompakt" bransjeSlug={naering?.slug} />
