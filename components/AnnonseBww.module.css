@@ -23,7 +23,7 @@
 
 .cta {
   display: flex; align-items: center; justify-content: space-between;
-  margin: 0 12px 12px; padding: 8px 11px; background: var(--bg); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; color: var(--ink-2);
+  margin: 0 12px 12px; padding: 8px 11px; background: var(--accent); border: 1px solid var(--accent);
+  border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; color: #fff;
 }
-.cta svg { color: var(--muted); }
+.cta svg { color: #fff; }

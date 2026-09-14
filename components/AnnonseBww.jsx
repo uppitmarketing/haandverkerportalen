@@ -27,7 +27,7 @@ function byggLenke(bransjeSlug) {
     utm_campaign: 'bww_pilot',
     utm_content: bransjeSlug || 'ukjent',
   });
-  return `https://www.betterworkwear.no/for-bedrifter?${params.toString()}`;
+  return `https://www.betterworkwear.no/?${params.toString()}`;
 }
 
 export default function AnnonseBww({ bransjeSlug }) {
