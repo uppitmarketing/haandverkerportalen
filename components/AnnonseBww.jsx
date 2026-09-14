@@ -5,7 +5,6 @@
 // tilbakemelding fra kunden. Ikke koblet til det generiske annonsørsystemet
 // (lib/annonsorer.js) - egen, håndkodet pilot inntil videre.
 import { useEffect, useRef } from 'react';
-import { BransjeIkon } from './icons';
 import { sporHendelse } from '../lib/gtag';
 import { sporInternHendelse } from '../lib/internAnalytics';
 import styles from './AnnonseBww.module.css';
@@ -20,6 +19,8 @@ const TITTEL = {
   grunnarbeid: 'Better WorkWear – arbeidsklær for utendørsarbeid',
 };
 const FALLBACK_TITTEL = 'Better WorkWear – arbeidsklær for håndverkere';
+
+const FOTO_URL = 'https://www.betterworkwear.no/media/wysiwyg/hero-test3.jpg';
 
 function byggLenke(bransjeSlug) {
   const params = new URLSearchParams({
@@ -82,12 +83,12 @@ export default function AnnonseBww({ bransjeSlug }) {
       <div className={styles.header}>
         <span className={styles.label}>Annonse</span>
       </div>
+      <div className={styles.foto}>
+        <img src={FOTO_URL} alt="Better WorkWear arbeidsklær" loading="lazy" />
+      </div>
       <div className={styles.innhold}>
-        <div className={styles.ikon}><BransjeIkon slug={bransjeSlug} size={26} /></div>
-        <div className={styles.tekst}>
-          <div className={styles.tittel}>{tittel}</div>
-          <div className={styles.undertekst}>Faste priser og rabatt for bedrifter</div>
-        </div>
+        <div className={styles.tittel}>{tittel}</div>
+        <div className={styles.undertekst}>Faste priser og rabatt for bedrifter</div>
       </div>
       <div className={styles.merker}>Bulldog · L.Brador · Wrks · Snickers Workwear</div>
       <div className={styles.cta}>
