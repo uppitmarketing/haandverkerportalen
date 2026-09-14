@@ -7,6 +7,7 @@
 import { useEffect, useRef } from 'react';
 import { BransjeIkon } from './icons';
 import { sporHendelse } from '../lib/gtag';
+import { sporInternHendelse } from '../lib/internAnalytics';
 import styles from './AnnonseBww.module.css';
 
 // Næringskategori -> tittel. Merkenavnet står i selve tittelen for
@@ -49,6 +50,7 @@ export default function AnnonseBww({ bransjeSlug }) {
           timer = setTimeout(() => {
             harRapportertVisning.current = true;
             sporHendelse('ad_impression', { ad_partner: 'bww', ad_content: bransjeSlug || 'ukjent', page_location: window.location.href });
+            sporInternHendelse(`/_annonse/visning/annonse/bww/${bransjeSlug || 'ukjent'}`);
             observer.disconnect();
           }, 1000);
         } else if (timer) {
@@ -65,6 +67,7 @@ export default function AnnonseBww({ bransjeSlug }) {
 
   function handleKlikk() {
     sporHendelse('ad_click', { ad_partner: 'bww', ad_content: bransjeSlug || 'ukjent', page_location: window.location.href });
+    sporInternHendelse(`/_annonse/klikk/annonse/bww/${bransjeSlug || 'ukjent'}`);
   }
 
   return (

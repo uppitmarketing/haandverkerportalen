@@ -71,6 +71,15 @@
 .periodeAktiv { background: var(--accent); border-color: var(--accent); color: #fff; }
 .periodeAktiv:hover { color: #fff; }
 
+.tabs { display: flex; gap: 4px; max-width: 900px; margin: 0 auto 20px; border-bottom: 1.5px solid var(--border); }
+.tabBtn {
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted);
+  background: none; border: none; border-bottom: 2px solid transparent;
+  padding: 10px 4px; margin-bottom: -1.5px; cursor: pointer;
+}
+.tabBtn:hover { color: var(--ink-2); }
+.tabAktiv { color: var(--accent-dk); border-bottom-color: var(--accent); }
+
 .stats { display: flex; gap: 14px; max-width: 900px; margin: 0 auto 20px; }
 .stat { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px 24px; flex: 1; }
 .statNum { font-size: 26px; font-weight: 800; letter-spacing: -0.8px; color: var(--accent); }
