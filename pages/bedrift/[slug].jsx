@@ -58,6 +58,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
   );
 
   const naering = getNaeringByKode(bedrift.naeringskode);
+  const visBww = BWW_PILOT_SLUGS.includes(bedrift.slug);
   const stiftetAar = bedrift.stiftelsesdato?.substring(0, 4);
   const status = bedrift.konkurs ? 'Konkurs' : bedrift.er_aktiv ? 'Aktiv' : 'Inaktiv';
   const beskrivelse = genererBeskrivelse(bedrift);
@@ -331,10 +332,10 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
               )}
             </div>
             <div className={styles.seksjonAnnonse}>
-              {BWW_PILOT_SLUGS.includes(bedrift.slug) && (
-                <AnnonseBww bransjeSlug={naering?.slug} />
+              {visBww && <AnnonseBww bransjeSlug={naering?.slug} />}
+              {(!visBww || annonsor) && (
+                <Annonse annonsor={annonsor} variant="kompakt" bransjeSlug={naering?.slug} />
               )}
-              <Annonse annonsor={annonsor} variant="kompakt" bransjeSlug={naering?.slug} />
             </div>
           </aside>
         </div>
