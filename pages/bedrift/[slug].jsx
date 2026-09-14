@@ -59,6 +59,20 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
 
   const naering = getNaeringByKode(bedrift.naeringskode);
   const visBww = BWW_PILOT_SLUGS.includes(bedrift.slug);
+  const nettsideUrl = bedrift.hjemmeside
+    ? (bedrift.hjemmeside.startsWith('http') ? bedrift.hjemmeside : `https://${bedrift.hjemmeside}`)
+    : null;
+
+  function sporNettsideKlikk() {
+    sporHendelse('bedrift_outbound_click', {
+      bedrift_navn: bedrift.navn,
+      bedrift_orgnr: bedrift.organisasjonsnummer,
+      bedrift_bransje: bedrift.naeringskode_tekst,
+      bedrift_kommune: bedrift.kommune,
+      link_url: bedrift.hjemmeside,
+    });
+    sporInternHendelse(`/_klikk/bedrift/${bedrift.slug}`);
+  }
   const stiftetAar = bedrift.stiftelsesdato?.substring(0, 4);
   const status = bedrift.konkurs ? 'Konkurs' : bedrift.er_aktiv ? 'Aktiv' : 'Inaktiv';
   const beskrivelse = genererBeskrivelse(bedrift);
@@ -209,6 +223,26 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                     ))}
                   </div>
                 )}
+                {nettsideUrl ? (
+                  <a
+                    href={nettsideUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.beskrivelseLenke}
+                    onClick={sporNettsideKlikk}
+                  >
+                    <Globe size={14} /> Gå til nettside
+                  </a>
+                ) : (
+                  <a
+                    href={`https://www.google.com/search?q=${encodeURIComponent(bedrift.navn)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.beskrivelseLenke}
+                  >
+                    Finn nettside via Google →
+                  </a>
+                )}
               </div>
             )}
             <div className={`${styles.boks} ${styles.seksjonFakta}`}>
@@ -279,22 +313,13 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
           <aside className={styles.aside}>
             <div className={styles.kontaktBoks}>
               <h2 className={styles.boksTitle}>Kontakt</h2>
-              {bedrift.hjemmeside ? (
+              {nettsideUrl ? (
                 <a
-                  href={bedrift.hjemmeside.startsWith('http') ? bedrift.hjemmeside : `https://${bedrift.hjemmeside}`}
+                  href={nettsideUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`btn btn--primary ${styles.kontaktBtn}`}
-                  onClick={() => {
-                    sporHendelse('bedrift_outbound_click', {
-                      bedrift_navn: bedrift.navn,
-                      bedrift_orgnr: bedrift.organisasjonsnummer,
-                      bedrift_bransje: bedrift.naeringskode_tekst,
-                      bedrift_kommune: bedrift.kommune,
-                      link_url: bedrift.hjemmeside,
-                    });
-                    sporInternHendelse(`/_klikk/bedrift/${bedrift.slug}`);
-                  }}
+                  onClick={sporNettsideKlikk}
                 >
                   <Globe size={16} /> Gå til nettside
                 </a>
