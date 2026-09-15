@@ -4,7 +4,7 @@ import { MapPin, Check, Search } from 'lucide-react';
 import { NAERINGSKODER, KOMMUNER, matchKommuneFraNavn, getAntallForBransjeKommune } from '../lib/db';
 import { finnNaeringskodeFraTekst } from '../lib/bransjeSokeord';
 import { getBransjeFlertall } from '../lib/bransjeInnsikt';
-import { sporInternHendelse, loggSokUtenTreff } from '../lib/internAnalytics';
+import { sporInternHendelse, loggSokUtenTreff, loggSokTreff } from '../lib/internAnalytics';
 import { BransjeIkon } from './icons';
 import styles from './HandverkerGuide.module.css';
 
@@ -240,7 +240,11 @@ export default function HandverkerGuide() {
                           <Check size={14} strokeWidth={3} />
                           Fant match: <strong>{prosjektTreff.visningsnavn}</strong>
                         </span>
-                        <button type="button" className={styles.treffBtn} onClick={() => velgBehov(prosjektTreff)}>
+                        <button
+                          type="button"
+                          className={styles.treffBtn}
+                          onClick={() => { loggSokTreff(prosjektTekst, prosjektTreff.slug); velgBehov(prosjektTreff); }}
+                        >
                           Fortsett →
                         </button>
                       </div>

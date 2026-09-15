@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 import { getSupabaseAdmin } from '../../lib/supabaseAdmin';
 import { erGyldigToken } from '../../lib/analyticsAuth';
-import { NAERINGSKODER } from '../../lib/db';
+import { NAERINGSKODER, getNaeringByKode } from '../../lib/db';
 import { finnNaeringskodeFraTekst } from '../../lib/bransjeSokeord';
 import { BransjeIkon } from '../../components/icons';
 import { Inbox } from 'lucide-react';
@@ -22,7 +22,8 @@ export default function AnalyticsSide({
   totalAnnonseVisninger, totalEkteVisninger, totalPlaceholderVisninger, annonseVisningBransjer,
   totalAnnonseKlikk, annonseKlikkBransjer, annonseVisningAnnonsorer, annonseKlikkAnnonsorer, nettsideForslag,
   trafikkPerDag, totalForBedrifter, forBedrifterFraProfil, forBedrifterAndre, oppsettFeil,
-  fremhevetIntro, sokUtenTreff, sokAlleredeLost,
+  fremhevetIntro, sokUtenTreff, sokAlleredeLost, sokTreff,
+  totalBedriftSideVisninger, visningerPerBransje, visningerPerKommune,
 }) {
   const [passord, setPassord] = useState('');
   const [feil, setFeil] = useState('');
@@ -289,7 +290,7 @@ export default function AnalyticsSide({
                 </>
               ) : (
               <>
-              {(nettsideForslag.length > 0 || fremhevetIntro.length > 0 || sokUtenTreff.length > 0) && (
+              {(nettsideForslag.length > 0 || fremhevetIntro.length > 0 || sokUtenTreff.length > 0 || sokTreff.length > 0) && (
                 <div className={styles.foresporslerSeksjon}>
                   <h2 className={styles.foresporslerTittel}><Inbox size={15} /> Innkommende forespørsler</h2>
 
@@ -411,7 +412,7 @@ export default function AnalyticsSide({
               )}
 
               {sokUtenTreff.length > 0 && (
-                <div className={styles.tabellBoks}>
+                <div className={styles.tabellBoks} style={{ marginBottom: sokTreff.length > 0 ? 20 : 0 }}>
                   <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
                     Søk uten treff ({sokUtenTreff.length} unike{sokAlleredeLost > 0 ? `, ${sokAlleredeLost} løst siden loggført` : ''})
                   </h2>
@@ -430,6 +431,34 @@ export default function AnalyticsSide({
                           <td>{s.tekst}</td>
                           <td>{s.antall}</td>
                           <td>{s.kilder.join(', ')}</td>
+                          <td>{new Date(s.sistSett).toLocaleDateString('no')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {sokTreff.length > 0 && (
+                <div className={styles.tabellBoks}>
+                  <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
+                    Populære søkefraser med treff ({sokTreff.length} unike)
+                  </h2>
+                  <table className={styles.tabell}>
+                    <thead>
+                      <tr>
+                        <th>Søketekst</th>
+                        <th>Bransje</th>
+                        <th>Antall</th>
+                        <th>Sist sett</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sokTreff.map(s => (
+                        <tr key={s.tekst + s.bransjeSlug}>
+                          <td>{s.tekst}</td>
+                          <td>{s.visningsnavn}</td>
+                          <td>{s.antall}</td>
                           <td>{new Date(s.sistSett).toLocaleDateString('no')}</td>
                         </tr>
                       ))}
@@ -541,6 +570,50 @@ export default function AnalyticsSide({
                         <a href={`/bedrift/${k.slug}`} target="_blank" rel="noopener noreferrer" className={styles.klikkNavn}>
                           {k.slug}
                         </a>
+                        <span className={styles.kildeTall}>
+                          {k.antall.toLocaleString('no')}
+                          {k.ctr != null && (
+                            <span style={{ color: 'var(--muted)', fontWeight: 400 }}> ({k.ctr}%)</span>
+                          )}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className={styles.kildeSeksjon}>
+                <div className={styles.kildePanel}>
+                  <h2 className={styles.kildeTittel}>Bedriftsside-visninger per bransje ({totalBedriftSideVisninger.toLocaleString('no')} totalt)</h2>
+                  {visningerPerBransje.length === 0 ? (
+                    <p className={styles.tomtLite}>Ingen visninger registrert ennå.</p>
+                  ) : (
+                    visningerPerBransje.map(b => (
+                      <div key={b.navn} className={styles.kildeRad}>
+                        <span className={styles.kildeNavn}>
+                          <BransjeIkon slug={b.navn} size={13} style={{ verticalAlign: -2, marginRight: 4 }} />
+                          {b.visningsnavn}
+                        </span>
+                        <div className={styles.kildeBar}>
+                          <div className={styles.kildeBarFyll} style={{ width: `${b.andel}%` }} />
+                        </div>
+                        <span className={styles.kildeTall}>{b.antall.toLocaleString('no')}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className={styles.kildePanel}>
+                  <h2 className={styles.kildeTittel}>Bedriftsside-visninger per kommune (topp 15)</h2>
+                  {visningerPerKommune.length === 0 ? (
+                    <p className={styles.tomtLite}>Ingen visninger registrert ennå.</p>
+                  ) : (
+                    visningerPerKommune.map(k => (
+                      <div key={k.navn} className={styles.kildeRad}>
+                        <span className={styles.kildeNavn}>{k.navn}</span>
+                        <div className={styles.kildeBar}>
+                          <div className={styles.kildeBarFyll} style={{ width: `${k.andel}%` }} />
+                        </div>
                         <span className={styles.kildeTall}>{k.antall.toLocaleString('no')}</span>
                       </div>
                     ))
@@ -638,6 +711,10 @@ export async function getServerSideProps({ req, query }) {
     fremhevetIntro: [],
     sokUtenTreff: [],
     sokAlleredeLost: 0,
+    sokTreff: [],
+    totalBedriftSideVisninger: 0,
+    visningerPerBransje: [],
+    visningerPerKommune: [],
     oppsettFeil: null,
   };
 
@@ -657,7 +734,7 @@ export async function getServerSideProps({ req, query }) {
     if (periode === '7d') fra = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     if (periode === '30d') fra = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [sideRes, kildeRes, forslagRes, dagRes, forBedrifterRes, introRes, sokUtenTreffRes] = await Promise.all([
+    const [sideRes, kildeRes, forslagRes, dagRes, forBedrifterRes, introRes, sokUtenTreffRes, sokTreffRes] = await Promise.all([
       supabaseAdmin.rpc('page_view_counts', { fra }),
       supabaseAdmin.rpc('page_view_besokskilder', { fra }),
       supabaseAdmin.from('nettside_forslag').select('*').eq('status', 'venter').order('created_at', { ascending: false }),
@@ -665,6 +742,7 @@ export async function getServerSideProps({ req, query }) {
       supabaseAdmin.rpc('for_bedrifter_kilder', { fra }),
       supabaseAdmin.from('fremhevet_intro_pamelding').select('*').order('opprettet_at', { ascending: true }),
       supabaseAdmin.from('sok_uten_treff').select('*').order('opprettet_at', { ascending: false }).limit(1000),
+      supabaseAdmin.from('sok_treff').select('*').order('opprettet_at', { ascending: false }).limit(1000),
     ]);
 
     if (sideRes.error) throw new Error(sideRes.error.message);
@@ -674,6 +752,7 @@ export async function getServerSideProps({ req, query }) {
     if (forBedrifterRes.error) throw new Error(forBedrifterRes.error.message);
     if (introRes.error) throw new Error(introRes.error.message);
     if (sokUtenTreffRes.error) throw new Error(sokUtenTreffRes.error.message);
+    if (sokTreffRes.error) throw new Error(sokTreffRes.error.message);
 
     const nettsideForslag = forslagRes.data || [];
     const fremhevetIntro = introRes.data || [];
@@ -701,6 +780,28 @@ export async function getServerSideProps({ req, query }) {
       .sort((a, b) => b.antall - a.antall)
       .slice(0, 100);
     const sokAlleredeLost = alleUnikeSok.length - sokUtenTreff.length;
+
+    const sokTreffKart = new Map();
+    for (const rad of sokTreffRes.data || []) {
+      const nokkel = rad.tekst.trim().toLowerCase() + '|' + (rad.bransje_slug || '');
+      const eksisterende = sokTreffKart.get(nokkel);
+      if (eksisterende) {
+        eksisterende.antall += 1;
+        if (rad.opprettet_at > eksisterende.sistSett) eksisterende.sistSett = rad.opprettet_at;
+      } else {
+        const naering = NAERINGSKODER.find(n => n.slug === rad.bransje_slug);
+        sokTreffKart.set(nokkel, {
+          tekst: rad.tekst.trim(),
+          bransjeSlug: rad.bransje_slug,
+          visningsnavn: naering?.visningsnavn || rad.bransje_slug || '—',
+          antall: 1,
+          sistSett: rad.opprettet_at,
+        });
+      }
+    }
+    const sokTreff = Array.from(sokTreffKart.values())
+      .sort((a, b) => b.antall - a.antall)
+      .slice(0, 100);
 
     const dagRader = dagRes.data || [];
     const maxDag = Math.max(1, ...dagRader.map(d => Number(d.antall)));
@@ -730,6 +831,71 @@ export async function getServerSideProps({ req, query }) {
     const totalBotVisninger = bots.reduce((sum, r) => sum + Number(r.antall), 0);
     const sider = ekteSider.slice(0, 300);
 
+    // Bedriftsside-visninger: /bedrift/{slug} bærer ikke bransje/kommune i
+    // stien selv, så vi må slå det opp mot bedrifter-tabellen i batcher.
+    const bedriftSlugTilVisninger = new Map();
+    for (const r of ekteSider) {
+      if (!r.visningssti.startsWith('/bedrift/')) continue;
+      const slug = r.visningssti.split('/')[2];
+      if (!slug) continue;
+      bedriftSlugTilVisninger.set(slug, (bedriftSlugTilVisninger.get(slug) || 0) + Number(r.antall));
+    }
+
+    const bedriftInfoPerSlug = new Map();
+    const alleBedriftSlugs = Array.from(bedriftSlugTilVisninger.keys());
+    for (let i = 0; i < alleBedriftSlugs.length; i += 500) {
+      const batch = alleBedriftSlugs.slice(i, i + 500);
+      const { data: bedriftData, error: bedriftErr } = await supabaseAdmin
+        .from('bedrifter')
+        .select('slug, naeringskode, kommune')
+        .in('slug', batch);
+      if (bedriftErr) throw new Error(bedriftErr.message);
+      for (const rad of bedriftData || []) {
+        bedriftInfoPerSlug.set(rad.slug, rad);
+      }
+    }
+
+    const totalBedriftSideVisninger = Array.from(bedriftSlugTilVisninger.values()).reduce((sum, n) => sum + n, 0);
+
+    const visningerPerBransje = (() => {
+      const kart = new Map();
+      for (const [slug, antall] of bedriftSlugTilVisninger.entries()) {
+        const info = bedriftInfoPerSlug.get(slug);
+        const naering = info ? getNaeringByKode(info.naeringskode) : null;
+        const bransjeSlug = naering?.slug || 'ukjent';
+        kart.set(bransjeSlug, (kart.get(bransjeSlug) || 0) + antall);
+      }
+      return Array.from(kart.entries())
+        .map(([slug, antall]) => {
+          const naering = NAERINGSKODER.find(n => n.slug === slug);
+          return {
+            navn: slug,
+            visningsnavn: naering?.visningsnavn || slug,
+            antall,
+            andel: totalBedriftSideVisninger > 0 ? Math.round((antall / totalBedriftSideVisninger) * 1000) / 10 : 0,
+          };
+        })
+        .sort((a, b) => b.antall - a.antall);
+    })();
+
+    const visningerPerKommune = (() => {
+      const kart = new Map();
+      for (const [slug, antall] of bedriftSlugTilVisninger.entries()) {
+        const info = bedriftInfoPerSlug.get(slug);
+        const kommune = info?.kommune || 'Ukjent';
+        kart.set(kommune, (kart.get(kommune) || 0) + antall);
+      }
+      const total = totalBedriftSideVisninger;
+      return Array.from(kart.entries())
+        .map(([navn, antall]) => ({
+          navn,
+          antall,
+          andel: total > 0 ? Math.round((antall / total) * 1000) / 10 : 0,
+        }))
+        .sort((a, b) => b.antall - a.antall)
+        .slice(0, 15);
+    })();
+
     const totalGuideBruk = guideRader.reduce((sum, r) => sum + Number(r.antall), 0);
     const guideBransjer = (() => {
       const kart = new Map();
@@ -754,7 +920,13 @@ export async function getServerSideProps({ req, query }) {
     const toppKlikk = [...klikkRader]
       .sort((a, b) => Number(b.antall) - Number(a.antall))
       .slice(0, 15)
-      .map(r => ({ slug: r.visningssti.split('/')[3], antall: Number(r.antall) }));
+      .map(r => {
+        const slug = r.visningssti.split('/')[3];
+        const antall = Number(r.antall);
+        const visninger = bedriftSlugTilVisninger.get(slug) || 0;
+        const ctr = visninger > 0 ? Math.round((antall / visninger) * 1000) / 10 : null;
+        return { slug, antall, ctr };
+      });
 
     // Annonse-stier: /_annonse/{visning|klikk}/{annonse|placeholder}/{bred|kompakt}/{bransje}
     const annonseVisningRader = ekte.filter(r => r.visningssti.startsWith('/_annonse/visning/'));
@@ -857,6 +1029,10 @@ export async function getServerSideProps({ req, query }) {
         fremhevetIntro,
         sokUtenTreff,
         sokAlleredeLost,
+        sokTreff,
+        totalBedriftSideVisninger,
+        visningerPerBransje,
+        visningerPerKommune,
         oppsettFeil: null,
       },
     };
