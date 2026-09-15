@@ -35,6 +35,13 @@ export default function AnalyticsSide({
     ? Math.round((totalAnnonseKlikk / totalAnnonseVisninger) * 1000) / 10
     : 0;
 
+  // BWW-visninger telles kun når kortet faktisk har vært synlig (IntersectionObserver),
+  // mens det generiske systemet logger visning på hver sidelasting - CTR-en over blander
+  // disse to helt ulike målemetodene, så BWW sin egen rate regnes ut separat her.
+  const bwwVisninger = annonseVisningAnnonsorer.find(a => a.navn === 'Better WorkWear (pilot)')?.antall || 0;
+  const bwwKlikk = annonseKlikkAnnonsorer.find(a => a.navn === 'Better WorkWear (pilot)')?.antall || 0;
+  const bwwCtr = bwwVisninger > 0 ? Math.round((bwwKlikk / bwwVisninger) * 1000) / 10 : 0;
+
   const andelFraProfil = totalForBedrifter > 0 ? Math.round((forBedrifterFraProfil / totalForBedrifter) * 100) : 0;
 
   const antallOppgaver = nettsideForslag.length + fremhevetIntro.filter(p => !p.kontaktet && !p.konvertert).length;
@@ -646,7 +653,11 @@ export default function AnalyticsSide({
                     </div>
                     <div className={styles.stat}>
                       <div className={styles.statNum}>{totalAnnonseCtr}%</div>
-                      <div className={styles.statLabel}>Klikkrate (CTR)</div>
+                      <div className={styles.statLabel}>Klikkrate (blandet, alle slots)</div>
+                    </div>
+                    <div className={styles.stat}>
+                      <div className={styles.statNum}>{bwwCtr}%</div>
+                      <div className={styles.statLabel}>Better WorkWear – klikkrate</div>
                     </div>
                   </div>
 
