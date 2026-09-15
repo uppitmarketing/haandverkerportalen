@@ -87,15 +87,14 @@ export default function AnnonseBww({ bransjeSlug }) {
       </div>
       <div className={styles.foto}>
         <img src={FOTO_URL} alt="Better WorkWear arbeidsklær" loading="lazy" />
-      </div>
-      <div className={styles.innhold}>
-        <div className={styles.tittel}>{tittel}</div>
-        <div className={styles.undertekst}>Faste priser og rabatt for bedrifter</div>
-      </div>
-      <div className={styles.merker}>Bulldog · L.Brador · Wrks · Snickers Workwear</div>
-      <div className={styles.cta}>
-        Se mer her
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        <div className={styles.overlay}>
+          <div className={styles.overlayTittel}>{tittel}</div>
+          <div className={styles.overlayUndertekst}>Faste priser og rabatt for bedrifter</div>
+          <span className={styles.overlayCta}>
+            Se mer her
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </span>
+        </div>
       </div>
     </a>
   );
