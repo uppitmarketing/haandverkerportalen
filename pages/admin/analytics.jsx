@@ -6,7 +6,6 @@ import { erGyldigToken } from '../../lib/analyticsAuth';
 import { NAERINGSKODER, getNaeringByKode } from '../../lib/db';
 import { finnNaeringskodeFraTekst } from '../../lib/bransjeSokeord';
 import { BransjeIkon } from '../../components/icons';
-import { Inbox } from 'lucide-react';
 import styles from '../../styles/Analytics.module.css';
 
 const PERIODER = [
@@ -30,13 +29,15 @@ export default function AnalyticsSide({
   const [laster, setLaster] = useState(false);
   const [behandlerId, setBehandlerId] = useState(null);
   const [behandlerIntroId, setBehandlerIntroId] = useState(null);
-  const [tab, setTab] = useState('oversikt');
+  const [tab, setTab] = useState('trafikk');
 
   const totalAnnonseCtr = totalAnnonseVisninger > 0
     ? Math.round((totalAnnonseKlikk / totalAnnonseVisninger) * 1000) / 10
     : 0;
 
   const andelFraProfil = totalForBedrifter > 0 ? Math.round((forBedrifterFraProfil / totalForBedrifter) * 100) : 0;
+
+  const antallOppgaver = nettsideForslag.length + fremhevetIntro.filter(p => !p.kontaktet && !p.konvertert).length;
 
   async function handleForslag(id, handling) {
     setBehandlerId(id);
@@ -175,10 +176,32 @@ export default function AnalyticsSide({
               <div className={styles.tabs}>
                 <button
                   type="button"
-                  className={`${styles.tabBtn} ${tab === 'oversikt' ? styles.tabAktiv : ''}`}
-                  onClick={() => setTab('oversikt')}
+                  className={`${styles.tabBtn} ${tab === 'oppgaver' ? styles.tabAktiv : ''}`}
+                  onClick={() => setTab('oppgaver')}
                 >
-                  Oversikt
+                  Oppgaver
+                  {antallOppgaver > 0 && <span className={styles.tabBadge}>{antallOppgaver}</span>}
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.tabBtn} ${tab === 'trafikk' ? styles.tabAktiv : ''}`}
+                  onClick={() => setTab('trafikk')}
+                >
+                  Trafikk
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.tabBtn} ${tab === 'bedrifter' ? styles.tabAktiv : ''}`}
+                  onClick={() => setTab('bedrifter')}
+                >
+                  Bedrifter
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.tabBtn} ${tab === 'sok' ? styles.tabAktiv : ''}`}
+                  onClick={() => setTab('sok')}
+                >
+                  Søk &amp; guide
                 </button>
                 <button
                   type="button"
@@ -189,7 +212,428 @@ export default function AnalyticsSide({
                 </button>
               </div>
 
-              {tab === 'annonser' ? (
+              {tab === 'oppgaver' && (
+                <>
+                  {nettsideForslag.length === 0 && fremhevetIntro.length === 0 ? (
+                    <div className={styles.tabellBoks}>
+                      <p className={styles.tomt}>Ingen oppgaver akkurat nå.</p>
+                    </div>
+                  ) : (
+                    <>
+                      {nettsideForslag.length > 0 && (
+                        <div className={styles.tabellBoks} style={{ marginBottom: fremhevetIntro.length > 0 ? 20 : 0 }}>
+                          <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
+                            Nye nettside-forslag ({nettsideForslag.length} venter)
+                          </h2>
+                          <table className={styles.tabell}>
+                            <thead>
+                              <tr>
+                                <th>Bedrift</th>
+                                <th>Foreslått nettside</th>
+                                <th>E-post</th>
+                                <th>Dato</th>
+                                <th>Handling</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {nettsideForslag.map(f => (
+                                <tr key={f.id}>
+                                  <td><a href={`/bedrift/${f.bedrift_slug}`} target="_blank" rel="noopener noreferrer">{f.bedrift_navn}</a></td>
+                                  <td>{f.foreslatt_nettside}</td>
+                                  <td>{f.epost || '—'}</td>
+                                  <td>{new Date(f.created_at).toLocaleDateString('no')}</td>
+                                  <td className={styles.handlingCelle}>
+                                    <button
+                                      className={styles.godkjennBtn}
+                                      disabled={behandlerId === f.id}
+                                      onClick={() => handleForslag(f.id, 'godkjenn')}
+                                    >
+                                      {behandlerId === f.id ? '...' : 'Godkjenn'}
+                                    </button>
+                                    <button
+                                      className={styles.avvisBtn}
+                                      disabled={behandlerId === f.id}
+                                      onClick={() => handleForslag(f.id, 'avvis')}
+                                    >
+                                      Avvis
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+
+                      {fremhevetIntro.length > 0 && (
+                        <div className={styles.tabellBoks}>
+                          <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
+                            Introtilbud – Fremhevet profil ({fremhevetIntro.length} påmeldt)
+                          </h2>
+                          <table className={styles.tabell}>
+                            <thead>
+                              <tr>
+                                <th>#</th>
+                                <th>Bedrift</th>
+                                <th>Org.nr</th>
+                                <th>E-post</th>
+                                <th>Telefon</th>
+                                <th>Nettside</th>
+                                <th>Spesialiteter</th>
+                                <th>Beskrivelse</th>
+                                <th>Dato</th>
+                                <th>Kontaktet</th>
+                                <th>Konverter</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {fremhevetIntro.map((p, i) => (
+                                <tr key={p.id} style={i >= 10 ? { opacity: 0.5 } : undefined}>
+                                  <td>{i + 1}{i >= 10 ? ' (utenfor de 10)' : ''}</td>
+                                  <td>{p.bedriftsnavn}</td>
+                                  <td>{p.org_nr}</td>
+                                  <td>{p.epost}</td>
+                                  <td>{p.telefon || '—'}</td>
+                                  <td>{p.nettside || '—'}</td>
+                                  <td>{p.spesialiteter || '—'}</td>
+                                  <td style={{ maxWidth: 220, whiteSpace: 'normal' }}>{p.beskrivelse || '—'}</td>
+                                  <td>{new Date(p.opprettet_at).toLocaleDateString('no')}</td>
+                                  <td className={styles.handlingCelle}>
+                                    {p.kontaktet ? (
+                                      <button
+                                        className={styles.avvisBtn}
+                                        disabled={behandlerIntroId === p.id}
+                                        onClick={() => handleKontaktet(p.id, false)}
+                                      >
+                                        {behandlerIntroId === p.id ? '...' : 'Kontaktet ✓ (angre)'}
+                                      </button>
+                                    ) : (
+                                      <button
+                                        className={styles.godkjennBtn}
+                                        disabled={behandlerIntroId === p.id}
+                                        onClick={() => handleKontaktet(p.id, true)}
+                                      >
+                                        {behandlerIntroId === p.id ? '...' : 'Marker som kontaktet'}
+                                      </button>
+                                    )}
+                                  </td>
+                                  <td className={styles.handlingCelle}>
+                                    {p.konvertert ? (
+                                      <span style={{ color: 'var(--green)', fontWeight: 600, fontSize: 11 }}>Konvertert ✓</span>
+                                    ) : (
+                                      <button
+                                        className={styles.godkjennBtn}
+                                        disabled={behandlerIntroId === p.id}
+                                        onClick={() => handleKonverter(p.id)}
+                                      >
+                                        {behandlerIntroId === p.id ? '...' : 'Konverter til fremhevet →'}
+                                      </button>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+
+              {tab === 'trafikk' && (
+                <>
+                  <div className={styles.dagPanel}>
+                    <h2 className={styles.kildeTittel}>
+                      Trafikk per dag ({(PERIODER.find(p => p.key === periode)?.label || 'Totalt').toLowerCase()})
+                    </h2>
+                    {trafikkPerDag.length === 0 ? (
+                      <p className={styles.tomtLite}>Ingen data ennå.</p>
+                    ) : (
+                      trafikkPerDag.map(d => (
+                        <div key={d.dato} className={styles.kildeRad}>
+                          <span className={styles.kildeNavn}>{d.label}</span>
+                          <div className={styles.kildeBar}>
+                            <div className={styles.kildeBarFyll} style={{ width: `${d.andel}%` }} />
+                          </div>
+                          <span className={styles.kildeTall}>{d.antall.toLocaleString('no')}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div className={styles.stats}>
+                    <div className={styles.stat}>
+                      <div className={styles.statNum}>{totalVisninger.toLocaleString('no')}</div>
+                      <div className={styles.statLabel}>Ekte sidevisninger</div>
+                    </div>
+                    <div className={styles.stat}>
+                      <div className={styles.statNum}>{totalUnikeSider.toLocaleString('no')}</div>
+                      <div className={styles.statLabel}>Unike sider besøkt</div>
+                    </div>
+                    <div className={styles.stat}>
+                      <div className={styles.statNum}>{totalBotVisninger.toLocaleString('no')}</div>
+                      <div className={styles.statLabel}>Bot-/crawler-besøk</div>
+                    </div>
+                  </div>
+
+                  <div className={styles.kildeSeksjon}>
+                    <div className={styles.kildePanel}>
+                      <h2 className={styles.kildeTittel}>Enhet</h2>
+                      {enheter.length === 0 ? (
+                        <p className={styles.tomtLite}>Ingen data ennå.</p>
+                      ) : (
+                        enheter.map(e => (
+                          <div key={e.navn} className={styles.kildeRad}>
+                            <span className={styles.kildeNavn}>{e.navn}</span>
+                            <div className={styles.kildeBar}>
+                              <div className={styles.kildeBarFyll} style={{ width: `${e.andel}%` }} />
+                            </div>
+                            <span className={styles.kildeTall}>{e.antall.toLocaleString('no')}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className={styles.kildePanel}>
+                      <h2 className={styles.kildeTittel}>Hvor de kommer fra</h2>
+                      {kilder.length === 0 ? (
+                        <p className={styles.tomtLite}>Ingen data ennå.</p>
+                      ) : (
+                        kilder.map(k => (
+                          <div key={k.navn} className={styles.kildeRad}>
+                            <span className={styles.kildeNavn}>{k.navn}</span>
+                            <div className={styles.kildeBar}>
+                              <div className={styles.kildeBarFyll} style={{ width: `${k.andel}%` }} />
+                            </div>
+                            <span className={styles.kildeTall}>{k.antall.toLocaleString('no')}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  <details className={styles.tabellBoks}>
+                    <summary className={styles.accordionSummary}>
+                      Vis alle {sider.length.toLocaleString('no')} sider (rådata)
+                    </summary>
+                    {sider.length === 0 ? (
+                      <p className={styles.tomt}>Ingen sidevisninger registrert i denne perioden.</p>
+                    ) : (
+                      <table className={styles.tabell}>
+                        <thead>
+                          <tr>
+                            <th>Side</th>
+                            <th>Visninger</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sider.map(s => (
+                            <tr key={s.visningssti}>
+                              <td>
+                                {s.visningssti.includes('*') ? (
+                                  <span>{s.visningssti}</span>
+                                ) : (
+                                  <a href={s.visningssti} target="_blank" rel="noopener noreferrer">{s.visningssti}</a>
+                                )}
+                              </td>
+                              <td>{s.antall.toLocaleString('no')}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </details>
+                </>
+              )}
+
+              {tab === 'bedrifter' && (
+                <>
+                  <div className={styles.kildeSeksjon}>
+                    <div className={styles.kildePanel}>
+                      <h2 className={styles.kildeTittel}>Bedriftsside-visninger per bransje ({totalBedriftSideVisninger.toLocaleString('no')} totalt)</h2>
+                      {visningerPerBransje.length === 0 ? (
+                        <p className={styles.tomtLite}>Ingen visninger registrert ennå.</p>
+                      ) : (
+                        visningerPerBransje.map(b => (
+                          <div key={b.navn} className={styles.kildeRad}>
+                            <span className={styles.kildeNavn}>
+                              <BransjeIkon slug={b.navn} size={13} style={{ verticalAlign: -2, marginRight: 4 }} />
+                              {b.visningsnavn}
+                            </span>
+                            <div className={styles.kildeBar}>
+                              <div className={styles.kildeBarFyll} style={{ width: `${b.andel}%` }} />
+                            </div>
+                            <span className={styles.kildeTall}>{b.antall.toLocaleString('no')}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className={styles.kildePanel}>
+                      <h2 className={styles.kildeTittel}>Bedriftsside-visninger per kommune (topp 15)</h2>
+                      {visningerPerKommune.length === 0 ? (
+                        <p className={styles.tomtLite}>Ingen visninger registrert ennå.</p>
+                      ) : (
+                        visningerPerKommune.map(k => (
+                          <div key={k.navn} className={styles.kildeRad}>
+                            <span className={styles.kildeNavn}>{k.navn}</span>
+                            <div className={styles.kildeBar}>
+                              <div className={styles.kildeBarFyll} style={{ width: `${k.andel}%` }} />
+                            </div>
+                            <span className={styles.kildeTall}>{k.antall.toLocaleString('no')}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={styles.kildeSeksjon}>
+                    <div className={styles.kildePanel}>
+                      <h2 className={styles.kildeTittel}>Mest klikket til nettside ({totalKlikk.toLocaleString('no')} totalt)</h2>
+                      {toppKlikk.length === 0 ? (
+                        <p className={styles.tomtLite}>Ingen klikk registrert ennå.</p>
+                      ) : (
+                        toppKlikk.map(k => (
+                          <div key={k.slug} className={styles.kildeRad}>
+                            <a href={`/bedrift/${k.slug}`} target="_blank" rel="noopener noreferrer" className={styles.klikkNavn}>
+                              {k.slug}
+                            </a>
+                            <span className={styles.kildeTall}>
+                              {k.antall.toLocaleString('no')}
+                              {k.ctr != null && (
+                                <span style={{ color: 'var(--muted)', fontWeight: 400 }}> ({k.ctr}%)</span>
+                              )}
+                            </span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className={styles.kildePanel}>
+                      <h2 className={styles.kildeTittel}>For bedrifter-besøk ({totalForBedrifter.toLocaleString('no')} totalt)</h2>
+                      <p className={styles.kildeSub}>Andel som kom fra en bedriftsprofil — sannsynlig bedriftseier</p>
+                      {totalForBedrifter === 0 ? (
+                        <p className={styles.tomtLite}>Ingen besøk registrert ennå.</p>
+                      ) : (
+                        <>
+                          <div className={styles.kildeRad}>
+                            <span className={styles.kildeNavn}>Fra bedriftsprofil</span>
+                            <div className={styles.kildeBar}>
+                              <div className={styles.kildeBarFyll} style={{ width: `${andelFraProfil}%` }} />
+                            </div>
+                            <span className={styles.kildeTall}>{forBedrifterFraProfil.toLocaleString('no')}</span>
+                          </div>
+                          <div className={styles.kildeRad}>
+                            <span className={styles.kildeNavn}>Andre kilder</span>
+                            <div className={styles.kildeBar}>
+                              <div className={styles.kildeBarFyll} style={{ width: `${100 - andelFraProfil}%` }} />
+                            </div>
+                            <span className={styles.kildeTall}>{forBedrifterAndre.toLocaleString('no')}</span>
+                          </div>
+                          <p className={styles.kommentar}>
+                            {andelFraProfil >= 50
+                              ? `${andelFraProfil} % av besøkene kommer fra en bedriftsprofil — de fleste besøkende ser altså ut til å være bedriftseiere som sjekker sin egen oppføring, ikke kunder på jakt etter en håndverker.`
+                              : `${andelFraProfil} % av besøkene kommer fra en bedriftsprofil (sannsynlig bedriftseier). Resten, ${100 - andelFraProfil} %, finner siden via andre veier — som forsiden eller søk.`}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {tab === 'sok' && (
+                <>
+                  <div className={styles.kildeSeksjon}>
+                    <div className={styles.kildePanel}>
+                      <h2 className={styles.kildeTittel}>Guide-bruk ({totalGuideBruk.toLocaleString('no')} fullført)</h2>
+                      {guideBransjer.length === 0 ? (
+                        <p className={styles.tomtLite}>Ingen bruk registrert ennå.</p>
+                      ) : (
+                        guideBransjer.map(g => (
+                          <div key={g.navn} className={styles.kildeRad}>
+                            <span className={styles.kildeNavn}>
+                              <BransjeIkon slug={g.navn} size={13} style={{ verticalAlign: -2, marginRight: 4 }} />
+                              {g.visningsnavn}
+                            </span>
+                            <div className={styles.kildeBar}>
+                              <div className={styles.kildeBarFyll} style={{ width: `${g.andel}%` }} />
+                            </div>
+                            <span className={styles.kildeTall}>{g.antall.toLocaleString('no')}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {sokUtenTreff.length === 0 && sokTreff.length === 0 ? (
+                    <div className={styles.tabellBoks}>
+                      <p className={styles.tomt}>Ingen søkedata registrert ennå.</p>
+                    </div>
+                  ) : (
+                    <>
+                      {sokTreff.length > 0 && (
+                        <div className={styles.tabellBoks} style={{ marginBottom: sokUtenTreff.length > 0 ? 20 : 0 }}>
+                          <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
+                            Populære søkefraser med treff ({sokTreff.length} unike)
+                          </h2>
+                          <table className={styles.tabell}>
+                            <thead>
+                              <tr>
+                                <th>Søketekst</th>
+                                <th>Bransje</th>
+                                <th>Antall</th>
+                                <th>Sist sett</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {sokTreff.map(s => (
+                                <tr key={s.tekst + s.bransjeSlug}>
+                                  <td>{s.tekst}</td>
+                                  <td>{s.visningsnavn}</td>
+                                  <td>{s.antall}</td>
+                                  <td>{new Date(s.sistSett).toLocaleDateString('no')}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+
+                      {sokUtenTreff.length > 0 && (
+                        <div className={styles.tabellBoks}>
+                          <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
+                            Søk uten treff ({sokUtenTreff.length} unike{sokAlleredeLost > 0 ? `, ${sokAlleredeLost} løst siden loggført` : ''})
+                          </h2>
+                          <table className={styles.tabell}>
+                            <thead>
+                              <tr>
+                                <th>Søketekst</th>
+                                <th>Antall</th>
+                                <th>Kilde</th>
+                                <th>Sist sett</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {sokUtenTreff.map(s => (
+                                <tr key={s.tekst}>
+                                  <td>{s.tekst}</td>
+                                  <td>{s.antall}</td>
+                                  <td>{s.kilder.join(', ')}</td>
+                                  <td>{new Date(s.sistSett).toLocaleDateString('no')}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+
+              {tab === 'annonser' && (
                 <>
                   <div className={styles.stats}>
                     <div className={styles.stat}>
@@ -288,400 +732,6 @@ export default function AnalyticsSide({
                     </div>
                   </div>
                 </>
-              ) : (
-              <>
-              {(nettsideForslag.length > 0 || fremhevetIntro.length > 0 || sokUtenTreff.length > 0 || sokTreff.length > 0) && (
-                <div className={styles.foresporslerSeksjon}>
-                  <h2 className={styles.foresporslerTittel}><Inbox size={15} /> Innkommende forespørsler</h2>
-
-              {nettsideForslag.length > 0 && (
-                <div className={styles.tabellBoks} style={{ marginBottom: 20 }}>
-                  <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
-                    Nye nettside-forslag ({nettsideForslag.length} venter)
-                  </h2>
-                  <table className={styles.tabell}>
-                    <thead>
-                      <tr>
-                        <th>Bedrift</th>
-                        <th>Foreslått nettside</th>
-                        <th>E-post</th>
-                        <th>Dato</th>
-                        <th>Handling</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {nettsideForslag.map(f => (
-                        <tr key={f.id}>
-                          <td><a href={`/bedrift/${f.bedrift_slug}`} target="_blank" rel="noopener noreferrer">{f.bedrift_navn}</a></td>
-                          <td>{f.foreslatt_nettside}</td>
-                          <td>{f.epost || '—'}</td>
-                          <td>{new Date(f.created_at).toLocaleDateString('no')}</td>
-                          <td className={styles.handlingCelle}>
-                            <button
-                              className={styles.godkjennBtn}
-                              disabled={behandlerId === f.id}
-                              onClick={() => handleForslag(f.id, 'godkjenn')}
-                            >
-                              {behandlerId === f.id ? '...' : 'Godkjenn'}
-                            </button>
-                            <button
-                              className={styles.avvisBtn}
-                              disabled={behandlerId === f.id}
-                              onClick={() => handleForslag(f.id, 'avvis')}
-                            >
-                              Avvis
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {fremhevetIntro.length > 0 && (
-                <div className={styles.tabellBoks} style={{ marginBottom: 20 }}>
-                  <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
-                    Introtilbud – Fremhevet profil ({fremhevetIntro.length} påmeldt)
-                  </h2>
-                  <table className={styles.tabell}>
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Bedrift</th>
-                        <th>Org.nr</th>
-                        <th>E-post</th>
-                        <th>Telefon</th>
-                        <th>Nettside</th>
-                        <th>Spesialiteter</th>
-                        <th>Beskrivelse</th>
-                        <th>Dato</th>
-                        <th>Kontaktet</th>
-                        <th>Konverter</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {fremhevetIntro.map((p, i) => (
-                        <tr key={p.id} style={i >= 10 ? { opacity: 0.5 } : undefined}>
-                          <td>{i + 1}{i >= 10 ? ' (utenfor de 10)' : ''}</td>
-                          <td>{p.bedriftsnavn}</td>
-                          <td>{p.org_nr}</td>
-                          <td>{p.epost}</td>
-                          <td>{p.telefon || '—'}</td>
-                          <td>{p.nettside || '—'}</td>
-                          <td>{p.spesialiteter || '—'}</td>
-                          <td style={{ maxWidth: 220, whiteSpace: 'normal' }}>{p.beskrivelse || '—'}</td>
-                          <td>{new Date(p.opprettet_at).toLocaleDateString('no')}</td>
-                          <td className={styles.handlingCelle}>
-                            {p.kontaktet ? (
-                              <button
-                                className={styles.avvisBtn}
-                                disabled={behandlerIntroId === p.id}
-                                onClick={() => handleKontaktet(p.id, false)}
-                              >
-                                {behandlerIntroId === p.id ? '...' : 'Kontaktet ✓ (angre)'}
-                              </button>
-                            ) : (
-                              <button
-                                className={styles.godkjennBtn}
-                                disabled={behandlerIntroId === p.id}
-                                onClick={() => handleKontaktet(p.id, true)}
-                              >
-                                {behandlerIntroId === p.id ? '...' : 'Marker som kontaktet'}
-                              </button>
-                            )}
-                          </td>
-                          <td className={styles.handlingCelle}>
-                            {p.konvertert ? (
-                              <span style={{ color: 'var(--green)', fontWeight: 600, fontSize: 11 }}>Konvertert ✓</span>
-                            ) : (
-                              <button
-                                className={styles.godkjennBtn}
-                                disabled={behandlerIntroId === p.id}
-                                onClick={() => handleKonverter(p.id)}
-                              >
-                                {behandlerIntroId === p.id ? '...' : 'Konverter til fremhevet →'}
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {sokUtenTreff.length > 0 && (
-                <div className={styles.tabellBoks} style={{ marginBottom: sokTreff.length > 0 ? 20 : 0 }}>
-                  <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
-                    Søk uten treff ({sokUtenTreff.length} unike{sokAlleredeLost > 0 ? `, ${sokAlleredeLost} løst siden loggført` : ''})
-                  </h2>
-                  <table className={styles.tabell}>
-                    <thead>
-                      <tr>
-                        <th>Søketekst</th>
-                        <th>Antall</th>
-                        <th>Kilde</th>
-                        <th>Sist sett</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sokUtenTreff.map(s => (
-                        <tr key={s.tekst}>
-                          <td>{s.tekst}</td>
-                          <td>{s.antall}</td>
-                          <td>{s.kilder.join(', ')}</td>
-                          <td>{new Date(s.sistSett).toLocaleDateString('no')}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {sokTreff.length > 0 && (
-                <div className={styles.tabellBoks}>
-                  <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
-                    Populære søkefraser med treff ({sokTreff.length} unike)
-                  </h2>
-                  <table className={styles.tabell}>
-                    <thead>
-                      <tr>
-                        <th>Søketekst</th>
-                        <th>Bransje</th>
-                        <th>Antall</th>
-                        <th>Sist sett</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sokTreff.map(s => (
-                        <tr key={s.tekst + s.bransjeSlug}>
-                          <td>{s.tekst}</td>
-                          <td>{s.visningsnavn}</td>
-                          <td>{s.antall}</td>
-                          <td>{new Date(s.sistSett).toLocaleDateString('no')}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-                </div>
-              )}
-
-              <div className={styles.dagPanel}>
-                <h2 className={styles.kildeTittel}>
-                  Trafikk per dag ({(PERIODER.find(p => p.key === periode)?.label || 'Totalt').toLowerCase()})
-                </h2>
-                {trafikkPerDag.length === 0 ? (
-                  <p className={styles.tomtLite}>Ingen data ennå.</p>
-                ) : (
-                  trafikkPerDag.map(d => (
-                    <div key={d.dato} className={styles.kildeRad}>
-                      <span className={styles.kildeNavn}>{d.label}</span>
-                      <div className={styles.kildeBar}>
-                        <div className={styles.kildeBarFyll} style={{ width: `${d.andel}%` }} />
-                      </div>
-                      <span className={styles.kildeTall}>{d.antall.toLocaleString('no')}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className={styles.stats}>
-                <div className={styles.stat}>
-                  <div className={styles.statNum}>{totalVisninger.toLocaleString('no')}</div>
-                  <div className={styles.statLabel}>Ekte sidevisninger</div>
-                </div>
-                <div className={styles.stat}>
-                  <div className={styles.statNum}>{totalUnikeSider.toLocaleString('no')}</div>
-                  <div className={styles.statLabel}>Unike sider besøkt</div>
-                </div>
-                <div className={styles.stat}>
-                  <div className={styles.statNum}>{totalBotVisninger.toLocaleString('no')}</div>
-                  <div className={styles.statLabel}>Bot-/crawler-besøk</div>
-                </div>
-              </div>
-
-              <div className={styles.kildeSeksjon}>
-                <div className={styles.kildePanel}>
-                  <h2 className={styles.kildeTittel}>Enhet</h2>
-                  {enheter.length === 0 ? (
-                    <p className={styles.tomtLite}>Ingen data ennå.</p>
-                  ) : (
-                    enheter.map(e => (
-                      <div key={e.navn} className={styles.kildeRad}>
-                        <span className={styles.kildeNavn}>{e.navn}</span>
-                        <div className={styles.kildeBar}>
-                          <div className={styles.kildeBarFyll} style={{ width: `${e.andel}%` }} />
-                        </div>
-                        <span className={styles.kildeTall}>{e.antall.toLocaleString('no')}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <div className={styles.kildePanel}>
-                  <h2 className={styles.kildeTittel}>Hvor de kommer fra</h2>
-                  {kilder.length === 0 ? (
-                    <p className={styles.tomtLite}>Ingen data ennå.</p>
-                  ) : (
-                    kilder.map(k => (
-                      <div key={k.navn} className={styles.kildeRad}>
-                        <span className={styles.kildeNavn}>{k.navn}</span>
-                        <div className={styles.kildeBar}>
-                          <div className={styles.kildeBarFyll} style={{ width: `${k.andel}%` }} />
-                        </div>
-                        <span className={styles.kildeTall}>{k.antall.toLocaleString('no')}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.kildeSeksjon}>
-                <div className={styles.kildePanel}>
-                  <h2 className={styles.kildeTittel}>Guide-bruk ({totalGuideBruk.toLocaleString('no')} fullført)</h2>
-                  {guideBransjer.length === 0 ? (
-                    <p className={styles.tomtLite}>Ingen bruk registrert ennå.</p>
-                  ) : (
-                    guideBransjer.map(g => (
-                      <div key={g.navn} className={styles.kildeRad}>
-                        <span className={styles.kildeNavn}>
-                          <BransjeIkon slug={g.navn} size={13} style={{ verticalAlign: -2, marginRight: 4 }} />
-                          {g.visningsnavn}
-                        </span>
-                        <div className={styles.kildeBar}>
-                          <div className={styles.kildeBarFyll} style={{ width: `${g.andel}%` }} />
-                        </div>
-                        <span className={styles.kildeTall}>{g.antall.toLocaleString('no')}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <div className={styles.kildePanel}>
-                  <h2 className={styles.kildeTittel}>Mest klikket til nettside ({totalKlikk.toLocaleString('no')} totalt)</h2>
-                  {toppKlikk.length === 0 ? (
-                    <p className={styles.tomtLite}>Ingen klikk registrert ennå.</p>
-                  ) : (
-                    toppKlikk.map(k => (
-                      <div key={k.slug} className={styles.kildeRad}>
-                        <a href={`/bedrift/${k.slug}`} target="_blank" rel="noopener noreferrer" className={styles.klikkNavn}>
-                          {k.slug}
-                        </a>
-                        <span className={styles.kildeTall}>
-                          {k.antall.toLocaleString('no')}
-                          {k.ctr != null && (
-                            <span style={{ color: 'var(--muted)', fontWeight: 400 }}> ({k.ctr}%)</span>
-                          )}
-                        </span>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.kildeSeksjon}>
-                <div className={styles.kildePanel}>
-                  <h2 className={styles.kildeTittel}>Bedriftsside-visninger per bransje ({totalBedriftSideVisninger.toLocaleString('no')} totalt)</h2>
-                  {visningerPerBransje.length === 0 ? (
-                    <p className={styles.tomtLite}>Ingen visninger registrert ennå.</p>
-                  ) : (
-                    visningerPerBransje.map(b => (
-                      <div key={b.navn} className={styles.kildeRad}>
-                        <span className={styles.kildeNavn}>
-                          <BransjeIkon slug={b.navn} size={13} style={{ verticalAlign: -2, marginRight: 4 }} />
-                          {b.visningsnavn}
-                        </span>
-                        <div className={styles.kildeBar}>
-                          <div className={styles.kildeBarFyll} style={{ width: `${b.andel}%` }} />
-                        </div>
-                        <span className={styles.kildeTall}>{b.antall.toLocaleString('no')}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <div className={styles.kildePanel}>
-                  <h2 className={styles.kildeTittel}>Bedriftsside-visninger per kommune (topp 15)</h2>
-                  {visningerPerKommune.length === 0 ? (
-                    <p className={styles.tomtLite}>Ingen visninger registrert ennå.</p>
-                  ) : (
-                    visningerPerKommune.map(k => (
-                      <div key={k.navn} className={styles.kildeRad}>
-                        <span className={styles.kildeNavn}>{k.navn}</span>
-                        <div className={styles.kildeBar}>
-                          <div className={styles.kildeBarFyll} style={{ width: `${k.andel}%` }} />
-                        </div>
-                        <span className={styles.kildeTall}>{k.antall.toLocaleString('no')}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.kildeSeksjon}>
-                <div className={styles.kildePanel}>
-                  <h2 className={styles.kildeTittel}>For bedrifter-besøk ({totalForBedrifter.toLocaleString('no')} totalt)</h2>
-                  <p className={styles.kildeSub}>Andel som kom fra en bedriftsprofil — sannsynlig bedriftseier</p>
-                  {totalForBedrifter === 0 ? (
-                    <p className={styles.tomtLite}>Ingen besøk registrert ennå.</p>
-                  ) : (
-                    <>
-                      <div className={styles.kildeRad}>
-                        <span className={styles.kildeNavn}>Fra bedriftsprofil</span>
-                        <div className={styles.kildeBar}>
-                          <div className={styles.kildeBarFyll} style={{ width: `${andelFraProfil}%` }} />
-                        </div>
-                        <span className={styles.kildeTall}>{forBedrifterFraProfil.toLocaleString('no')}</span>
-                      </div>
-                      <div className={styles.kildeRad}>
-                        <span className={styles.kildeNavn}>Andre kilder</span>
-                        <div className={styles.kildeBar}>
-                          <div className={styles.kildeBarFyll} style={{ width: `${100 - andelFraProfil}%` }} />
-                        </div>
-                        <span className={styles.kildeTall}>{forBedrifterAndre.toLocaleString('no')}</span>
-                      </div>
-                      <p className={styles.kommentar}>
-                        {andelFraProfil >= 50
-                          ? `${andelFraProfil} % av besøkene kommer fra en bedriftsprofil — de fleste besøkende ser altså ut til å være bedriftseiere som sjekker sin egen oppføring, ikke kunder på jakt etter en håndverker.`
-                          : `${andelFraProfil} % av besøkene kommer fra en bedriftsprofil (sannsynlig bedriftseier). Resten, ${100 - andelFraProfil} %, finner siden via andre veier — som forsiden eller søk.`}
-                      </p>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.tabellBoks}>
-                {sider.length === 0 ? (
-                  <p className={styles.tomt}>Ingen sidevisninger registrert i denne perioden.</p>
-                ) : (
-                  <table className={styles.tabell}>
-                    <thead>
-                      <tr>
-                        <th>Side</th>
-                        <th>Visninger</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sider.map(s => (
-                        <tr key={s.visningssti}>
-                          <td>
-                            {s.visningssti.includes('*') ? (
-                              <span>{s.visningssti}</span>
-                            ) : (
-                              <a href={s.visningssti} target="_blank" rel="noopener noreferrer">{s.visningssti}</a>
-                            )}
-                          </td>
-                          <td>{s.antall.toLocaleString('no')}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-              </>
               )}
             </>
           )}
