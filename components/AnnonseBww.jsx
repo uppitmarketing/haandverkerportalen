@@ -1,9 +1,7 @@
 // components/AnnonseBww.jsx
-// Pilot-annonse for Better WorkWear, plassert nederst i kontaktboksen på
-// bedriftsprofilsider. Vist på ett bestemt bedriftsslug til å begynne med
-// (se BWW_PILOT_SLUGS i pages/bedrift/[slug].jsx) mens vi venter på
-// tilbakemelding fra kunden. Ikke koblet til det generiske annonsørsystemet
-// (lib/annonsorer.js) - egen, håndkodet pilot inntil videre.
+// Better WorkWear-annonse, vist på alle bedriftsprofilsider. Ikke koblet
+// til det generiske annonsørsystemet (lib/annonsorer.js) - egen,
+// håndkodet integrasjon inntil videre.
 import { useEffect, useRef } from 'react';
 import { sporHendelse } from '../lib/gtag';
 import { sporInternHendelse } from '../lib/internAnalytics';
