@@ -82,7 +82,10 @@ export default function Home({ antallPerNaering, standardBedrifter }) {
   };
 
   return (
-    <Layout>
+    <Layout
+      description={`Finn kvalifiserte håndverkere nær deg. Søk blant ${totalBedrifter.toLocaleString('no')}+ elektrikere, rørleggere, tømrere og andre fagfolk i hele Norge.`}
+      canonical="/"
+    >
       <Head>
         <script
           type="application/ld+json"
