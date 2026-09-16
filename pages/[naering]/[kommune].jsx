@@ -98,7 +98,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
   return (
     <Layout
       title={tittel}
-      description={`${total} registrerte ${flertall} i ${kommune}${bedrifter.length > 0 ? `, ${andelMedNettside}% med egen nettside` : ''}. Verifisert mot Brønnøysundregistrene — sammenlign og ta kontakt.`}
+      description={`Sammenlign ${total} registrerte ${flertall} i ${kommune}${storsteAntallAnsatte ? `, med opptil ${storsteAntallAnsatte} ansatte i de største` : ''}. Verifisert mot Brønnøysundregistrene — se kontaktinfo og ta kontakt gratis.`}
       canonical={`/${naering.slug}/${kommuneSlugUrl}`}
     >
       <Head>
