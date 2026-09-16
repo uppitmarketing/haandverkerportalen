@@ -10,6 +10,8 @@ import { BransjeIkon } from '../components/icons';
 import { Check } from 'lucide-react';
 import styles from '../styles/Home.module.css';
 
+const BASE_URL = 'https://haandverkerportalen.no';
+
 const GUIDE_LABEL = {
   'hva-koster-elektriker': 'Prisguide',
   'velge-rorlegger': 'Kjøpsguide',
@@ -81,6 +83,26 @@ export default function Home({ antallPerNaering, standardBedrifter }) {
     })),
   };
 
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'HåndverkerPortalen',
+    url: BASE_URL,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${BASE_URL}/sok?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'HåndverkerPortalen',
+    url: BASE_URL,
+    logo: `${BASE_URL}/favicon.svg`,
+  };
+
   return (
     <Layout
       description={`Finn kvalifiserte håndverkere nær deg. Søk blant ${totalBedrifter.toLocaleString('no')}+ elektrikere, rørleggere, tømrere og andre fagfolk i hele Norge.`}
@@ -91,6 +113,14 @@ export default function Home({ antallPerNaering, standardBedrifter }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(websiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(organizationSchema) }}
+        />
       </Head>
 
       {/* HERO */}
@@ -100,7 +130,10 @@ export default function Home({ antallPerNaering, standardBedrifter }) {
             <span className={styles.badgeDot} />
             Gratis tjeneste · ingen registrering
           </div>
-          <h1 className={styles.title}>Har du en jobb som<br />må <span>gjøres</span>?</h1>
+          <h1 className={styles.title}>
+            Har du en jobb som<br />må <span>gjøres</span>?
+            <span className={styles.titleKeyword}>Finn håndverkere i hele Norge</span>
+          </h1>
           <p className={styles.sub}>
             Fortell oss hva du trenger og hvor — så viser vi deg håndverkere i ditt område.
           </p>
