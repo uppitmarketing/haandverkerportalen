@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import Annonse from '../../components/Annonse';
-import { NAERINGSKODER, getBedrifterByKategoriOgKommune, getNaeringBySlug } from '../../lib/db';
+import { NAERINGSKODER, KOMMUNER, getBedrifterByKategoriOgKommune, getNaeringBySlug } from '../../lib/db';
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import { safeJsonLd } from '../../lib/jsonLd';
 import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt';
@@ -40,6 +40,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
   const innsikt = getBransjeInnsikt(naering.slug);
   const flertall = getBransjeFlertall(naering.slug, naering.visningsnavn);
   const relevanteArtikler = [...getArtiklerForBransje(naering.slug), ...getGenerelleArtikler()];
+  const naboKommuner = fylke ? KOMMUNER.filter(k => k.fylke === fylke && k.navn !== kommune).slice(0, 6) : [];
 
   const stiftelsesAar = bedrifter
     .map(b => b.stiftelsesdato ? parseInt(b.stiftelsesdato.substring(0, 4), 10) : null)
@@ -97,7 +98,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
   return (
     <Layout
       title={tittel}
-      description={`Finn ${naering.visningsnavn.toLowerCase()} i ${kommune}. ${total} registrerte bedrifter. Verifisert mot Brønnøysundregistrene.`}
+      description={`${total} registrerte ${flertall} i ${kommune}${bedrifter.length > 0 ? `, ${andelMedNettside}% med egen nettside` : ''}. Verifisert mot Brønnøysundregistrene — sammenlign og ta kontakt.`}
       canonical={`/${naering.slug}/${kommuneSlugUrl}`}
     >
       <Head>
@@ -220,6 +221,23 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
           </div>
         </div>
       </section>
+
+      {naboKommuner.length > 0 && (
+        <section className={styles.relaterte}>
+          <div className="container">
+            <h2 className={styles.secTitle}>{naering.visningsnavn} i andre kommuner i {fylke}</h2>
+            <div className={styles.relaterteGrid}>
+              {naboKommuner.map(k => (
+                <a key={k.slug} href={`/${naering.slug}/${k.slug}`} className={styles.relKort}>
+                  <BransjeIkon slug={naering.slug} size={15} />
+                  <span>{naering.visningsnavn} i {k.navn}</span>
+                  <span>→</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </Layout>
   );
 }

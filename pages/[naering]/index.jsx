@@ -88,7 +88,7 @@ export default function NaeringIndexSide({ naering, kommuner, total }) {
                 className={styles.kommuneKort}
               >
                 <div className={styles.kommuneInfo}>
-                  <div className={styles.kommuneNavn}>{k.navn}</div>
+                  <div className={styles.kommuneNavn}>{naering.visningsnavn} i {k.navn}</div>
                   <div className={styles.kommuneFylke}>{k.fylke || ''}</div>
                 </div>
                 <span className={styles.kommuneArr}>→</span>
