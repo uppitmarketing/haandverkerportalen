@@ -46,14 +46,22 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
     .filter(aar => aar && !Number.isNaN(aar));
   const eldsteAar = stiftelsesAar.length ? Math.min(...stiftelsesAar) : null;
 
+  const nyesteAar = stiftelsesAar.length ? Math.max(...stiftelsesAar) : null;
+
   const ansatteTall = bedrifter
     .map(b => b.antall_ansatte)
     .filter(n => typeof n === 'number' && n > 0);
   const storsteAntallAnsatte = ansatteTall.length ? Math.max(...ansatteTall) : null;
+  const gjennomsnittAnsatte = ansatteTall.length
+    ? Math.round((ansatteTall.reduce((sum, n) => sum + n, 0) / ansatteTall.length) * 10) / 10
+    : null;
+
+  const antallMedNettside = bedrifter.filter(b => b.har_hjemmeside).length;
+  const andelMedNettside = bedrifter.length > 0 ? Math.round((antallMedNettside / bedrifter.length) * 100) : 0;
 
   let stedTekst = fylke ? `${kommune} ligger i ${fylke} fylke.` : '';
-  if (eldsteAar) stedTekst += ` Den eldste bedriften i oversikten ble etablert i ${eldsteAar}.`;
-  if (storsteAntallAnsatte) stedTekst += ` Den største har ${storsteAntallAnsatte} ansatte.`;
+  if (eldsteAar) stedTekst += ` Den eldste bedriften i oversikten ble etablert i ${eldsteAar}${nyesteAar && nyesteAar !== eldsteAar ? `, og den nyeste i ${nyesteAar}` : ''}.`;
+  if (storsteAntallAnsatte) stedTekst += ` Den største har ${storsteAntallAnsatte} ansatte${gjennomsnittAnsatte ? ` (snittet er ${gjennomsnittAnsatte})` : ''}.`;
 
   const faq = [
     {
@@ -155,7 +163,12 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
           </p>
           {stedTekst && <p>{stedTekst}</p>}
           <h2>Hva koster en {naering.visningsnavn.toLowerCase()} i {kommune}?</h2>
-          <p>{innsikt.prisTekst}</p>
+          <p>
+            {bedrifter.length > 0 && (
+              <>Av {bedrifter.length} {flertall} i oversikten over har {antallMedNettside} ({andelMedNettside}%) egen nettside. </>
+            )}
+            {innsikt.prisTekst}
+          </p>
           <h2>Slik finner du riktig {naering.visningsnavn.toLowerCase()}</h2>
           <ul>
             {innsikt.punkter.map((punkt, i) => <li key={i}>{punkt}</li>)}
