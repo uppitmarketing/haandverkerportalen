@@ -661,7 +661,7 @@ export default function AnalyticsSide({
                     </div>
                   </div>
 
-                  <div className={styles.tabellBoks}>
+                  <div className={styles.tabellBoks} style={{ marginBottom: 20 }}>
                     <h2 className={styles.kildeTittel} style={{ padding: '10px 14px 0' }}>
                       Oversikt per annonse
                     </h2>
@@ -678,7 +678,6 @@ export default function AnalyticsSide({
                             <th>Visninger</th>
                             <th>Klikk</th>
                             <th>CTR</th>
-                            <th>Mest vist på</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -688,16 +687,52 @@ export default function AnalyticsSide({
                               <td>{a.visninger.toLocaleString('no')}</td>
                               <td>{a.klikk.toLocaleString('no')}</td>
                               <td>{a.ctr}%</td>
-                              <td>
-                                {a.bransjeFordeling.slice(0, 4).map(b => `${b.visningsnavn} ${b.andel}%`).join(', ')}
-                                {a.bransjeFordeling.length > 4 ? ` +${a.bransjeFordeling.length - 4} andre` : ''}
-                              </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     )}
                   </div>
+
+                  {annonseOversikt.length > 0 && (
+                    <details className={styles.tabellBoks}>
+                      <summary className={styles.accordionSummary}>
+                        Se detaljert rapport – visninger og klikk per bransje →
+                      </summary>
+                      {annonseOversikt.map(a => (
+                        <div key={a.navn} style={{ padding: '0 14px 16px' }}>
+                          <h3 className={styles.kildeTittel} style={{ marginBottom: 8 }}>{a.navn}</h3>
+                          {a.bransjeFordeling.length === 0 ? (
+                            <p className={styles.tomtLite}>Ingen bransjedata registrert.</p>
+                          ) : (
+                            <table className={styles.tabell}>
+                              <thead>
+                                <tr>
+                                  <th>Bransje</th>
+                                  <th>Visninger</th>
+                                  <th>Klikk</th>
+                                  <th>CTR</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {a.bransjeFordeling.map(b => (
+                                  <tr key={b.slug}>
+                                    <td>
+                                      <BransjeIkon slug={b.slug} size={13} style={{ verticalAlign: -2, marginRight: 4 }} />
+                                      {b.visningsnavn}
+                                    </td>
+                                    <td>{b.visninger.toLocaleString('no')}</td>
+                                    <td>{b.klikk.toLocaleString('no')}</td>
+                                    <td>{b.ctr}%</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                        </div>
+                      ))}
+                    </details>
+                  )}
                 </>
               )}
             </>
@@ -990,11 +1025,13 @@ export async function getServerSideProps({ req, query }) {
       return annonsorId ? `annonsor:${annonsorId}` : 'legacy';
     };
 
+    const tomAnnonseRad = () => ({ visninger: 0, klikk: 0, bransjeVisninger: new Map(), bransjeKlikk: new Map() });
+
     const annonseKart = new Map();
     for (const r of annonseVisningRader) {
       const nokkel = annonseNokkel(r.visningssti);
       const bransjeSlug = r.visningssti.split('/')[5];
-      if (!annonseKart.has(nokkel)) annonseKart.set(nokkel, { visninger: 0, klikk: 0, bransjeVisninger: new Map() });
+      if (!annonseKart.has(nokkel)) annonseKart.set(nokkel, tomAnnonseRad());
       const rad = annonseKart.get(nokkel);
       const antall = Number(r.antall);
       rad.visninger += antall;
@@ -1002,8 +1039,12 @@ export async function getServerSideProps({ req, query }) {
     }
     for (const r of annonseKlikkRader) {
       const nokkel = annonseNokkel(r.visningssti);
-      if (!annonseKart.has(nokkel)) annonseKart.set(nokkel, { visninger: 0, klikk: 0, bransjeVisninger: new Map() });
-      annonseKart.get(nokkel).klikk += Number(r.antall);
+      const bransjeSlug = r.visningssti.split('/')[5];
+      if (!annonseKart.has(nokkel)) annonseKart.set(nokkel, tomAnnonseRad());
+      const rad = annonseKart.get(nokkel);
+      const antall = Number(r.antall);
+      rad.klikk += antall;
+      rad.bransjeKlikk.set(bransjeSlug, (rad.bransjeKlikk.get(bransjeSlug) || 0) + antall);
     }
 
     const annonsorIder = Array.from(annonseKart.keys())
@@ -1032,18 +1073,21 @@ export async function getServerSideProps({ req, query }) {
 
     const annonseOversikt = Array.from(annonseKart.entries())
       .map(([nokkel, rad]) => {
-        const bransjeTotal = Array.from(rad.bransjeVisninger.values()).reduce((sum, n) => sum + n, 0);
-        const bransjeFordeling = Array.from(rad.bransjeVisninger.entries())
-          .map(([slug, antall]) => {
+        const alleBransjeSlugs = new Set([...rad.bransjeVisninger.keys(), ...rad.bransjeKlikk.keys()]);
+        const bransjeFordeling = Array.from(alleBransjeSlugs)
+          .map(slug => {
             const naering = NAERINGSKODER.find(n => n.slug === slug);
+            const visninger = rad.bransjeVisninger.get(slug) || 0;
+            const klikk = rad.bransjeKlikk.get(slug) || 0;
             return {
               slug,
               visningsnavn: naering?.visningsnavn || slug,
-              antall,
-              andel: bransjeTotal > 0 ? Math.round((antall / bransjeTotal) * 1000) / 10 : 0,
+              visninger,
+              klikk,
+              ctr: visninger > 0 ? Math.round((klikk / visninger) * 1000) / 10 : 0,
             };
           })
-          .sort((a, b) => b.antall - a.antall);
+          .sort((a, b) => b.visninger - a.visninger);
         return {
           navn: annonseNavnForNokkel(nokkel),
           visninger: rad.visninger,
