@@ -642,6 +642,12 @@ export default function AnalyticsSide({
 
               {tab === 'annonser' && (
                 <>
+                  <div className={styles.annonserTopp}>
+                    <button type="button" className={styles.printBtn} onClick={() => window.print()}>
+                      Eksporter til PDF
+                    </button>
+                  </div>
+
                   <div className={styles.stats}>
                     <div className={styles.stat}>
                       <div className={styles.statNum}>{totalAnnonseVisninger.toLocaleString('no')}</div>
@@ -726,6 +732,12 @@ export default function AnalyticsSide({
                                     <td>{b.ctr}%</td>
                                   </tr>
                                 ))}
+                                <tr style={{ fontWeight: 700 }}>
+                                  <td>Totalt</td>
+                                  <td>{a.visninger.toLocaleString('no')}</td>
+                                  <td>{a.klikk.toLocaleString('no')}</td>
+                                  <td>{a.ctr}%</td>
+                                </tr>
                               </tbody>
                             </table>
                           )}
