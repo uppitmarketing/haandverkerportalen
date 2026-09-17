@@ -4,7 +4,7 @@ import Script from 'next/script';
 import Header from './Header';
 import Footer from './Footer';
 
-export default function Layout({ children, title, description, canonical }) {
+export default function Layout({ children, title, description, canonical, skjulHeader }) {
   const siteTitle = title
     ? `${title} | HåndverkerPortalen`
     : 'HåndverkerPortalen – Finn håndverkere i Norge';
@@ -34,7 +34,7 @@ export default function Layout({ children, title, description, canonical }) {
           style={{display:'none',visibility:'hidden'}}
         />
       </noscript>
-      <Header />
+      {!skjulHeader && <Header />}
       <main>{children}</main>
       <Footer />
     </>

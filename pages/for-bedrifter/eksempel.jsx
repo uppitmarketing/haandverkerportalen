@@ -10,6 +10,7 @@ export default function FremhevetProfilEksempel() {
       title="Eksempel: Fremhevet profil"
       description="Se hvordan en fremhevet bedriftsprofil kan se ut på HåndverkerPortalen."
       canonical="/for-bedrifter/eksempel"
+      skjulHeader
     >
       <Head>
         <meta name="robots" content="noindex,follow" />
@@ -26,6 +27,10 @@ export default function FremhevetProfilEksempel() {
 
         <div className={styles.kort}>
           <div className={styles.hero}>
+            <a href="/" className={styles.hpBadge}>
+              <span className={styles.dot} />
+              HåndverkerPortalen
+            </a>
             <div className={styles.heroInner}>
               <div className={styles.avatar}>
                 <img src="/demo-nordvik-logo.svg" alt="Nordvik Byggmester AS logo" />
