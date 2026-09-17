@@ -11,20 +11,9 @@
 
 .kort { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
 .hero {
-  position: relative;
   background: radial-gradient(ellipse 900px 260px at 50% -40%, var(--accent-lt) 0%, var(--bg) 60%, var(--surface) 100%);
   padding: 32px 28px 0;
 }
-
-.hpBadge {
-  position: absolute; top: 14px; left: 14px; z-index: 2;
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);
-  border: 1px solid var(--border); border-radius: 20px; padding: 5px 11px 5px 8px;
-  font-size: 10.5px; font-weight: 600; color: var(--ink-3);
-}
-.hpBadge:hover { color: var(--ink-2); border-color: var(--accent); }
-.hpBadge .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 .heroInner { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .avatar {
   width: 72px; height: 72px; flex-shrink: 0;

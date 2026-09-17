@@ -2,6 +2,7 @@
 import Head from 'next/head';
 import Script from 'next/script';
 import Header from './Header';
+import MinimalHeader from './MinimalHeader';
 import Footer from './Footer';
 
 export default function Layout({ children, title, description, canonical, skjulHeader }) {
@@ -34,7 +35,7 @@ export default function Layout({ children, title, description, canonical, skjulH
           style={{display:'none',visibility:'hidden'}}
         />
       </noscript>
-      {!skjulHeader && <Header />}
+      {skjulHeader ? <MinimalHeader /> : <Header />}
       <main>{children}</main>
       <Footer />
     </>

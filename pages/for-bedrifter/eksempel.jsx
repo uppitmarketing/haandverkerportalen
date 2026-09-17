@@ -27,10 +27,6 @@ export default function FremhevetProfilEksempel() {
 
         <div className={styles.kort}>
           <div className={styles.hero}>
-            <a href="/" className={styles.hpBadge}>
-              <span className={styles.dot} />
-              HåndverkerPortalen
-            </a>
             <div className={styles.heroInner}>
               <div className={styles.avatar}>
                 <img src="/demo-nordvik-logo.svg" alt="Nordvik Byggmester AS logo" />
