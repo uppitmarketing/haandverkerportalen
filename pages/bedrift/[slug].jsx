@@ -244,6 +244,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
               <dl className={styles.detaljer}>
                 {[
                   ['Firmanavn', bedrift.navn],
+                  ['Daglig leder', bedrift.daglig_leder_navn],
                   ['Org.nummer', bedrift.organisasjonsnummer],
                   ['Organisasjonsform', bedrift.organisasjonsform],
                   ['Bransje', `${bedrift.naeringskode_tekst} (${bedrift.naeringskode})`],
@@ -258,6 +259,33 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                 ) : null)}
               </dl>
             </div>
+
+            {bedrift.sentral_godkjenning && (
+              <div className={styles.boks}>
+                <h2 className={styles.boksTitle}>Offentlige kvalifikasjoner</h2>
+                <p className={styles.adresseTekst}>
+                  <strong>Sentral godkjenning (DiBK)</strong>
+                  {bedrift.sentral_godkjenning_utlop && ` — gyldig til ${new Date(bedrift.sentral_godkjenning_utlop).toLocaleDateString('no')}`}
+                </p>
+                {Array.isArray(bedrift.sentral_godkjenning_omrader) && bedrift.sentral_godkjenning_omrader.length > 0 && (
+                  <ul className={styles.forBedrifterListe}>
+                    {bedrift.sentral_godkjenning_omrader.map((o, i) => (
+                      <li key={i}>
+                        <Check size={13} strokeWidth={3} /> {o.fagomrade} ({o.funksjon}, TK{o.tiltaksklasse})
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <a
+                  href={`https://sgregister.dibk.no/enterprises/${bedrift.organisasjonsnummer}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.googleLenke}
+                >
+                  Se godkjenningen hos DiBK →
+                </a>
+              </div>
+            )}
 
             <div className={`${styles.boks} ${styles.seksjonAdresse}`}>
               <h2 className={styles.boksTitle}>Adresse og kart</h2>

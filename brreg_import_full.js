@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 import ws from 'ws';
 import fetch from 'node-fetch';
+import { hentEkstraData } from './brreg-ekstra-data.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
@@ -436,6 +437,29 @@ async function hentAlleSider(naeringskode, kommunenummer) {
   return alle;
 }
 
+// Henter daglig leder + sentral godkjenning for bedrifter som aldri har fått
+// dette hentet før (ekstra_data_hentet er null) - holder de vanlige månedlige
+// kjøringene raske, siden bare nye bedrifter trenger disse ekstra kallene.
+// Full etterslep for eksisterende bedrifter håndteres av backfill_dagligleder_dibk.js.
+async function hentEkstraDataForNyeBedrifter(orgnumre) {
+  if (!orgnumre.length) return;
+  const { data: eksisterende, error } = await supabase
+    .from('bedrifter')
+    .select('organisasjonsnummer, ekstra_data_hentet')
+    .in('organisasjonsnummer', orgnumre);
+  if (error) throw error;
+
+  const trengerHenting = (eksisterende || [])
+    .filter(r => !r.ekstra_data_hentet)
+    .map(r => r.organisasjonsnummer);
+
+  for (const orgnr of trengerHenting) {
+    const ekstraData = await hentEkstraData(orgnr);
+    await supabase.from('bedrifter').update(ekstraData).eq('organisasjonsnummer', orgnr);
+    await sleep(DELAY_MS);
+  }
+}
+
 async function lagreBatch(enheter) {
   const mapped = enheter
     .map(mapEnhet)
@@ -443,6 +467,7 @@ async function lagreBatch(enheter) {
   if (!mapped.length) return 0;
   const { error } = await supabase.from('bedrifter').upsert(mapped, { onConflict: 'organisasjonsnummer' });
   if (error) throw error;
+  await hentEkstraDataForNyeBedrifter(mapped.map(e => e.organisasjonsnummer));
   return mapped.length;
 }
 
