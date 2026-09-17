@@ -977,52 +977,82 @@ export async function getServerSideProps({ req, query }) {
     const annonseKlikkAnnonsorer = grupperAnnonseEtterAnnonsor(annonseKlikkRader);
 
     // Oversikt per annonse: visninger, klikk og bransjefordeling samlet i én
-    // rad per annonse(-system), sortert etter flest visninger.
-    const annonseOversikt = (() => {
-      const annonsorNavn = (variant) => (variant === 'bww' ? 'Better WorkWear (pilot)' : 'Generisk annonsørsystem');
-      const kart = new Map();
+    // rad per faktisk annonse, sortert etter flest visninger. Annonsør-ID
+    // (6. stisegment, lagt til i Annonse.jsx) skiller navngitte annonsører
+    // fra hverandre i stedet for å slå alt sammen til "generisk".
+    const annonseNokkel = (visningssti) => {
+      const deler = visningssti.split('/');
+      const variant = deler[4];
+      if (variant === 'bww') return 'bww';
+      const tilstand = deler[3];
+      if (tilstand === 'placeholder') return 'placeholder';
+      const annonsorId = deler[6];
+      return annonsorId ? `annonsor:${annonsorId}` : 'legacy';
+    };
 
-      for (const r of annonseVisningRader) {
-        const variant = r.visningssti.split('/')[4];
-        const bransjeSlug = r.visningssti.split('/')[5];
-        const navn = annonsorNavn(variant);
-        if (!kart.has(navn)) kart.set(navn, { visninger: 0, klikk: 0, bransjeVisninger: new Map() });
-        const rad = kart.get(navn);
-        const antall = Number(r.antall);
-        rad.visninger += antall;
-        rad.bransjeVisninger.set(bransjeSlug, (rad.bransjeVisninger.get(bransjeSlug) || 0) + antall);
-      }
-      for (const r of annonseKlikkRader) {
-        const variant = r.visningssti.split('/')[4];
-        const navn = annonsorNavn(variant);
-        if (!kart.has(navn)) kart.set(navn, { visninger: 0, klikk: 0, bransjeVisninger: new Map() });
-        kart.get(navn).klikk += Number(r.antall);
-      }
+    const annonseKart = new Map();
+    for (const r of annonseVisningRader) {
+      const nokkel = annonseNokkel(r.visningssti);
+      const bransjeSlug = r.visningssti.split('/')[5];
+      if (!annonseKart.has(nokkel)) annonseKart.set(nokkel, { visninger: 0, klikk: 0, bransjeVisninger: new Map() });
+      const rad = annonseKart.get(nokkel);
+      const antall = Number(r.antall);
+      rad.visninger += antall;
+      rad.bransjeVisninger.set(bransjeSlug, (rad.bransjeVisninger.get(bransjeSlug) || 0) + antall);
+    }
+    for (const r of annonseKlikkRader) {
+      const nokkel = annonseNokkel(r.visningssti);
+      if (!annonseKart.has(nokkel)) annonseKart.set(nokkel, { visninger: 0, klikk: 0, bransjeVisninger: new Map() });
+      annonseKart.get(nokkel).klikk += Number(r.antall);
+    }
 
-      return Array.from(kart.entries())
-        .map(([navn, rad]) => {
-          const bransjeTotal = Array.from(rad.bransjeVisninger.values()).reduce((sum, n) => sum + n, 0);
-          const bransjeFordeling = Array.from(rad.bransjeVisninger.entries())
-            .map(([slug, antall]) => {
-              const naering = NAERINGSKODER.find(n => n.slug === slug);
-              return {
-                slug,
-                visningsnavn: naering?.visningsnavn || slug,
-                antall,
-                andel: bransjeTotal > 0 ? Math.round((antall / bransjeTotal) * 1000) / 10 : 0,
-              };
-            })
-            .sort((a, b) => b.antall - a.antall);
-          return {
-            navn,
-            visninger: rad.visninger,
-            klikk: rad.klikk,
-            ctr: rad.visninger > 0 ? Math.round((rad.klikk / rad.visninger) * 1000) / 10 : 0,
-            bransjeFordeling,
-          };
-        })
-        .sort((a, b) => b.visninger - a.visninger);
-    })();
+    const annonsorIder = Array.from(annonseKart.keys())
+      .filter(k => k.startsWith('annonsor:'))
+      .map(k => k.slice('annonsor:'.length));
+
+    const annonsorNavnPerId = new Map();
+    if (annonsorIder.length > 0) {
+      const { data: annonsorData, error: annonsorErr } = await supabaseAdmin
+        .from('annonsorer')
+        .select('id, navn')
+        .in('id', annonsorIder);
+      if (annonsorErr) throw new Error(annonsorErr.message);
+      for (const rad of annonsorData || []) {
+        annonsorNavnPerId.set(String(rad.id), rad.navn);
+      }
+    }
+
+    const annonseNavnForNokkel = (nokkel) => {
+      if (nokkel === 'bww') return 'Better WorkWear (pilot)';
+      if (nokkel === 'placeholder') return 'Ingen annonsør (tom plassholder)';
+      if (nokkel === 'legacy') return 'Generisk annonsørsystem (data før annonsør-ID)';
+      const id = nokkel.slice('annonsor:'.length);
+      return annonsorNavnPerId.get(id) || `Annonsør #${id}`;
+    };
+
+    const annonseOversikt = Array.from(annonseKart.entries())
+      .map(([nokkel, rad]) => {
+        const bransjeTotal = Array.from(rad.bransjeVisninger.values()).reduce((sum, n) => sum + n, 0);
+        const bransjeFordeling = Array.from(rad.bransjeVisninger.entries())
+          .map(([slug, antall]) => {
+            const naering = NAERINGSKODER.find(n => n.slug === slug);
+            return {
+              slug,
+              visningsnavn: naering?.visningsnavn || slug,
+              antall,
+              andel: bransjeTotal > 0 ? Math.round((antall / bransjeTotal) * 1000) / 10 : 0,
+            };
+          })
+          .sort((a, b) => b.antall - a.antall);
+        return {
+          navn: annonseNavnForNokkel(nokkel),
+          visninger: rad.visninger,
+          klikk: rad.klikk,
+          ctr: rad.visninger > 0 ? Math.round((rad.klikk / rad.visninger) * 1000) / 10 : 0,
+          bransjeFordeling,
+        };
+      })
+      .sort((a, b) => b.visninger - a.visninger);
 
     const kildeRader = kildeRes.data || [];
     const totalKilder = kildeRader.reduce((sum, r) => sum + Number(r.antall), 0);

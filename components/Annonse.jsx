@@ -7,14 +7,18 @@ import styles from './Annonse.module.css';
 export default function Annonse({ annonsor, variant = 'bred', bransjeSlug }) {
   const tilstand = annonsor ? 'annonse' : 'placeholder';
   const bransje = bransjeSlug || 'ukjent';
+  // Annonsør-ID legges til som eget stisegment slik at ulike navngitte
+  // annonsører i det generiske systemet kan skilles fra hverandre i
+  // rapporteringen, ikke bare telles sammen som "en generisk annonse".
+  const annonsorId = annonsor ? annonsor.id : 'ingen';
 
   useEffect(() => {
-    sporInternHendelse(`/_annonse/visning/${tilstand}/${variant}/${bransje}`);
+    sporInternHendelse(`/_annonse/visning/${tilstand}/${variant}/${bransje}/${annonsorId}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function sporKlikk() {
-    sporInternHendelse(`/_annonse/klikk/${tilstand}/${variant}/${bransje}`);
+    sporInternHendelse(`/_annonse/klikk/${tilstand}/${variant}/${bransje}/${annonsorId}`);
   }
 
   if (!annonsor) {
