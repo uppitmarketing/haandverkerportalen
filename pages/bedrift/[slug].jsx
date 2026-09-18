@@ -58,7 +58,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
     ? (bedrift.hjemmeside.startsWith('http') ? bedrift.hjemmeside : `https://${bedrift.hjemmeside}`)
     : null;
 
-  // Tools Invent er kun relevant for elektrikere, og roterer med Better
+  // Toolsinvent er kun relevant for elektrikere, og roterer med Better
   // WorkWear på disse sidene i stedet for å legges ved siden av - delt
   // etter organisasjonsnummer sin paritet, slik at hver bedrift alltid
   // viser samme annonse (stabilt på tvers av sidevisninger og ISR-cacher).

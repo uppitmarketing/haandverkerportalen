@@ -1078,7 +1078,7 @@ export async function getServerSideProps({ req, query }) {
 
     const annonseNavnForNokkel = (nokkel) => {
       if (nokkel === 'bww') return 'Better WorkWear (pilot)';
-      if (nokkel === 'toolsinvent') return 'Tools Invent (pilot)';
+      if (nokkel === 'toolsinvent') return 'Toolsinvent (pilot)';
       if (nokkel === 'placeholder') return 'Ingen annonsør (tom plassholder)';
       if (nokkel === 'legacy') return 'Generisk annonsørsystem (data før annonsør-ID)';
       const id = nokkel.slice('annonsor:'.length);

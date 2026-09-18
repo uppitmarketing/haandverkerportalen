@@ -1,5 +1,5 @@
 // components/AnnonseToolsinvent.jsx
-// Tools Invent-annonse, vist på elektrikersider i stedet for Better WorkWear
+// Toolsinvent-annonse, vist på elektrikersider i stedet for Better WorkWear
 // (se rotasjon i pages/bedrift/[slug].jsx). Bruker samme stilark som
 // AnnonseBww.jsx med vilje - annonsene skal se uniformt ut uansett annonsør,
 // ikke ha sin egen fargeprofil.
@@ -72,9 +72,9 @@ export default function AnnonseToolsinvent({ bransjeSlug }) {
         <span className={styles.label}>Annonse</span>
       </div>
       <div className={styles.foto}>
-        <img src={FOTO_URL} alt="Tools Invent Spotless Pro i bruk" loading="lazy" />
+        <img src={FOTO_URL} alt="Toolsinvent Spotless Pro i bruk" loading="lazy" />
         <div className={styles.overlay}>
-          <div className={styles.overlayTittel}>Tools Invent – Spotless Pro</div>
+          <div className={styles.overlayTittel}>Toolsinvent – Spotless Pro</div>
           <div className={styles.overlayUndertekst}>Fang opp støv og rusk når du borer i tak</div>
           <span className={styles.overlayCta}>
             Se mer her
