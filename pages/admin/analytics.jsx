@@ -1031,6 +1031,7 @@ export async function getServerSideProps({ req, query }) {
       const deler = visningssti.split('/');
       const variant = deler[4];
       if (variant === 'bww') return 'bww';
+      if (variant === 'toolsinvent') return 'toolsinvent';
       const tilstand = deler[3];
       if (tilstand === 'placeholder') return 'placeholder';
       const annonsorId = deler[6];
@@ -1077,6 +1078,7 @@ export async function getServerSideProps({ req, query }) {
 
     const annonseNavnForNokkel = (nokkel) => {
       if (nokkel === 'bww') return 'Better WorkWear (pilot)';
+      if (nokkel === 'toolsinvent') return 'Tools Invent (pilot)';
       if (nokkel === 'placeholder') return 'Ingen annonsør (tom plassholder)';
       if (nokkel === 'legacy') return 'Generisk annonsørsystem (data før annonsør-ID)';
       const id = nokkel.slice('annonsor:'.length);

@@ -5,6 +5,7 @@ import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import Annonse from '../../components/Annonse';
 import AnnonseBww from '../../components/AnnonseBww';
+import AnnonseToolsinvent from '../../components/AnnonseToolsinvent';
 import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import styles from '../../styles/Bedrift.module.css';
@@ -56,6 +57,12 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
   const nettsideUrl = bedrift.hjemmeside
     ? (bedrift.hjemmeside.startsWith('http') ? bedrift.hjemmeside : `https://${bedrift.hjemmeside}`)
     : null;
+
+  // Tools Invent er kun relevant for elektrikere, og roterer med Better
+  // WorkWear på disse sidene i stedet for å legges ved siden av - delt
+  // etter organisasjonsnummer sin paritet, slik at hver bedrift alltid
+  // viser samme annonse (stabilt på tvers av sidevisninger og ISR-cacher).
+  const visToolsinvent = naering?.slug === 'elektriker' && Number(bedrift.organisasjonsnummer) % 2 === 0;
 
   function sporNettsideKlikk() {
     sporHendelse('bedrift_outbound_click', {
@@ -379,7 +386,9 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
               )}
             </div>
             <div className={styles.seksjonAnnonse}>
-              <AnnonseBww bransjeSlug={naering?.slug} />
+              {visToolsinvent
+                ? <AnnonseToolsinvent bransjeSlug={naering?.slug} />
+                : <AnnonseBww bransjeSlug={naering?.slug} />}
               {annonsor && (
                 <Annonse annonsor={annonsor} variant="kompakt" bransjeSlug={naering?.slug} />
               )}
