@@ -64,6 +64,13 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
   // viser samme annonse (stabilt på tvers av sidevisninger og ISR-cacher).
   const visToolsinvent = naering?.slug === 'elektriker' && Number(bedrift.organisasjonsnummer) % 2 === 0;
 
+  // Fagområdet alene (ikke funksjon/tiltaksklasse) er nok til å fungere som
+  // en gjenkjennelig USP-badge ved siden av firmanavnet - fjerner duplikater
+  // siden samme fagområde ofte har flere godkjenninger (utførende/prosjekterende).
+  const godkjenningFagomrader = bedrift.sentral_godkjenning && Array.isArray(bedrift.sentral_godkjenning_omrader)
+    ? [...new Set(bedrift.sentral_godkjenning_omrader.map(o => o.fagomrade).filter(Boolean))].slice(0, 3)
+    : [];
+
   function sporNettsideKlikk() {
     sporHendelse('bedrift_outbound_click', {
       bedrift_navn: bedrift.navn,
@@ -185,7 +192,18 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                 {naering && <span className="tag tag--blue">{naering.visningsnavn}</span>}
                 {bedrift.mva_registrert && <span className="tag tag--muted">MVA-reg.</span>}
               </div>
-              <h1 className={styles.navn}>{bedrift.navn}</h1>
+              <div className={styles.navnRad}>
+                <h1 className={styles.navn}>{bedrift.navn}</h1>
+                {godkjenningFagomrader.length > 0 && (
+                  <div className={styles.godkjenningBadgeRad}>
+                    {godkjenningFagomrader.map(fag => (
+                      <span key={fag} className={styles.godkjenningBadge}>
+                        <Check size={11} strokeWidth={3} /> {fag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
               <p className={styles.adresse}>
                 {bedrift.adresse ? `${bedrift.adresse}, ` : ''}{bedrift.postnummer} {bedrift.poststed}
               </p>
@@ -268,30 +286,38 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
             </div>
 
             {bedrift.sentral_godkjenning && (
-              <div className={styles.boks}>
-                <h2 className={styles.boksTitle}>Offentlige kvalifikasjoner</h2>
-                <p className={styles.adresseTekst}>
-                  <strong>Sentral godkjenning (DiBK)</strong>
-                  {bedrift.sentral_godkjenning_utlop && ` — gyldig til ${new Date(bedrift.sentral_godkjenning_utlop).toLocaleDateString('no')}`}
-                </p>
-                {Array.isArray(bedrift.sentral_godkjenning_omrader) && bedrift.sentral_godkjenning_omrader.length > 0 && (
-                  <ul className={styles.forBedrifterListe}>
-                    {bedrift.sentral_godkjenning_omrader.map((o, i) => (
-                      <li key={i}>
-                        <Check size={13} strokeWidth={3} /> {o.fagomrade} ({o.funksjon}, TK{o.tiltaksklasse})
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <a
-                  href={`https://sgregister.dibk.no/enterprises/${bedrift.organisasjonsnummer}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.googleLenke}
-                >
-                  Se godkjenningen hos DiBK →
-                </a>
-              </div>
+              <details className={`${styles.boks} ${styles.seksjonKvalifikasjoner} ${styles.kvalBoks}`}>
+                <summary className={styles.kvalSummary}>
+                  <span className={styles.kvalSummaryTekst}>
+                    <Check size={13} strokeWidth={3} />
+                    Sentral godkjenning (DiBK)
+                    {bedrift.sentral_godkjenning_utlop && ` — gyldig til ${new Date(bedrift.sentral_godkjenning_utlop).toLocaleDateString('no')}`}
+                  </span>
+                  <span className={styles.kvalPil}>
+                    <span className={styles.kvalPilLukket}>Les mer</span>
+                    <span className={styles.kvalPilApen}>Vis mindre</span>
+                  </span>
+                </summary>
+                <div className={styles.kvalInnhold}>
+                  {Array.isArray(bedrift.sentral_godkjenning_omrader) && bedrift.sentral_godkjenning_omrader.length > 0 && (
+                    <ul className={styles.forBedrifterListe}>
+                      {bedrift.sentral_godkjenning_omrader.map((o, i) => (
+                        <li key={i}>
+                          <Check size={13} strokeWidth={3} /> {o.fagomrade} ({o.funksjon}, TK{o.tiltaksklasse})
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <a
+                    href={`https://sgregister.dibk.no/enterprises/${bedrift.organisasjonsnummer}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.googleLenke}
+                  >
+                    Se godkjenningen hos DiBK →
+                  </a>
+                </div>
+              </details>
             )}
 
             <div className={`${styles.boks} ${styles.seksjonAdresse}`}>

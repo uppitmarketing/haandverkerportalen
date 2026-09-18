@@ -26,8 +26,20 @@
   font-size: 12px; font-weight: 600; color: var(--accent-dk); background: var(--accent-lt);
   border: 1px solid rgba(37,99,235,0.14); padding: 5px 10px; border-radius: var(--radius-sm);
 }
+.navnRad { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 5px; }
+.navnRad .navn { margin-bottom: 0; }
 .navn { font-size: clamp(20px, 3.5vw, 34px); font-weight: 800; letter-spacing: -0.8px; line-height: 1.1; margin-bottom: 5px; }
 .adresse { font-size: 13px; color: #6B7280; }
+
+/* Godkjenningsbadger hentet fra DiBK sentral godkjenning, vist som USP-er
+   rett ved siden av firmanavnet - fagområdet alene, uten funksjon/tiltaksklasse,
+   siden det kun skal signalisere "godkjent innen X", ikke gjengi hele vedtaket. */
+.godkjenningBadgeRad { display: flex; flex-wrap: wrap; gap: 6px; }
+.godkjenningBadge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 700; color: var(--green); background: var(--green-bg);
+  border: 1px solid rgba(5,150,105,0.25); padding: 3px 8px 3px 6px; border-radius: 20px; white-space: nowrap;
+}
 
 .layout { display: grid; grid-template-columns: 1fr 320px; gap: 28px; padding: 28px 0 80px; align-items: start; }
 .main { display: flex; flex-direction: column; gap: 16px; }
@@ -95,10 +107,11 @@
   .seksjonAnnonse { order: 2; }
   .kontaktBoks { order: 3; }
   .seksjonAdresse { order: 4; }
-  .seksjonFaq { order: 5; }
-  .seksjonFakta { order: 6; }
-  .seksjonAnnonseBred { order: 7; }
-  .relaterteSection { order: 8; }
+  .seksjonKvalifikasjoner { order: 5; }
+  .seksjonFaq { order: 6; }
+  .seksjonFakta { order: 7; }
+  .seksjonAnnonseBred { order: 8; }
+  .relaterteSection { order: 9; }
 }
 
 .beskrivelse {
@@ -122,3 +135,19 @@
 .faqSpm::after { content: '+'; font-size: 16px; color: var(--accent); flex-shrink: 0; }
 .faqItem[open] .faqSpm::after { content: '−'; }
 .faqSvar { padding: 0 16px 12px; font-size: 13px; color: var(--ink-2); line-height: 1.65; }
+
+/* Kvalifikasjonsboksen (DiBK) er minimert til én linje som standard - for
+   markant til å stå åpen og fullt utfolda lenger oppe på siden. */
+.kvalBoks { padding: 16px 20px; }
+.kvalSummary {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.kvalSummary::-webkit-details-marker { display: none; }
+.kvalSummaryTekst { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink); }
+.kvalSummaryTekst svg { color: var(--green); flex-shrink: 0; }
+.kvalPil { font-size: 11px; font-weight: 600; color: var(--accent); flex-shrink: 0; white-space: nowrap; }
+.kvalPilApen { display: none; }
+.kvalBoks[open] .kvalPilLukket { display: none; }
+.kvalBoks[open] .kvalPilApen { display: inline; }
+.kvalInnhold { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
