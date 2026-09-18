@@ -32,9 +32,10 @@ function byggLenke(bransjeSlug) {
   return `https://www.betterworkwear.no/?${params.toString()}`;
 }
 
-export default function AnnonseBww({ bransjeSlug }) {
+export default function AnnonseBww({ bransjeSlug, variant = 'kompakt' }) {
   const kortRef = useRef(null);
   const harRapportertVisning = useRef(false);
+  const erBred = variant === 'bred';
 
   const tittel = TITTEL[bransjeSlug] || FALLBACK_TITTEL;
   const lenke = byggLenke(bransjeSlug);
@@ -83,15 +84,30 @@ export default function AnnonseBww({ bransjeSlug }) {
       <div className={styles.header}>
         <span className={styles.label}>Annonse</span>
       </div>
-      <div className={styles.foto}>
+      <div className={`${styles.foto} ${erBred ? styles.fotoBred : ''}`}>
         <img src={FOTO_URL} alt="Better WorkWear arbeidsklær" loading="lazy" />
         <div className={styles.overlay}>
-          <div className={styles.overlayTittel}>{tittel}</div>
-          <div className={styles.overlayUndertekst}>Faste priser og rabatt for bedrifter</div>
-          <span className={styles.overlayCta}>
-            Se mer her
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-          </span>
+          {erBred ? (
+            <div className={styles.overlayBred}>
+              <div className={styles.overlayTekstBred}>
+                <div className={styles.overlayTittel}>{tittel}</div>
+                <div className={styles.overlayUndertekst}>Faste priser og rabatt for bedrifter</div>
+              </div>
+              <span className={`${styles.overlayCta} ${styles.overlayCtaBred}`}>
+                Se mer her
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              </span>
+            </div>
+          ) : (
+            <>
+              <div className={styles.overlayTittel}>{tittel}</div>
+              <div className={styles.overlayUndertekst}>Faste priser og rabatt for bedrifter</div>
+              <span className={styles.overlayCta}>
+                Se mer her
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              </span>
+            </>
+          )}
         </div>
       </div>
     </a>

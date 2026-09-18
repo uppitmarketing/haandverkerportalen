@@ -319,7 +319,9 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
             )}
 
             <div className={styles.seksjonAnnonseBred}>
-              <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering?.slug} />
+              {annonsor
+                ? <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering?.slug} />
+                : <AnnonseBww bransjeSlug={naering?.slug} variant="bred" />}
             </div>
 
             {!bedrift.er_fremhevet && relaterte.length > 0 && (

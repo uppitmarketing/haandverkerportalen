@@ -11,6 +11,7 @@
 
 .foto { position: relative; height: 210px; overflow: hidden; }
 .foto img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 30%; display: block; }
+.fotoBred { height: 150px; }
 
 .overlay {
   position: absolute; left: 0; right: 0; bottom: 0;
@@ -24,3 +25,13 @@
   padding: 7px 12px; background: #fff; color: var(--accent-dk);
   border-radius: var(--radius-sm); font-size: 11.5px; font-weight: 700;
 }
+
+/* Bred variant - liggende plassering under FAQ på bedriftsprofiler, i stedet
+   for stablet tekst i sidepanelet. Tekst og CTA side om side, kortere foto. */
+.overlayBred {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 12px;
+}
+.overlayTekstBred { max-width: 70%; }
+.overlayTekstBred .overlayTittel,
+.overlayTekstBred .overlayUndertekst { margin-bottom: 0; }
+.overlayCtaBred { flex-shrink: 0; white-space: nowrap; }
