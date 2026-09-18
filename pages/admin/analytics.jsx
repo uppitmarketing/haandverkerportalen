@@ -663,7 +663,7 @@ export default function AnalyticsSide({
                     </div>
                     <div className={styles.stat}>
                       <div className={styles.statNum}>{bwwCtr}%</div>
-                      <div className={styles.statLabel}>Better WorkWear – klikkrate</div>
+                      <div className={styles.statLabel}>Better WorkWear – klikkrate (alle plasseringer)</div>
                     </div>
                   </div>
 
@@ -1027,11 +1027,17 @@ export async function getServerSideProps({ req, query }) {
     // rad per faktisk annonse, sortert etter flest visninger. Annonsør-ID
     // (6. stisegment, lagt til i Annonse.jsx) skiller navngitte annonsører
     // fra hverandre i stedet for å slå alt sammen til "generisk".
+    // BWW og Toolsinvent kjører nå på flere plasseringer (sidepanel og bred
+    // banner) - 7. stisegment holder hvilken, lagt til i AnnonseBww.jsx og
+    // AnnonseToolsinvent.jsx. Eldre data uten dette segmentet er fra før den
+    // brede plasseringen fantes, og regnes derfor som sidepanel (kompakt).
     const annonseNokkel = (visningssti) => {
       const deler = visningssti.split('/');
       const variant = deler[4];
-      if (variant === 'bww') return 'bww';
-      if (variant === 'toolsinvent') return 'toolsinvent';
+      if (variant === 'bww' || variant === 'toolsinvent') {
+        const plassering = deler[6] || 'kompakt';
+        return `${variant}:${plassering}`;
+      }
       const tilstand = deler[3];
       if (tilstand === 'placeholder') return 'placeholder';
       const annonsorId = deler[6];
@@ -1077,8 +1083,10 @@ export async function getServerSideProps({ req, query }) {
     }
 
     const annonseNavnForNokkel = (nokkel) => {
-      if (nokkel === 'bww') return 'Better WorkWear (pilot)';
-      if (nokkel === 'toolsinvent') return 'Toolsinvent (pilot)';
+      if (nokkel === 'bww:kompakt') return 'Better WorkWear (pilot) – sidepanel';
+      if (nokkel === 'bww:bred') return 'Better WorkWear (pilot) – bred banner';
+      if (nokkel === 'toolsinvent:kompakt') return 'Toolsinvent (pilot) – sidepanel';
+      if (nokkel === 'toolsinvent:bred') return 'Toolsinvent (pilot) – bred banner';
       if (nokkel === 'placeholder') return 'Ingen annonsør (tom plassholder)';
       if (nokkel === 'legacy') return 'Generisk annonsørsystem (data før annonsør-ID)';
       const id = nokkel.slice('annonsor:'.length);

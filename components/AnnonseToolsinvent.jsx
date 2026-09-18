@@ -21,7 +21,7 @@ function byggLenke(bransjeSlug) {
   return `https://nettbutikk.toolsinvent.no/?${params.toString()}`;
 }
 
-export default function AnnonseToolsinvent({ bransjeSlug }) {
+export default function AnnonseToolsinvent({ bransjeSlug, variant = 'kompakt' }) {
   const kortRef = useRef(null);
   const harRapportertVisning = useRef(false);
 
@@ -38,8 +38,8 @@ export default function AnnonseToolsinvent({ bransjeSlug }) {
         if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
           timer = setTimeout(() => {
             harRapportertVisning.current = true;
-            sporHendelse('ad_impression', { ad_partner: 'toolsinvent', ad_content: bransjeSlug || 'ukjent', page_location: window.location.href });
-            sporInternHendelse(`/_annonse/visning/annonse/toolsinvent/${bransjeSlug || 'ukjent'}`);
+            sporHendelse('ad_impression', { ad_partner: 'toolsinvent', ad_content: bransjeSlug || 'ukjent', ad_placement: variant, page_location: window.location.href });
+            sporInternHendelse(`/_annonse/visning/annonse/toolsinvent/${bransjeSlug || 'ukjent'}/${variant}`);
             observer.disconnect();
           }, 1000);
         } else if (timer) {
@@ -52,11 +52,11 @@ export default function AnnonseToolsinvent({ bransjeSlug }) {
 
     observer.observe(el);
     return () => { observer.disconnect(); if (timer) clearTimeout(timer); };
-  }, [bransjeSlug]);
+  }, [bransjeSlug, variant]);
 
   function handleKlikk() {
-    sporHendelse('ad_click', { ad_partner: 'toolsinvent', ad_content: bransjeSlug || 'ukjent', page_location: window.location.href });
-    sporInternHendelse(`/_annonse/klikk/annonse/toolsinvent/${bransjeSlug || 'ukjent'}`);
+    sporHendelse('ad_click', { ad_partner: 'toolsinvent', ad_content: bransjeSlug || 'ukjent', ad_placement: variant, page_location: window.location.href });
+    sporInternHendelse(`/_annonse/klikk/annonse/toolsinvent/${bransjeSlug || 'ukjent'}/${variant}`);
   }
 
   return (

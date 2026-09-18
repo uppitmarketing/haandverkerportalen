@@ -51,8 +51,8 @@ export default function AnnonseBww({ bransjeSlug, variant = 'kompakt' }) {
         if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
           timer = setTimeout(() => {
             harRapportertVisning.current = true;
-            sporHendelse('ad_impression', { ad_partner: 'bww', ad_content: bransjeSlug || 'ukjent', page_location: window.location.href });
-            sporInternHendelse(`/_annonse/visning/annonse/bww/${bransjeSlug || 'ukjent'}`);
+            sporHendelse('ad_impression', { ad_partner: 'bww', ad_content: bransjeSlug || 'ukjent', ad_placement: variant, page_location: window.location.href });
+            sporInternHendelse(`/_annonse/visning/annonse/bww/${bransjeSlug || 'ukjent'}/${variant}`);
             observer.disconnect();
           }, 1000);
         } else if (timer) {
@@ -65,11 +65,11 @@ export default function AnnonseBww({ bransjeSlug, variant = 'kompakt' }) {
 
     observer.observe(el);
     return () => { observer.disconnect(); if (timer) clearTimeout(timer); };
-  }, [bransjeSlug]);
+  }, [bransjeSlug, variant]);
 
   function handleKlikk() {
-    sporHendelse('ad_click', { ad_partner: 'bww', ad_content: bransjeSlug || 'ukjent', page_location: window.location.href });
-    sporInternHendelse(`/_annonse/klikk/annonse/bww/${bransjeSlug || 'ukjent'}`);
+    sporHendelse('ad_click', { ad_partner: 'bww', ad_content: bransjeSlug || 'ukjent', ad_placement: variant, page_location: window.location.href });
+    sporInternHendelse(`/_annonse/klikk/annonse/bww/${bransjeSlug || 'ukjent'}/${variant}`);
   }
 
   return (
