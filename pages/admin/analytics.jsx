@@ -798,8 +798,9 @@ export async function getServerSideProps({ req, query }) {
     if (periode === '7d') fra = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     if (periode === '30d') fra = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    const [sideRes, kildeRes, forslagRes, dagRes, forBedrifterRes, introRes, sokUtenTreffRes, sokTreffRes] = await Promise.all([
+    const [sideRes, hendelseRes, kildeRes, forslagRes, dagRes, forBedrifterRes, introRes, sokUtenTreffRes, sokTreffRes] = await Promise.all([
       supabaseAdmin.rpc('page_view_counts', { fra }),
+      supabaseAdmin.rpc('syntetiske_hendelser_counts', { fra }),
       supabaseAdmin.rpc('page_view_besokskilder', { fra }),
       supabaseAdmin.from('nettside_forslag').select('*').eq('status', 'venter').order('created_at', { ascending: false }),
       supabaseAdmin.rpc('page_views_per_dag', { fra }),
@@ -810,6 +811,7 @@ export async function getServerSideProps({ req, query }) {
     ]);
 
     if (sideRes.error) throw new Error(sideRes.error.message);
+    if (hendelseRes.error) throw new Error(hendelseRes.error.message);
     if (kildeRes.error) throw new Error(kildeRes.error.message);
     if (forslagRes.error) throw new Error(forslagRes.error.message);
     if (dagRes.error) throw new Error(dagRes.error.message);
@@ -888,8 +890,17 @@ export async function getServerSideProps({ req, query }) {
     const bots = alle.filter(r => r.er_bot);
 
     const ekteSider = ekte.filter(r => !r.visningssti.startsWith('/_'));
-    const guideRader = ekte.filter(r => r.visningssti.startsWith('/_guide/'));
-    const klikkRader = ekte.filter(r => r.visningssti.startsWith('/_klikk/bedrift/'));
+
+    // Syntetiske hendelser (annonser, guide-bruk, utgående klikk) hentes fra
+    // en egen funksjon, avgrenset til "/_"-prefikset. De konkurrerer ellers
+    // om samme rad-budsjett i page_view_counts som alle ~35 000 bedriftssidene
+    // - med "Totalt" valgt overstiger antall distinkte stier fort API-ets
+    // rad-grense, og sortert etter antall synker sjeldne hendelser (som en
+    // fersk annonsørs første klikk) rett ut av resultatet uten feilmelding.
+    const alleHendelser = hendelseRes.data || [];
+    const ekteHendelser = alleHendelser.filter(r => !r.er_bot);
+    const guideRader = ekteHendelser.filter(r => r.visningssti.startsWith('/_guide/'));
+    const klikkRader = ekteHendelser.filter(r => r.visningssti.startsWith('/_klikk/bedrift/'));
 
     const totalVisninger = ekteSider.reduce((sum, r) => sum + Number(r.antall), 0);
     const totalBotVisninger = bots.reduce((sum, r) => sum + Number(r.antall), 0);
@@ -993,8 +1004,8 @@ export async function getServerSideProps({ req, query }) {
       });
 
     // Annonse-stier: /_annonse/{visning|klikk}/{annonse|placeholder}/{bred|kompakt}/{bransje}
-    const annonseVisningRader = ekte.filter(r => r.visningssti.startsWith('/_annonse/visning/'));
-    const annonseKlikkRader = ekte.filter(r => r.visningssti.startsWith('/_annonse/klikk/'));
+    const annonseVisningRader = ekteHendelser.filter(r => r.visningssti.startsWith('/_annonse/visning/'));
+    const annonseKlikkRader = ekteHendelser.filter(r => r.visningssti.startsWith('/_annonse/klikk/'));
 
     const totalAnnonseVisninger = annonseVisningRader.reduce((sum, r) => sum + Number(r.antall), 0);
     const totalEkteVisninger = annonseVisningRader
