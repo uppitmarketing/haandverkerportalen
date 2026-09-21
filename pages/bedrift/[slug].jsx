@@ -58,11 +58,12 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
     ? (bedrift.hjemmeside.startsWith('http') ? bedrift.hjemmeside : `https://${bedrift.hjemmeside}`)
     : null;
 
-  // Toolsinvent er kun relevant for elektrikere, og roterer med Better
-  // WorkWear på disse sidene i stedet for å legges ved siden av - delt
-  // etter organisasjonsnummer sin paritet, slik at hver bedrift alltid
+  // Toolsinvent er kun relevant for elektrikere og rørleggere, og roterer
+  // med Better WorkWear på disse sidene i stedet for å legges ved siden av -
+  // delt etter organisasjonsnummer sin paritet, slik at hver bedrift alltid
   // viser samme annonse (stabilt på tvers av sidevisninger og ISR-cacher).
-  const visToolsinvent = naering?.slug === 'elektriker' && Number(bedrift.organisasjonsnummer) % 2 === 0;
+  const TOOLSINVENT_BRANSJER = ['elektriker', 'rorlegger'];
+  const visToolsinvent = TOOLSINVENT_BRANSJER.includes(naering?.slug) && Number(bedrift.organisasjonsnummer) % 2 === 0;
 
   // Fagområdet alene (ikke funksjon/tiltaksklasse) er nok til å fungere som
   // en gjenkjennelig USP-badge ved siden av firmanavnet - fjerner duplikater
