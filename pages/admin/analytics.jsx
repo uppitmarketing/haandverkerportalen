@@ -18,7 +18,7 @@ const PERIODER = [
 export default function AnalyticsSide({
   innlogget, sider, totalVisninger, totalBotVisninger, totalUnikeSider, periode,
   enheter, kilder, totalGuideBruk, guideBransjer, totalKlikk, toppKlikk,
-  totalAnnonseVisninger, totalEkteVisninger, totalPlaceholderVisninger,
+  totalAnnonseVisninger, totalEkteVisninger, totalPlaceholderVisninger, totalBotAnnonseVisninger,
   totalAnnonseKlikk, annonseVisningAnnonsorer, annonseKlikkAnnonsorer, annonseOversikt, nettsideForslag,
   trafikkPerDag, totalForBedrifter, forBedrifterFraProfil, forBedrifterAndre, oppsettFeil,
   fremhevetIntro, sokUtenTreff, sokAlleredeLost, sokTreff,
@@ -673,6 +673,7 @@ export default function AnalyticsSide({
                     </h2>
                     <p className={styles.kildeSub} style={{ padding: '0 14px' }}>
                       {totalEkteVisninger.toLocaleString('no')} ekte annonse · {totalPlaceholderVisninger.toLocaleString('no')} placeholder-visninger totalt
+                      {totalBotAnnonseVisninger > 0 && ` · ${totalBotAnnonseVisninger.toLocaleString('no')} bot-/skraper-visninger ekskludert`}
                     </p>
                     {annonseOversikt.length === 0 ? (
                       <p className={styles.tomt}>Ingen annonsedata registrert ennå.</p>
@@ -769,7 +770,7 @@ export async function getServerSideProps({ req, query }) {
     innlogget: false, sider: [], totalVisninger: 0, totalBotVisninger: 0,
     totalUnikeSider: 0, periode, enheter: [], kilder: [],
     totalGuideBruk: 0, guideBransjer: [], totalKlikk: 0, toppKlikk: [],
-    totalAnnonseVisninger: 0, totalEkteVisninger: 0, totalPlaceholderVisninger: 0,
+    totalAnnonseVisninger: 0, totalEkteVisninger: 0, totalPlaceholderVisninger: 0, totalBotAnnonseVisninger: 0,
     totalAnnonseKlikk: 0, annonseVisningAnnonsorer: [], annonseKlikkAnnonsorer: [], annonseOversikt: [], nettsideForslag: [],
     trafikkPerDag: [], totalForBedrifter: 0, forBedrifterFraProfil: 0, forBedrifterAndre: 0,
     fremhevetIntro: [],
@@ -1015,6 +1016,13 @@ export async function getServerSideProps({ req, query }) {
 
     const totalAnnonseKlikk = annonseKlikkRader.reduce((sum, r) => sum + Number(r.antall), 0);
 
+    // Synlig i rapporten slik at eksklusjonen er etterprøvbar, ikke bare
+    // usynlig - viktig når tallene skal danne grunnlag for annonsesalg.
+    const botHendelser = alleHendelser.filter(r => r.er_bot);
+    const totalBotAnnonseVisninger = botHendelser
+      .filter(r => r.visningssti.startsWith('/_annonse/visning/'))
+      .reduce((sum, r) => sum + Number(r.antall), 0);
+
     const grupperAnnonseEtterAnnonsor = (rader) => {
       const total = rader.reduce((sum, r) => sum + Number(r.antall), 0);
       const kart = new Map();
@@ -1166,6 +1174,7 @@ export async function getServerSideProps({ req, query }) {
         totalAnnonseVisninger,
         totalEkteVisninger,
         totalPlaceholderVisninger,
+        totalBotAnnonseVisninger,
         totalAnnonseKlikk,
         annonseVisningAnnonsorer,
         annonseKlikkAnnonsorer,
