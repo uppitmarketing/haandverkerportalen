@@ -95,6 +95,21 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
     ],
   };
 
+  // Styrker relevanssignalet for nettopp "{bransje} {sted}"-søk ved å gjøre
+  // eksplisitt for søkemotoren at siden er en liste over bedrifter av denne
+  // typen på dette stedet - avgrenset til de første 50 for å unngå enorme
+  // JSON-LD-payloads på de største kommunene.
+  const itemListSchema = bedrifter.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: bedrifter.slice(0, 50).map((b, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${BASE_URL}/bedrift/${b.slug}`,
+      name: b.navn,
+    })),
+  } : null;
+
   return (
     <Layout
       title={tittel}
@@ -104,6 +119,9 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
       <Head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(faqSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbSchema) }} />
+        {itemListSchema && (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(itemListSchema) }} />
+        )}
         {total === 0 && <meta name="robots" content="noindex,follow" />}
       </Head>
 

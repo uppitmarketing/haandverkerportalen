@@ -2,7 +2,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
-import { NAERINGSKODER, KOMMUNER, getNaeringBySlug, getAntallPerNaering } from '../../lib/db';
+import { NAERINGSKODER, KOMMUNER, getNaeringBySlug, getAntallPerNaering, getKommunerRangertForNaering } from '../../lib/db';
 import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt';
 import { getArtiklerForBransje, getGenerelleArtikler } from '../../lib/artikler';
 import { safeJsonLd } from '../../lib/jsonLd';
@@ -11,7 +11,7 @@ import styles from '../../styles/NaeringIndex.module.css';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 
-export default function NaeringIndexSide({ naering, kommuner, total }) {
+export default function NaeringIndexSide({ naering, kommuner, populaereKommuner, total }) {
   const router = useRouter();
   if (router.isFallback) return <Layout title="Laster..."><div style={{padding:'80px 40px',textAlign:'center'}}>Laster...</div></Layout>;
   if (!naering) return <Layout title="Ikke funnet"><div style={{padding:'80px 40px',textAlign:'center'}}>Ikke funnet</div></Layout>;
@@ -76,6 +76,29 @@ export default function NaeringIndexSide({ naering, kommuner, total }) {
           </p>
         </div>
       </section>
+
+      {populaereKommuner.length > 0 && (
+        <div className="container">
+          <div className={styles.section} style={{ paddingBottom: 24 }}>
+            <h2 className={styles.secTitle}>Mest populære byer for {navnFlertall}</h2>
+            <div className={styles.kommuneGrid}>
+              {populaereKommuner.map(k => (
+                <a
+                  key={k.slug}
+                  href={`/${naering.slug}/${k.slug}`}
+                  className={styles.kommuneKort}
+                >
+                  <div className={styles.kommuneInfo}>
+                    <div className={styles.kommuneNavn}>{naering.visningsnavn} i {k.navn}</div>
+                    <div className={styles.kommuneFylke}>{k.antallBedrifter} registrerte bedrifter</div>
+                  </div>
+                  <span className={styles.kommuneArr}>→</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="container">
         <div className={styles.section}>
@@ -153,9 +176,10 @@ export async function getStaticProps({ params }) {
 
   const antallPerNaering = await getAntallPerNaering();
   const total = antallPerNaering[naering.kode] || 0;
+  const populaereKommuner = await getKommunerRangertForNaering(naering.slug);
 
   return {
-    props: { naering, kommuner: KOMMUNER, total },
+    props: { naering, kommuner: KOMMUNER, populaereKommuner, total },
     revalidate: 86400,
   };
 }
