@@ -75,6 +75,39 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
     },
   ];
 
+  // Ekte, spesifikke fakta fremfor omskrevet mal-tekst - navngir faktisk
+  // bedrift og lenker til profilen, i stedet for bare å gjenta tallene som
+  // allerede står i stedTekst over.
+  const storsteBedrift = bedrifter.reduce((best, b) => (
+    typeof b.antall_ansatte === 'number' && b.antall_ansatte > 0 && (!best || b.antall_ansatte > best.antall_ansatte) ? b : best
+  ), null);
+  if (storsteBedrift) {
+    faq.push({
+      sp: `Hvilken ${naering.visningsnavn.toLowerCase()} i ${kommune} har flest ansatte?`,
+      sv: `${storsteBedrift.navn} har flest ansatte blant ${flertall} i ${kommune}, med ${storsteBedrift.antall_ansatte} registrerte ansatte ifølge Brønnøysundregistrene.`,
+    });
+  }
+
+  const eldsteBedrift = bedrifter.reduce((best, b) => {
+    const aar = b.stiftelsesdato ? parseInt(b.stiftelsesdato.substring(0, 4), 10) : null;
+    if (!aar || Number.isNaN(aar)) return best;
+    return !best || aar < best.aar ? { bedrift: b, aar } : best;
+  }, null);
+  if (eldsteBedrift) {
+    faq.push({
+      sp: `Hvilken ${naering.visningsnavn.toLowerCase()} i ${kommune} har lengst historie?`,
+      sv: `${eldsteBedrift.bedrift.navn} er den eldste registrerte ${naering.visningsnavn.toLowerCase()}en i ${kommune}, etablert i ${eldsteBedrift.aar}.`,
+    });
+  }
+
+  // Gjenbruker allerede faktasjekket innhold fra guide-artiklene i stedet for
+  // å finne opp nye råd - bransjespesifikk artikkel prioriteres over generell
+  // (relevanteArtikler er allerede sortert sånn).
+  const guideMedFaq = relevanteArtikler.find(a => Array.isArray(a.faq) && a.faq.length > 0);
+  if (guideMedFaq) {
+    faq.push(...guideMedFaq.faq.slice(0, 2));
+  }
+
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
