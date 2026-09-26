@@ -1,43 +1,37 @@
-name: Brreg månedlig sync
+   name: Brreg månedlig sync
 
-on:
-  schedule:
-    - cron: '0 3 1 * *'
-  workflow_dispatch:
+   on:
+     schedule:
+       - cron: '0 3 1 * *'
+     workflow_dispatch:
 
-jobs:
-  sync:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+   jobs:
+     sync:
+       runs-on: ubuntu-latest
+       steps:
+         - name: Checkout
+           uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
+         - name: Setup Node.js
+           uses: actions/setup-node@v4
+           with:
+             node-version: '22'
 
-      - name: Install dependencies
-        run: npm install node-fetch @supabase/supabase-js ws
+         - name: Install dependencies
+           run: npm install node-fetch @supabase/supabase-js ws
 
-      - name: Kjør Brreg-import
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        run: node brreg_import_full.js
+         - name: Kjør Brreg-import
+           env:
+             SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+             SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+           run: node brreg_import_full.js
 
-      - name: Trigger Netlify deploy
-        run: |
-          curl -X POST -d '{}' ${{ secrets.NETLIFY_DEPLOY_HOOK }}
+         - name: Sjekk mot DSB elvirksomhetsregister
+           env:
+             SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+             SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+           run: node dsb_elreg_sync.js
 
-      - name: Keepalive commit (unngår 60-dagers auto-disable av schedule)
-        run: |
-          mkdir -p .github
-          echo "Siste sync: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" > .github/last-sync.txt
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .github/last-sync.txt
-          git diff --staged --quiet || git commit -m "chore: keepalive $(date -u +%Y-%m-%d)"
-          git push
+         - name: Trigger Netlify deploy
+           run: |
+             curl -X POST -d '{}' ${{ secrets.NETLIFY_DEPLOY_HOOK }}
