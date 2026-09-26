@@ -83,6 +83,10 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
     sporInternHendelse(`/_klikk/bedrift/${bedrift.slug}`);
   }
   const stiftetAar = bedrift.stiftelsesdato?.substring(0, 4);
+  // DSB elvirksomhetsregister – kun relevant for elektro (43.210)
+  const erElektro = bedrift.naeringskode === '43.210';
+  const ikkeDsb = erElektro && bedrift.dsb_registrert === false;
+  const dsbOk = erElektro && bedrift.dsb_registrert === true;
   const status = bedrift.konkurs ? 'Konkurs' : bedrift.er_aktiv ? 'Aktiv' : 'Inaktiv';
   const beskrivelse = genererBeskrivelse(bedrift);
   const faq = genererBedriftFaq(bedrift, naering?.visningsnavn);
@@ -110,7 +114,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
 
   const localBusinessSchema = {
     '@context': 'https://schema.org',
-    '@type': SCHEMA_TYPE[bedrift.naeringskode] || 'HomeAndConstructionBusiness',
+    '@type': ikkeDsb ? 'LocalBusiness' : (SCHEMA_TYPE[bedrift.naeringskode] || 'HomeAndConstructionBusiness'),
     name: bedrift.navn,
     identifier: bedrift.organisasjonsnummer,
     taxID: bedrift.organisasjonsnummer,
@@ -141,11 +145,16 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
 
   return (
     <Layout
-      title={`${bedrift.navn} – ${naering?.visningsnavn || 'Håndverker'} i ${bedrift.kommune}`}
-      description={`${bedrift.navn} er en ${naering?.visningsnavn?.toLowerCase() || 'håndverker'}-bedrift i ${bedrift.poststed}. Org.nr: ${bedrift.organisasjonsnummer}.`}
+      title={ikkeDsb
+        ? `${bedrift.navn} i ${bedrift.kommune}`
+        : `${bedrift.navn} – ${naering?.visningsnavn || 'Håndverker'} i ${bedrift.kommune}`}
+      description={ikkeDsb
+        ? `${bedrift.navn} i ${bedrift.poststed} er ikke registrert i DSBs elvirksomhetsregister. Org.nr: ${bedrift.organisasjonsnummer}.`
+        : `${bedrift.navn} er en ${naering?.visningsnavn?.toLowerCase() || 'håndverker'}-bedrift i ${bedrift.poststed}. Org.nr: ${bedrift.organisasjonsnummer}.`}
       canonical={`/bedrift/${bedrift.slug}`}
     >
       <Head>
+        {ikkeDsb && <meta name="robots" content="noindex, follow" />}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLd(localBusinessSchema) }}
@@ -190,7 +199,9 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                   </span>
                 )}
                 <span className={`tag ${bedrift.er_aktiv && !bedrift.konkurs ? 'tag--green' : 'tag--red'}`}>{status}</span>
-                {naering && <span className="tag tag--blue">{naering.visningsnavn}</span>}
+                {naering && !ikkeDsb && <span className="tag tag--blue">{naering.visningsnavn}</span>}
+                {dsbOk && <span className="tag tag--green">Registrert hos DSB</span>}
+                {ikkeDsb && <span className="tag tag--red">Ikke i DSBs elvirksomhetsregister</span>}
                 {bedrift.mva_registrert && <span className="tag tag--muted">MVA-reg.</span>}
               </div>
               <div className={styles.navnRad}>
@@ -228,6 +239,21 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
           </div>
         </div>
       </section>
+
+      {ikkeDsb && (
+        <div className="container">
+          <div className={styles.dsbVarsel} role="note">
+            <strong>Ikke funnet i DSBs elvirksomhetsregister.</strong>{' '}
+            Bedriften er registrert i Brønnøysundregistrene med næringskode for elektrisk
+            installasjonsarbeid, men vi finner den ikke i elvirksomhetsregisteret. Bare registrerte
+            virksomheter har lov til å utføre elektrisk arbeid.{' '}
+            <a href="https://elvirksomhetsregisteret.dsb.no/" target="_blank" rel="noopener noreferrer">
+              Sjekk selv hos DSB
+            </a>{' '}
+            før du bestiller.
+          </div>
+        </div>
+      )}
 
       <div className="container">
         <div className={styles.layout}>

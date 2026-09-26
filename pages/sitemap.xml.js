@@ -53,7 +53,7 @@ async function hentAlleSlugs(supabase) {
     const { data, error } = await supabase
       .from('bedrifter')
       .select('slug')
-      .eq('er_aktiv', true)
+      .eq('er_aktiv', true).not('dsb_registrert', 'is', false)
       .range(from, from + PAGE_SIZE - 1);
 
     if (error || !data || data.length === 0) break;

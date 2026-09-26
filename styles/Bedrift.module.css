@@ -151,3 +151,20 @@
 .kvalBoks[open] .kvalPilLukket { display: none; }
 .kvalBoks[open] .kvalPilApen { display: inline; }
 .kvalInnhold { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+
+/* Varsel for elektrobedrifter som ikke finnes i DSBs elvirksomhetsregister */
+.dsbVarsel {
+  margin: 20px 0 0;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--red);
+  background: var(--red-bg);
+  color: var(--text, inherit);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.dsbVarsel a {
+  color: var(--red);
+  font-weight: 600;
+  text-decoration: underline;
+}
