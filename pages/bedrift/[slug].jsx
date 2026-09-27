@@ -87,6 +87,14 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
   const erElektro = bedrift.naeringskode === '43.210';
   const ikkeDsb = erElektro && bedrift.dsb_registrert === false;
   const dsbOk = erElektro && bedrift.dsb_registrert === true;
+
+  // F-gass-sertifisering (Isovator) – kun relevant for varmepumpemontør
+  // (43.222). I motsetning til DSB er dette ikke et lovkrav for hele
+  // næringskoden (som også dekker peismontering), så fravær av sertifikat
+  // vises nøytralt, ikke som et rødt varsel.
+  const erVarmepumpe = bedrift.naeringskode === '43.222';
+  const ikkeFgass = erVarmepumpe && bedrift.fgass_sertifisert === false;
+  const fgassOk = bedrift.fgass_sertifisert === true;
   const status = bedrift.konkurs ? 'Konkurs' : bedrift.er_aktiv ? 'Aktiv' : 'Inaktiv';
   const beskrivelse = genererBeskrivelse(bedrift);
   const faq = genererBedriftFaq(bedrift, naering?.visningsnavn);
@@ -154,7 +162,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
       canonical={`/bedrift/${bedrift.slug}`}
     >
       <Head>
-        {ikkeDsb && <meta name="robots" content="noindex, follow" />}
+        {(ikkeDsb || ikkeFgass) && <meta name="robots" content="noindex, follow" />}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLd(localBusinessSchema) }}
@@ -199,9 +207,21 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                   </span>
                 )}
                 <span className={`tag ${bedrift.er_aktiv && !bedrift.konkurs ? 'tag--green' : 'tag--red'}`}>{status}</span>
-                {naering && !ikkeDsb && <span className="tag tag--blue">{naering.visningsnavn}</span>}
+                {naering && !ikkeDsb && (
+                  <span className="tag tag--blue">{ikkeFgass ? bedrift.naeringskode_tekst : naering.visningsnavn}</span>
+                )}
                 {dsbOk && <span className="tag tag--green">Registrert hos DSB</span>}
                 {ikkeDsb && <span className="tag tag--red">Ikke i DSBs elvirksomhetsregister</span>}
+                {fgassOk && (
+                  <a
+                    href="https://www.isovator.no/sertifisering/f-gass-sertifisering-kulde-og-varmepumper/f-gass-sertifiserte-bedrifter/alle"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tag tag--green"
+                  >
+                    F-gass-sertifisert (kat. {bedrift.fgass_kategori})
+                  </a>
+                )}
                 {bedrift.mva_registrert && <span className="tag tag--muted">MVA-reg.</span>}
               </div>
               <div className={styles.navnRad}>
@@ -251,6 +271,15 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
               Sjekk selv hos DSB
             </a>{' '}
             før du bestiller.
+          </div>
+        </div>
+      )}
+
+      {ikkeFgass && (
+        <div className="container">
+          <div className={styles.fgassVarsel} role="note">
+            Vi finner ikke bedriften i Isovators liste over F-gass-sertifiserte virksomheter.
+            Montering og service av varmepumper krever F-gass-sertifisering.
           </div>
         </div>
       )}

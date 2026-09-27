@@ -168,3 +168,14 @@
   font-weight: 600;
   text-decoration: underline;
 }
+
+.fgassVarsel {
+  margin: 20px 0 0;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--ink-2);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}

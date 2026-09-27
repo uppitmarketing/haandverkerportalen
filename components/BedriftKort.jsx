@@ -22,6 +22,16 @@ export default function BedriftKort({ bedrift }) {
       {naeringskode_tekst && (
         <div className={styles.naerTag}>{naeringskode_tekst}</div>
       )}
+      {(bedrift.dsb_registrert === true || bedrift.fgass_sertifisert === true) && (
+        <div className={styles.godkjenningRad}>
+          {bedrift.dsb_registrert === true && (
+            <span className={styles.godkjenningTag}>Registrert hos DSB</span>
+          )}
+          {bedrift.fgass_sertifisert === true && (
+            <span className={styles.godkjenningTag}>F-gass-sertifisert</span>
+          )}
+        </div>
+      )}
       <ul className={styles.meta}>
         <li>
           <span><MapPin size={13} /></span>
