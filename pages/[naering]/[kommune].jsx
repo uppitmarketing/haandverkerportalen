@@ -71,7 +71,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
     },
     {
       sp: `Er bedriftene på HåndverkerPortalen godkjente?`,
-      sv: `Ja — alle bedrifter er hentet direkte fra Brønnøysundregistrene og er registrerte norske foretak. Vi anbefaler alltid å sjekke referanser og innhente flere tilbud.`,
+      sv: `Alle bedriftene er registrerte norske foretak i Brønnøysundregistrene. Det er ikke det samme som en godkjenning. For elektrikere viser vi bare virksomheter som er registrert i DSBs elvirksomhetsregister. For andre fag bør du selv sjekke referanser, og gjerne om bedriften har sentral godkjenning. Hent alltid inn flere tilbud.`,
     },
   ];
 

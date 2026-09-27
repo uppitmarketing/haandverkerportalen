@@ -35,7 +35,7 @@ const FAQ = [
   },
   {
     sp: 'Hvordan vet jeg at bedriften er ekte?',
-    sv: 'Alle bedrifter er hentet direkte fra Brønnøysundregistrene.',
+    sv: 'Alle bedrifter er hentet fra Brønnøysundregistrene. Elektrikere sjekkes i tillegg hver måned mot DSBs elvirksomhetsregister, som viser hvem som har lov til å utføre elektrisk arbeid. Be gjerne om referanser og hent inn flere tilbud.',
   },
   {
     sp: 'Må jeg registrere meg for å søke?',
@@ -149,7 +149,7 @@ export default function Home({ antallPerNaering, standardBedrifter }) {
           <div className={styles.trustRow}>
             <div className={styles.trustItem}>
               <span className={styles.trustCheck}><Check size={12} strokeWidth={3} /></span>
-              <span className={styles.trustText}>Sjekket mot Brønnøysundregisteret</span>
+              <span className={styles.trustText}>Sjekket mot Brønnøysundregistrene og DSB</span>
             </div>
             <div className={styles.trustItem}>
               <span className={styles.trustCheck}><Check size={12} strokeWidth={3} /></span>
@@ -187,7 +187,7 @@ export default function Home({ antallPerNaering, standardBedrifter }) {
                 <div className={styles.stegNum}>2</div>
                 <div className={styles.stegKort}>
                   <div className={styles.stegKortTitle}>Vi viser deg håndverkere nær deg</div>
-                  <div className={styles.stegKortDesc}>Ekte, registrerte bedrifter — ingen useriøse aktører.</div>
+                  <div className={styles.stegKortDesc}>Alle bedrifter er hentet fra Brønnøysundregistrene. Elektrikere er i tillegg sjekket mot DSB.</div>
                 </div>
               </div>
               <div className={styles.steg}>
