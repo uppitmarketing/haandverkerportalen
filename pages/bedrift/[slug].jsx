@@ -14,7 +14,7 @@ import { safeJsonLd } from '../../lib/jsonLd';
 import { sporHendelse } from '../../lib/gtag';
 import { sporInternHendelse } from '../../lib/internAnalytics';
 import Kart from '../../components/Kart';
-import { Globe, Check, Hourglass, Star } from 'lucide-react';
+import { Globe, Check, Hourglass, Star, Phone, Mail } from 'lucide-react';
 import { BransjeIkon } from '../../components/icons';
 import { getBransjeFlertall } from '../../lib/bransjeInnsikt';
 
@@ -92,6 +92,11 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
   // (43.222). I motsetning til DSB er dette ikke et lovkrav for hele
   // næringskoden (som også dekker peismontering), så fravær av sertifikat
   // vises nøytralt, ikke som et rødt varsel.
+  // Kontaktinfo bedriften selv har oppgitt ved påmelding til fremhevet profil
+  const telefonRen = (bedrift.kontakt_telefon || '').replace(/[^\d+]/g, '');
+  const visTelefon = bedrift.er_fremhevet && telefonRen.length >= 8;
+  const visEpost = bedrift.er_fremhevet && (bedrift.kontakt_epost || '').includes('@');
+
   const erVarmepumpe = bedrift.naeringskode === '43.222';
   const ikkeFgass = erVarmepumpe && bedrift.fgass_sertifisert === false;
   const fgassOk = bedrift.fgass_sertifisert === true;
@@ -426,6 +431,16 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
           <aside className={styles.aside}>
             <div className={styles.kontaktBoks}>
               <h2 className={styles.boksTitle}>Kontakt</h2>
+              {visTelefon && (
+                <a href={`tel:${telefonRen}`} className={`btn btn--primary ${styles.kontaktBtn}`}>
+                  <Phone size={16} /> Ring {bedrift.kontakt_telefon}
+                </a>
+              )}
+              {visEpost && (
+                <a href={`mailto:${bedrift.kontakt_epost}`} className={`btn btn--outline ${styles.brregBtn}`}>
+                  <Mail size={15} /> {bedrift.kontakt_epost}
+                </a>
+              )}
               {nettsideUrl ? (
                 <a
                   href={nettsideUrl}

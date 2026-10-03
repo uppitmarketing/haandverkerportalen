@@ -54,6 +54,8 @@ export default async function handler(req, res) {
         er_fremhevet: true,
         egen_beskrivelse: pamelding.beskrivelse || null,
         spesialiteter: pamelding.spesialiteter || null,
+        kontakt_epost: pamelding.epost || null,
+        kontakt_telefon: pamelding.telefon || null,
         ...(pamelding.nettside && !bedrift.hjemmeside ? { hjemmeside: pamelding.nettside } : {}),
       })
       .eq('organisasjonsnummer', pamelding.org_nr);
