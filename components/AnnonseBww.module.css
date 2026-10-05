@@ -35,3 +35,7 @@
 .overlayTekstBred .overlayTittel,
 .overlayTekstBred .overlayUndertekst { margin-bottom: 0; }
 .overlayCtaBred { flex-shrink: 0; white-space: nowrap; }
+
+/* Ferdig kampanjebanner levert av annonsøren (tekst/knapp ligger i bildet) -
+   vises i full størrelse uten overlegg. */
+.kampanjebanner { display: block; width: 100%; height: auto; }

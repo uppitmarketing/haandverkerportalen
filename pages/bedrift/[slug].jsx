@@ -6,6 +6,7 @@ import BedriftKort from '../../components/BedriftKort';
 import Annonse from '../../components/Annonse';
 import AnnonseBww from '../../components/AnnonseBww';
 import AnnonseToolsinvent from '../../components/AnnonseToolsinvent';
+import AnnonseGuleholmen from '../../components/AnnonseGuleholmen';
 import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import styles from '../../styles/Bedrift.module.css';
@@ -408,7 +409,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
             <div className={styles.seksjonAnnonseBred}>
               {annonsor
                 ? <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering?.slug} />
-                : <AnnonseBww bransjeSlug={naering?.slug} variant="bred" />}
+                : <AnnonseGuleholmen bransjeSlug={naering?.slug} variant="bred" />}
             </div>
 
             {!bedrift.er_fremhevet && relaterte.length > 0 && (

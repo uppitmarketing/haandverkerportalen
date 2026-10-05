@@ -1053,7 +1053,7 @@ export async function getServerSideProps({ req, query }) {
     const annonseNokkel = (visningssti) => {
       const deler = visningssti.split('/');
       const variant = deler[4];
-      if (variant === 'bww' || variant === 'toolsinvent') {
+      if (variant === 'bww' || variant === 'toolsinvent' || variant === 'guleholmen') {
         const plassering = deler[6] || 'kompakt';
         return `${variant}:${plassering}`;
       }
@@ -1106,6 +1106,8 @@ export async function getServerSideProps({ req, query }) {
       if (nokkel === 'bww:bred') return 'Better WorkWear (pilot) – bred banner';
       if (nokkel === 'toolsinvent:kompakt') return 'Toolsinvent (pilot) – sidepanel';
       if (nokkel === 'toolsinvent:bred') return 'Toolsinvent (pilot) – bred banner';
+      if (nokkel === 'guleholmen:bred') return 'Guleholmen (pilot) – bred banner';
+      if (nokkel === 'guleholmen:kompakt') return 'Guleholmen (pilot) – sidepanel';
       if (nokkel === 'placeholder') return 'Ingen annonsør (tom plassholder)';
       if (nokkel === 'legacy') return 'Generisk annonsørsystem (data før annonsør-ID)';
       const id = nokkel.slice('annonsor:'.length);
