@@ -71,7 +71,7 @@ export default function AnnonseGuleholmen({ bransjeSlug, variant = 'bred' }) {
       onClick={handleKlikk}
     >
       <div className={styles.header}>
-        <span className={styles.label}>Annonse</span>
+        <span className={styles.label}>Annonse · Guleholmen.no</span>
       </div>
       <img
         src={FOTO_URL}
