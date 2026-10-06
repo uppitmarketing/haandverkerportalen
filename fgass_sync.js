@@ -53,9 +53,12 @@ async function hentIsovatorListe() {
     if (celler.length < 8) return; // hopper over header-raden (<th>, ingen <td>)
     const navnOgSertNr = $(celler[0]).text().trim();
     const [navn, sertifikatnr] = navnOgSertNr.split(' / ').map(s => s?.trim());
-    const orgnr = $(celler[6]).text().trim();
+    // Isovator skriver org.nr. til dels med mellomrom ("917 760 225") eller
+    // med "MVA" bak - bare sifrene teller. Rader uten gyldig org.nr. kan ikke
+    // matches (vi matcher aldri på navn) og hoppes over.
+    const orgnr = $(celler[6]).text().replace(/\D/g, '');
+    if (!/^\d{9}$/.test(orgnr)) return;
     const kategori = normaliserKategori($(celler[7]).text().trim());
-    if (!orgnr || !kategori) return;
     rader.push({ navn, sertifikatnr: sertifikatnr || null, orgnr, kategori });
   });
 
@@ -72,6 +75,8 @@ async function hentIsovatorListe() {
     rad.kategori.split(',').map(k => k.trim()).filter(Boolean).forEach(k => gruppe.kategorier.add(k));
   }
 
+  // Tom kategori ('') betyr at Isovator har oppført bedriften uten å oppgi
+  // kategori - den står i lista, så den skal ikke feilaktig vises som "ikke funnet".
   return Array.from(perOrgnr.entries()).map(([orgnr, gruppe]) => ({
     navn: gruppe.navn,
     sertifikatnr: gruppe.sertifikatnr,
@@ -174,10 +179,10 @@ async function main() {
     // kategoriene i stedet for å bare beholde den første, av samme grunn som
     // dedupliseringen i hentIsovatorListe().
     if (!treffPerOrgnr.has(maalOrgnr)) {
-      treffPerOrgnr.set(maalOrgnr, { ...rad, kategoriSet: new Set(rad.kategori.split(',').map(k => k.trim())) });
+      treffPerOrgnr.set(maalOrgnr, { ...rad, kategoriSet: new Set(rad.kategori.split(',').map(k => k.trim()).filter(Boolean)) });
     } else {
       const eksisterende = treffPerOrgnr.get(maalOrgnr);
-      rad.kategori.split(',').map(k => k.trim()).forEach(k => eksisterende.kategoriSet.add(k));
+      rad.kategori.split(',').map(k => k.trim()).filter(Boolean).forEach(k => eksisterende.kategoriSet.add(k));
     }
   }
   for (const treff of treffPerOrgnr.values()) {
@@ -191,12 +196,14 @@ async function main() {
 
   for (const [orgnr, treff] of treffPerOrgnr.entries()) {
     const bedrift = bedriftPerOrgnr.get(orgnr);
-    const kvalifisert = erKvalifisertForMontering(treff.kategori);
+    // Oppført uten kategori: kan ikke utelukke kat. I/II, så bedriften regnes
+    // som sertifisert (uten å vise noen kategori) i stedet for å skjules.
+    const kvalifisert = treff.kategori === '' || erKvalifisertForMontering(treff.kategori);
     if (kvalifisert) {
       oppdateringer.push({
         organisasjonsnummer: orgnr,
         fgass_sertifisert: true,
-        fgass_kategori: treff.kategori,
+        fgass_kategori: treff.kategori || null,
         fgass_sertifikatnr: treff.sertifikatnr,
         fgass_sjekket: naa,
       });
@@ -206,7 +213,7 @@ async function main() {
       oppdateringer.push({
         organisasjonsnummer: orgnr,
         fgass_sertifisert: bedrift.naeringskode === VARMEPUMPE_KODE ? false : null,
-        fgass_kategori: treff.kategori,
+        fgass_kategori: treff.kategori || null,
         fgass_sertifikatnr: treff.sertifikatnr,
         fgass_sjekket: naa,
       });

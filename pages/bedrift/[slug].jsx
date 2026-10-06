@@ -225,7 +225,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                     rel="noopener noreferrer"
                     className="tag tag--green"
                   >
-                    F-gass-sertifisert (kat. {bedrift.fgass_kategori})
+                    F-gass-sertifisert{bedrift.fgass_kategori ? ` (kat. ${bedrift.fgass_kategori})` : ''}
                   </a>
                 )}
                 {bedrift.mva_registrert && <span className="tag tag--muted">MVA-reg.</span>}
