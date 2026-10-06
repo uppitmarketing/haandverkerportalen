@@ -1,51 +1,77 @@
-   name: Brreg månedlig sync
+name: Brreg månedlig sync
 
-   on:
-     schedule:
-       - cron: '0 3 1 * *'
-     workflow_dispatch:
+on:
+  schedule:
+    - cron: '0 3 1 * *'
+  workflow_dispatch:
+    inputs:
+      kjor:
+        description: 'Hvilke steg skal kjøres?'
+        type: choice
+        default: alle
+        options:
+          - alle
+          - alle_unntatt_import
+          - kun_opprydding
+          - kun_dsb
+          - kun_fgass
+      torrkjoring:
+        description: 'Tørrkjøring av opprydding (skriver ut, endrer ingenting)'
+        type: boolean
+        default: false
+      deploy:
+        description: 'Trigge Netlify-deploy til slutt?'
+        type: boolean
+        default: true
 
-   jobs:
-     sync:
-       runs-on: ubuntu-latest
-       steps:
-         - name: Checkout
-           uses: actions/checkout@v4
+# Planlagte kjøringer har ingen inputs og kjører alltid alle steg + deploy.
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-         - name: Setup Node.js
-           uses: actions/setup-node@v4
-           with:
-             node-version: '22'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-         - name: Install dependencies
-           run: npm install node-fetch @supabase/supabase-js ws cheerio
+      - name: Install dependencies
+        run: npm install node-fetch @supabase/supabase-js ws cheerio
 
-         - name: Kjør Brreg-import
-           env:
-             SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-             SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-           run: node brreg_import_full.js
+      - name: Kjør Brreg-import
+        if: github.event_name != 'workflow_dispatch' || inputs.kjor == 'alle'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: node brreg_import_full.js
 
-         - name: Rydd opp bedrifter som ikke lenger er håndverk
-           continue-on-error: true
-           env:
-             SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-             SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-           run: node opprydding_utdaterte.js
+      - name: Rydd opp bedrifter som ikke lenger er håndverk
+        if: github.event_name != 'workflow_dispatch' || inputs.kjor == 'alle' || inputs.kjor == 'alle_unntatt_import' || inputs.kjor == 'kun_opprydding'
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          DRY_RUN: ${{ inputs.torrkjoring && '1' || '' }}
+        run: node opprydding_utdaterte.js
 
-         - name: Sjekk mot DSB elvirksomhetsregister
-           env:
-             SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-             SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-           run: node dsb_elreg_sync.js
+      - name: Sjekk mot DSB elvirksomhetsregister
+        if: github.event_name != 'workflow_dispatch' || inputs.kjor == 'alle' || inputs.kjor == 'alle_unntatt_import' || inputs.kjor == 'kun_dsb'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: node dsb_elreg_sync.js
 
-         - name: Sjekk mot Isovator F-gass-register
-           continue-on-error: true
-           env:
-             SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-             SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-           run: node fgass_sync.js
+      - name: Sjekk mot Isovator F-gass-register
+        if: github.event_name != 'workflow_dispatch' || inputs.kjor == 'alle' || inputs.kjor == 'alle_unntatt_import' || inputs.kjor == 'kun_fgass'
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: node fgass_sync.js
 
-         - name: Trigger Netlify deploy
-           run: |
-             curl -X POST -d '{}' ${{ secrets.NETLIFY_DEPLOY_HOOK }}
+      - name: Trigger Netlify deploy
+        if: github.event_name != 'workflow_dispatch' || inputs.deploy
+        run: |
+          curl -X POST -d '{}' ${{ secrets.NETLIFY_DEPLOY_HOOK }}
