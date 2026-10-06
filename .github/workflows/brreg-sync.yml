@@ -26,6 +26,13 @@
              SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
            run: node brreg_import_full.js
 
+         - name: Rydd opp bedrifter som ikke lenger er håndverk
+           continue-on-error: true
+           env:
+             SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+             SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+           run: node opprydding_utdaterte.js
+
          - name: Sjekk mot DSB elvirksomhetsregister
            env:
              SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
