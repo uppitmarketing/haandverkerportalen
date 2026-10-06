@@ -506,7 +506,9 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const bedrift = await getBedriftBySlug(params.slug);
-  if (!bedrift) return { notFound: true };
+  // Deaktiverte bedrifter (f.eks. byttet næringskode og er ikke lenger håndverk)
+  // skal ikke vises. Konkursbo beholder profilen sin - de får søketrafikk.
+  if (!bedrift || (!bedrift.er_aktiv && bedrift.konkurs !== true)) return { notFound: true };
   const relaterte = await getRelaterteBedrifter(bedrift.naeringskode, bedrift.kommunenummer, bedrift.slug);
   const naering = getNaeringByKode(bedrift.naeringskode);
   const annonsor = await getAnnonsorForBransje(naering?.slug);
