@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import { NAERINGSKODER, KOMMUNER, getNaeringBySlug, getAntallPerNaering, getKommunerRangertForNaering } from '../../lib/db';
+import { FYLKER } from '../../lib/fylker';
 import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt';
 import { getArtiklerForBransje, getGenerelleArtikler } from '../../lib/artikler';
 import { safeJsonLd } from '../../lib/jsonLd';
@@ -11,7 +12,7 @@ import styles from '../../styles/NaeringIndex.module.css';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 
-export default function NaeringIndexSide({ naering, kommuner, populaereKommuner, total }) {
+export default function NaeringIndexSide({ naering, kommuner, populaereKommuner, fylkeOversikt = [], total }) {
   const router = useRouter();
   if (router.isFallback) return <Layout title="Laster..."><div style={{padding:'80px 40px',textAlign:'center'}}>Laster...</div></Layout>;
   if (!naering) return <Layout title="Ikke funnet"><div style={{padding:'80px 40px',textAlign:'center'}}>Ikke funnet</div></Layout>;
@@ -100,6 +101,25 @@ export default function NaeringIndexSide({ naering, kommuner, populaereKommuner,
         </div>
       )}
 
+      {fylkeOversikt.length > 0 && (
+        <div className="container">
+          <div className={styles.section} style={{ paddingBottom: 24 }}>
+            <h2 className={styles.secTitle}>{naering.visningsnavn} per fylke</h2>
+            <div className={styles.kommuneGrid}>
+              {fylkeOversikt.map(f => (
+                <a key={f.slug} href={`/${naering.slug}/fylke/${f.slug}`} className={styles.kommuneKort}>
+                  <div className={styles.kommuneInfo}>
+                    <div className={styles.kommuneNavn}>{naering.visningsnavn} i {f.navn}</div>
+                    <div className={styles.kommuneFylke}>{f.antallBedrifter} registrerte bedrifter</div>
+                  </div>
+                  <span className={styles.kommuneArr}>→</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="container">
         <div className={styles.section}>
           <h2 className={styles.secTitle}>Velg kommune</h2>
@@ -178,8 +198,19 @@ export async function getStaticProps({ params }) {
   const total = antallPerNaering[naering.kode] || 0;
   const populaereKommuner = await getKommunerRangertForNaering(naering.slug);
 
+  // Fylker med bedrifter i bransjen, størst først - lenker til fylkessidene
+  const alleKommuner = await getKommunerRangertForNaering(naering.slug, 1000);
+  const fylkeOversikt = FYLKER
+    .map(f => ({
+      navn: f.navn,
+      slug: f.slug,
+      antallBedrifter: alleKommuner.filter(k => k.fylke === f.navn).reduce((sum, k) => sum + k.antallBedrifter, 0),
+    }))
+    .filter(f => f.antallBedrifter > 0)
+    .sort((a, b) => b.antallBedrifter - a.antallBedrifter);
+
   return {
-    props: { naering, kommuner: KOMMUNER, populaereKommuner, total },
+    props: { naering, kommuner: KOMMUNER, populaereKommuner, fylkeOversikt, total },
     revalidate: 86400,
   };
 }

@@ -11,6 +11,7 @@ import { safeJsonLd } from '../../lib/jsonLd';
 import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt';
 import { getBransjeSynonymer, bransjeTittelNavn } from '../../lib/bransjeSynonymer';
 import { finnTettsteder, nummerertListe } from '../../lib/tettsteder';
+import { getFylkeByNavn } from '../../lib/fylker';
 import { getArtiklerForBransje, getGenerelleArtikler } from '../../lib/artikler';
 import { BransjeIkon } from '../../components/icons';
 import { Hourglass } from 'lucide-react';
@@ -39,6 +40,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
   );
 
   const tittelNavn = bransjeTittelNavn(naering.slug, naering.visningsnavn);
+  const fylkeSide = fylke ? getFylkeByNavn(fylke) : null;
   const tittelNavnLiten = tittelNavn.replace(naering.visningsnavn, naering.visningsnavn.toLowerCase());
   const tittel = `${tittelNavn} i ${kommune}`;
   const synonymForklaring = getBransjeSynonymer(naering.slug).forklaring;
@@ -130,7 +132,8 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Forside', item: BASE_URL },
       { '@type': 'ListItem', position: 2, name: naering.visningsnavn, item: `${BASE_URL}/${naering.slug}` },
-      { '@type': 'ListItem', position: 3, name: kommune, item: `${BASE_URL}/${naering.slug}/${kommuneSlugUrl}` },
+      ...(fylkeSide ? [{ '@type': 'ListItem', position: 3, name: fylkeSide.navn, item: `${BASE_URL}/${naering.slug}/fylke/${fylkeSide.slug}` }] : []),
+      { '@type': 'ListItem', position: fylkeSide ? 4 : 3, name: kommune, item: `${BASE_URL}/${naering.slug}/${kommuneSlugUrl}` },
     ],
   };
 
@@ -171,6 +174,12 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
             <span className="breadcrumb__sep">/</span>
             <a href={`/${naering.slug}`}>{naering.visningsnavn}</a>
             <span className="breadcrumb__sep">/</span>
+            {fylkeSide && (
+              <>
+                <a href={`/${naering.slug}/fylke/${fylkeSide.slug}`}>{fylkeSide.navn}</a>
+                <span className="breadcrumb__sep">/</span>
+              </>
+            )}
             <span>{kommune}</span>
           </nav>
           <div className={styles.heroInner}>
@@ -287,6 +296,12 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
         <section className={styles.relaterte}>
           <div className="container">
             <h2 className={styles.secTitle}>{naering.visningsnavn} i andre kommuner i {fylke}</h2>
+            {fylkeSide && (
+              <a href={`/${naering.slug}/fylke/${fylkeSide.slug}`} className={styles.relKort} style={{ marginTop: 12 }}>
+                <span>Se alle {flertall} i {fylkeSide.navn}</span>
+                <span>→</span>
+              </a>
+            )}
             <div className={styles.relaterteGrid}>
               {naboKommuner.map(k => (
                 <a key={k.slug} href={`/${naering.slug}/${k.slug}`} className={styles.relKort}>

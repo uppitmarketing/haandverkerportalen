@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NAERINGSKODER, KOMMUNER } from '../lib/db';
 import { ARTIKLER } from '../lib/artikler';
+import { FYLKER } from '../lib/fylker';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 const PAGE_SIZE = 1000;
@@ -89,6 +90,15 @@ export async function getServerSideProps({ res }) {
         KOMMUNER.map(k => ({ url: `/${n.slug}/${k.slug}`, priority: '0.7', changefreq: 'weekly' }))
       );
 
+  // Fylkessider: bare fylker som har minst én bedrift i bransjen
+  const fylkeUrls = antallMap
+    ? NAERINGSKODER.flatMap(n =>
+        FYLKER
+          .filter(f => KOMMUNER.some(k => k.fylke === f.navn && finnAntall(antallMap, n, k) > 0))
+          .map(f => ({ url: `/${n.slug}/fylke/${f.slug}`, priority: '0.7', changefreq: 'weekly' }))
+      )
+    : [];
+
   const urls = [
     { url: '/', priority: '1.0', changefreq: 'daily' },
     { url: '/sok', priority: '0.8', changefreq: 'weekly' },
@@ -109,6 +119,8 @@ export async function getServerSideProps({ res }) {
       priority: '0.6',
       changefreq: 'monthly',
     })),
+
+    ...fylkeUrls,
 
     ...bransjeKommuneUrls,
 
