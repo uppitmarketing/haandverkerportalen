@@ -5,7 +5,7 @@ import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import Annonse from '../../components/Annonse';
 import AnnonseGuleholmen from '../../components/AnnonseGuleholmen';
-import { NAERINGSKODER, KOMMUNER, getBedrifterByKategoriOgKommune, getNaeringBySlug } from '../../lib/db';
+import { NAERINGSKODER, KOMMUNER, getBedrifterByKategoriOgKommune, getNaeringBySlug, getKommunerRangertForNaering } from '../../lib/db';
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import { safeJsonLd } from '../../lib/jsonLd';
 import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt';
@@ -16,7 +16,7 @@ import styles from '../../styles/Kategori.module.css';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 
-export default function KategoriSide({ bedrifter, naering, kommune, fylke, total, annonsor }) {
+export default function KategoriSide({ bedrifter, naering, kommune, fylke, total, annonsor, naboKommuner = [] }) {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -41,7 +41,6 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
   const innsikt = getBransjeInnsikt(naering.slug);
   const flertall = getBransjeFlertall(naering.slug, naering.visningsnavn);
   const relevanteArtikler = [...getArtiklerForBransje(naering.slug), ...getGenerelleArtikler()];
-  const naboKommuner = fylke ? KOMMUNER.filter(k => k.fylke === fylke && k.navn !== kommune).slice(0, 6) : [];
 
   const stiftelsesAar = bedrifter
     .map(b => b.stiftelsesdato ? parseInt(b.stiftelsesdato.substring(0, 4), 10) : null)
@@ -146,7 +145,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
 
   return (
     <Layout
-      title={tittel}
+      title={total > 0 ? `${tittel} – ${total} ${total === 1 ? 'bedrift' : 'bedrifter'}` : tittel}
       description={`Sammenlign ${total} registrerte ${flertall} i ${kommune}${storsteAntallAnsatte ? `, med opptil ${storsteAntallAnsatte} ansatte i de største` : ''}. Verifisert mot Brønnøysundregistrene — se kontaktinfo og ta kontakt gratis.`}
       canonical={`/${naering.slug}/${kommuneSlugUrl}`}
     >
@@ -284,7 +283,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
               {naboKommuner.map(k => (
                 <a key={k.slug} href={`/${naering.slug}/${k.slug}`} className={styles.relKort}>
                   <BransjeIkon slug={naering.slug} size={15} />
-                  <span>{naering.visningsnavn} i {k.navn}</span>
+                  <span>{naering.visningsnavn} i {k.navn} ({k.antallBedrifter})</span>
                   <span>→</span>
                 </a>
               ))}
@@ -308,8 +307,16 @@ export async function getStaticProps({ params }) {
 
   const annonsor = await getAnnonsorForBransje(naering.slug);
 
+  // Nabokommuner: kommuner i samme fylke som faktisk har bedrifter i bransjen
+  // (de største først) - tomme kommunesider er noindex og skal ikke lenkes til.
+  const rangert = fylke ? await getKommunerRangertForNaering(naering.slug, 1000) : [];
+  const naboKommuner = rangert
+    .filter(k => k.fylke === fylke && k.navn !== kommuneNavn)
+    .slice(0, 6)
+    .map(k => ({ navn: k.navn, slug: k.slug, antallBedrifter: k.antallBedrifter }));
+
   return {
-    props: { bedrifter, naering, kommune: kommuneNavn, fylke, total, annonsor },
+    props: { bedrifter, naering, kommune: kommuneNavn, fylke, total, annonsor, naboKommuner },
     revalidate: 86400,
   };
 }

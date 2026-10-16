@@ -157,6 +157,28 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
     })),
   } : null;
 
+  // Brødsmulesti for søkemotorer - samme ledd som den synlige brødsmulestien
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { name: 'Forside', item: BASE_URL },
+      ...(naering ? [{ name: naering.visningsnavn, item: `${BASE_URL}/${naering.slug}` }] : []),
+      ...(naering && bedrift.kommune ? [{ name: bedrift.kommune, item: `${BASE_URL}/${naering.slug}/${kommuneSlug}` }] : []),
+      { name: bedrift.navn, item: `${BASE_URL}/bedrift/${bedrift.slug}` },
+    ].map((ledd, i) => ({ '@type': 'ListItem', position: i + 1, ...ledd })),
+  };
+
+  // Meta description: adresse, bransje og de faktaene vi har (stiftelsesår, ansatte)
+  const bransjeNavn = naering?.visningsnavn?.toLowerCase() || 'håndverker';
+  const stedDel = [bedrift.adresse, [bedrift.postnummer, bedrift.poststed].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  const faktaDel = [
+    stiftetAar ? `Stiftet ${stiftetAar}` : null,
+    bedrift.antall_ansatte > 0 ? `${bedrift.antall_ansatte} ansatte` : null,
+  ].filter(Boolean).join(', ');
+  const stedNavn = bedrift.kommune || bedrift.poststed;
+  const metaBeskrivelse = `${bedrift.navn} – ${bransjeNavn} i ${stedNavn}.${stedDel ? ` Adresse: ${stedDel}.` : ''}${faktaDel ? ` ${faktaDel}.` : ''} Org.nr ${bedrift.organisasjonsnummer}. Se kontaktinfo og andre ${naering ? getBransjeFlertall(naering.slug, naering.visningsnavn) : 'håndverkere'} i ${stedNavn}.`;
+
   return (
     <Layout
       title={ikkeDsb
@@ -164,7 +186,7 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
         : `${bedrift.navn} – ${naering?.visningsnavn || 'Håndverker'} i ${bedrift.kommune}`}
       description={ikkeDsb
         ? `${bedrift.navn} i ${bedrift.poststed} er ikke registrert i DSBs elvirksomhetsregister. Org.nr: ${bedrift.organisasjonsnummer}.`
-        : `${bedrift.navn} er en ${naering?.visningsnavn?.toLowerCase() || 'håndverker'}-bedrift i ${bedrift.poststed}. Org.nr: ${bedrift.organisasjonsnummer}.`}
+        : metaBeskrivelse}
       canonical={`/bedrift/${bedrift.slug}`}
     >
       <Head>
@@ -172,6 +194,10 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: safeJsonLd(localBusinessSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbSchema) }}
         />
         {faqSchema && (
           <script
@@ -418,8 +444,17 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                   Andre {naering ? getBransjeFlertall(naering.slug, naering.visningsnavn) : ''} i {bedrift.kommune}
                 </h3>
                 <div className={styles.relGrid}>
-                  {relaterte.map(b => <BedriftKort key={b.organisasjonsnummer} bedrift={b} />)}
+                  {relaterte.slice(0, 3).map(b => <BedriftKort key={b.organisasjonsnummer} bedrift={b} />)}
                 </div>
+                {relaterte.length > 3 && (
+                  <ul className={styles.relListe}>
+                    {relaterte.slice(3).map(b => (
+                      <li key={b.organisasjonsnummer}>
+                        <a href={`/bedrift/${b.slug}`} className={styles.relLenke}>{b.navn}</a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 {naering && (
                   <a href={`/${naering.slug}/${kommuneSlug}`} className={styles.seAlle}>
                     Se alle i {bedrift.kommune} →
