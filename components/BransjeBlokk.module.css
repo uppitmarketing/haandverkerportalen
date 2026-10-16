@@ -1,0 +1,45 @@
+/* components/BransjeBlokk.module.css */
+.blokk {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 22px 24px; min-width: 0;
+}
+.tittel { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; color: var(--ink); margin: 0 0 8px; line-height: 1.25; }
+.under { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 22px 0 8px; }
+.tekst { font-size: 14px; line-height: 1.65; color: var(--ink-2); margin: 0; }
+
+.oppdrag { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.oppdragPunkt {
+  font-size: 12.5px; font-weight: 500; color: var(--accent-dk);
+  background: var(--accent-lt); border-radius: var(--radius-sm); padding: 5px 10px;
+}
+
+.priser { margin: 0; display: flex; flex-direction: column; }
+.prisRad {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+}
+.prisRad:last-child { border-bottom: none; }
+.prisRad dt { color: var(--ink-2); min-width: 0; }
+.prisRad dd { margin: 0; font-weight: 700; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+.merknad { font-size: 12px; line-height: 1.55; color: var(--ink-3); margin: 8px 0 0; }
+
+.liste, .sjekkliste { margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6; color: var(--ink-2); display: flex; flex-direction: column; gap: 6px; }
+.sjekkliste { list-style: none; padding-left: 0; }
+.sjekkliste li { position: relative; padding-left: 24px; }
+.sjekkliste li::before { content: '✓'; position: absolute; left: 0; top: 0; color: var(--green); font-weight: 700; }
+
+.faq { display: flex; flex-direction: column; gap: 8px; }
+.faqItem { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.faqSpm { cursor: pointer; padding: 11px 14px; font-size: 13.5px; font-weight: 600; color: var(--ink); list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.faqSpm::-webkit-details-marker { display: none; }
+.faqSpm::after { content: '+'; font-size: 18px; line-height: 1; color: var(--accent); flex-shrink: 0; }
+.faqItem[open] .faqSpm::after { content: '−'; }
+.faqSpm:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius); }
+.faqSvar { margin: 0; padding: 0 14px 12px; font-size: 13.5px; line-height: 1.65; color: var(--ink-2); }
+
+.guide { display: inline-block; margin-top: 18px; font-size: 13.5px; font-weight: 600; color: var(--accent); }
+.guide:hover { text-decoration: underline; }
+
+@media (max-width: 480px) {
+  .blokk { padding: 18px 16px; }
+}

@@ -18,6 +18,8 @@ import Kart from '../../components/Kart';
 import { Globe, Check, Hourglass, Star, Phone, Mail } from 'lucide-react';
 import { BransjeIkon } from '../../components/icons';
 import { getBransjeFlertall } from '../../lib/bransjeInnsikt';
+import { hentBransjeBlokk } from '../../lib/bransjeBlokker';
+import BransjeBlokk from '../../components/BransjeBlokk';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 
@@ -147,10 +149,14 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${BASE_URL}/bedrift/${bedrift.slug}` },
   };
 
-  const faqSchema = faq.length > 0 ? {
+  // Bransjeblokk (testgruppe): FAQ-en vises i blokken og tas med i samme FAQPage-schema
+  const bransjeBlokk = naering ? hentBransjeBlokk(naering.slug, bedrift.organisasjonsnummer) : null;
+  const faqForSchema = [...faq, ...(bransjeBlokk ? bransjeBlokk.faq : [])];
+
+  const faqSchema = faqForSchema.length > 0 ? {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faq.map(item => ({
+    mainEntity: faqForSchema.map(item => ({
       '@type': 'Question',
       name: item.sp,
       acceptedAnswer: { '@type': 'Answer', text: item.sv },
@@ -429,6 +435,12 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
                     </details>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {bransjeBlokk && (
+              <div className={styles.seksjonBransje}>
+                <BransjeBlokk blokk={bransjeBlokk} bransjeNavn={naering.visningsnavn} />
               </div>
             )}
 

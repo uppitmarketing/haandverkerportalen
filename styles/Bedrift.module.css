@@ -100,6 +100,7 @@
 /* Annonseplassen er et grid-element; uten min-width: 0 utvider karusellens
    innhold hele siden bredere enn skjermen på mobil. */
 .seksjonAnnonseBred { min-width: 0; }
+.seksjonBransje { min-width: 0; }
 
 /* Rekkefølge på mobil skal avvike fra desktop (tekst, annonse, kontakt,
    adresse, FAQ, resten) - "contents" løser opp main/aside-boksene slik at
@@ -116,9 +117,10 @@
   .seksjonAdresse { order: 4; }
   .seksjonKvalifikasjoner { order: 5; }
   .seksjonFaq { order: 6; }
-  .seksjonFakta { order: 7; }
-  .seksjonAnnonseBred { order: 8; }
-  .relaterteSection { order: 9; }
+  .seksjonBransje { order: 7; }
+  .seksjonFakta { order: 8; }
+  .seksjonAnnonseBred { order: 9; }
+  .relaterteSection { order: 10; }
   .relListe { grid-template-columns: minmax(0, 1fr); }
 }
 
