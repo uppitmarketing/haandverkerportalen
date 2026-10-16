@@ -12,6 +12,7 @@ import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt'
 import { getBransjeSynonymer, bransjeTittelNavn } from '../../lib/bransjeSynonymer';
 import { finnTettsteder, nummerertListe } from '../../lib/tettsteder';
 import { getFylkeByNavn } from '../../lib/fylker';
+import { lagKommuneTall } from '../../lib/kommuneKontekst';
 import { getArtiklerForBransje, getGenerelleArtikler } from '../../lib/artikler';
 import { BransjeIkon } from '../../components/icons';
 import { Hourglass } from 'lucide-react';
@@ -19,7 +20,7 @@ import styles from '../../styles/Kategori.module.css';
 
 const BASE_URL = 'https://haandverkerportalen.no';
 
-export default function KategoriSide({ bedrifter, naering, kommune, fylke, total, annonsor, naboKommuner = [] }) {
+export default function KategoriSide({ bedrifter, naering, kommune, fylke, total, annonsor, naboKommuner = [], rang = null }) {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -45,6 +46,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
   const tittel = `${tittelNavn} i ${kommune}`;
   const synonymForklaring = getBransjeSynonymer(naering.slug).forklaring;
   const tettsteder = finnTettsteder(bedrifter, kommune);
+  const tall = lagKommuneTall({ bedrifter, total, kommune, fylke, flertall: getBransjeFlertall(naering.slug, naering.visningsnavn), rang });
   const kommuneSlugUrl = kommune.toLowerCase().replace(/\s/g, '-');
   const innsikt = getBransjeInnsikt(naering.slug);
   const flertall = getBransjeFlertall(naering.slug, naering.visningsnavn);
@@ -233,17 +235,40 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
           </p>
           {stedTekst && <p>{stedTekst}</p>}
           {synonymForklaring && <p>{synonymForklaring}</p>}
-          <h2>Hva koster en {naering.visningsnavn.toLowerCase()} i {kommune}?</h2>
-          <p>
-            {bedrifter.length > 0 && (
-              <>Av {bedrifter.length} {flertall} i oversikten over har {antallMedNettside} ({andelMedNettside}%) egen nettside. </>
+
+          {(tall.avsnitt.length > 0 || tall.storste.length > 0) && (
+            <>
+              <h2>{naering.visningsnavn} i {kommune} i tall</h2>
+              {tall.avsnitt.map((tekst, i) => <p key={i}>{tekst}</p>)}
+              {tall.storste.length > 0 && (
+                <p>
+                  De største etter antall ansatte er{' '}
+                  {tall.storste.map((b, i) => (
+                    <span key={b.slug}>
+                      {i > 0 && (i === tall.storste.length - 1 ? ' og ' : ', ')}
+                      <a href={`/bedrift/${b.slug}`}>{b.navn}</a> ({b.ansatte})
+                    </span>
+                  ))}.
+                </p>
+              )}
+              {bedrifter.length > 0 && (
+                <p>{antallMedNettside} av {bedrifter.length} ({andelMedNettside} %) har egen nettside.</p>
+              )}
+            </>
+          )}
+
+          <details className={styles.generell}>
+            <summary>Pris og sjekkliste for {naering.visningsnavn.toLowerCase()} (generelt)</summary>
+            <h2>Hva koster en {naering.visningsnavn.toLowerCase()}?</h2>
+            <p>{innsikt.prisTekst}</p>
+            <h2>Slik finner du riktig {naering.visningsnavn.toLowerCase()}</h2>
+            <ul>
+              {innsikt.punkter.map((punkt, i) => <li key={i}>{punkt}</li>)}
+            </ul>
+            {relevanteArtikler[0] && (
+              <p><a href={`/artikler/${relevanteArtikler[0].slug}`}>Les guiden: {relevanteArtikler[0].tittel} →</a></p>
             )}
-            {innsikt.prisTekst}
-          </p>
-          <h2>Slik finner du riktig {naering.visningsnavn.toLowerCase()}</h2>
-          <ul>
-            {innsikt.punkter.map((punkt, i) => <li key={i}>{punkt}</li>)}
-          </ul>
+          </details>
         </div>
       </section>
 
@@ -338,8 +363,21 @@ export async function getStaticProps({ params }) {
     .slice(0, 6)
     .map(k => ({ navn: k.navn, slug: k.slug, antallBedrifter: k.antallBedrifter }));
 
+  // Plassering i fylket og landet etter antall bedrifter i bransjen
+  const alleKommuner = await getKommunerRangertForNaering(naering.slug, 1000);
+  const denne = alleKommuner.find(k => k.navn === kommuneNavn);
+  const iFylket = fylke ? alleKommuner.filter(k => k.fylke === fylke) : [];
+  const rang = denne
+    ? {
+        nasjonal: 1 + alleKommuner.filter(k => k.antallBedrifter > denne.antallBedrifter).length,
+        antallNasjonalt: alleKommuner.length,
+        fylke: iFylket.length ? 1 + iFylket.filter(k => k.antallBedrifter > denne.antallBedrifter).length : null,
+        antallFylke: iFylket.length,
+      }
+    : null;
+
   return {
-    props: { bedrifter, naering, kommune: kommuneNavn, fylke, total, annonsor, naboKommuner },
+    props: { bedrifter, naering, kommune: kommuneNavn, fylke, total, annonsor, naboKommuner, rang },
     revalidate: 86400,
   };
 }
