@@ -7,7 +7,8 @@ import Annonse from '../../components/Annonse';
 import AnnonseBww from '../../components/AnnonseBww';
 import AnnonseToolsinvent from '../../components/AnnonseToolsinvent';
 import AnnonseGuleholmen from '../../components/AnnonseGuleholmen';
-import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs } from '../../lib/db';
+import { getBedriftBySlug, getRelaterteBedrifter, getNaeringByKode, getAlleBedriftSlugs, getBedrifterForKontekst } from '../../lib/db';
+import { lagKontekst } from '../../lib/bedriftKontekst';
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import styles from '../../styles/Bedrift.module.css';
 import { genererBeskrivelse, genererBedriftFaq } from '../../lib/genererBeskrivelse';
@@ -34,7 +35,7 @@ const SCHEMA_TYPE = {
   '43.410': 'RoofingContractor',
 };
 
-export default function BedriftSide({ bedrift, relaterte, annonsor }) {
+export default function BedriftSide({ bedrift, relaterte, annonsor, kontekst }) {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -329,6 +330,22 @@ export default function BedriftSide({ bedrift, relaterte, annonsor }) {
             {(bedrift.egen_beskrivelse || beskrivelse) && (
               <div className={`${styles.boks} ${styles.seksjonBeskrivelse}`}>
                 <p className={styles.beskrivelse}>{bedrift.egen_beskrivelse || beskrivelse}</p>
+                {kontekst && kontekst.setninger.length > 0 && (
+                  <p className={styles.kontekst}>
+                    {kontekst.setninger.join(' ')}
+                    {kontekst.naboer.length > 0 && (
+                      <>
+                        {' '}Se også{' '}
+                        {kontekst.naboer.map((n, i) => (
+                          <span key={n.slug}>
+                            {i > 0 && (i === kontekst.naboer.length - 1 ? ' og ' : ', ')}
+                            <a href={`/bedrift/${n.slug}`}>{n.navn}</a>
+                          </span>
+                        ))}.
+                      </>
+                    )}
+                  </p>
+                )}
                 {bedrift.er_fremhevet && bedrift.spesialiteter && (
                   <div className={styles.tagRad}>
                     {bedrift.spesialiteter.split(',').map(s => s.trim()).filter(Boolean).map(s => (
@@ -559,8 +576,17 @@ export async function getStaticProps({ params }) {
   const relaterte = await getRelaterteBedrifter(bedrift.naeringskode, bedrift.kommunenummer, bedrift.slug);
   const naering = getNaeringByKode(bedrift.naeringskode);
   const annonsor = await getAnnonsorForBransje(naering?.slug);
+
+  // Kontekst mot andre i samme bransje og kommune (bare ferdig utledede setninger sendes til siden)
+  const peers = naering && bedrift.kommunenummer
+    ? await getBedrifterForKontekst(bedrift.naeringskode, bedrift.kommunenummer)
+    : [];
+  const kontekst = naering
+    ? lagKontekst(bedrift, peers, getBransjeFlertall(naering.slug, naering.visningsnavn))
+    : null;
+
   return {
-    props: { bedrift, relaterte, annonsor },
+    props: { bedrift, relaterte, annonsor, kontekst },
     revalidate: 86400,
   };
 }

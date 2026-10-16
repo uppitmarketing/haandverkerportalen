@@ -130,6 +130,10 @@
   color: var(--ink-2);
 }
 
+.kontekst { font-size: 14px; line-height: 1.7; color: var(--ink-3); margin: 12px 0 0; }
+.kontekst a { color: var(--accent); font-weight: 500; }
+.kontekst a:hover { text-decoration: underline; }
+
 .beskrivelseLenke {
   display: inline-flex; align-items: center; gap: 6px;
   margin-top: 14px; font-size: 13px; font-weight: 600; color: var(--accent);
