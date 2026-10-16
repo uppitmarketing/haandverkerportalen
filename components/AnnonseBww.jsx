@@ -10,15 +10,16 @@ import styles from './AnnonseBww.module.css';
 // Næringskategori -> tittel. Avsenderen står i annonsens header («Annonse · Better
 // WorkWear»), så tittelen kan bruke hele plassen på hvem annonsen er for.
 const TITTEL = {
-  elektriker: 'Arbeidsklær for elektrikere',
-  tomrer: 'Arbeidsklær for tømrere',
-  rorlegger: 'Arbeidsklær for rørleggere',
-  maler: 'Arbeidsklær for malere',
-  grunnarbeid: 'Arbeidsklær for utendørsarbeid',
+  elektriker: 'Arbeidsklær til hele elektrikerbedriften',
+  tomrer: 'Arbeidsklær til hele tømrerbedriften',
+  rorlegger: 'Arbeidsklær til hele rørleggerbedriften',
+  maler: 'Arbeidsklær til hele malerbedriften',
 };
-const FALLBACK_TITTEL = 'Arbeidsklær for håndverkere';
-const UNDERTEKST = 'Faste priser og rabatt for bedrifter';
-const CTA = 'Se arbeidsklærne';
+const FALLBACK_TITTEL = 'Arbeidsklær til hele bedriften';
+// Teksten bygger på betterworkwear.no/for-bedrifter: én leverandør, én avtale og én
+// faktura, og forutsigbare kostnader. Siden oppgir ingen rabatt, så vi lover ingen.
+const UNDERTEKST = 'Én avtale, én faktura og forutsigbare kostnader';
+const CTA = 'Be om tilbud';
 
 // Hostet selv (ikke hotlinket). Må lastes ned og committes på nytt manuelt hvis
 // Better WorkWear bytter bilde. Standardbildet viser en anleggsplass; legg inn et
@@ -28,7 +29,7 @@ const FOTO_PER_BRANSJE = {
   // rorlegger: '/assets/annonsorer/bww-hero-rorlegger.jpg',
 };
 // Versjon av annonsematerialet, sendes til GA4 så endringer i tekst/bilde kan sammenlignes
-const MATERIELL_VERSJON = 'v2';
+const MATERIELL_VERSJON = 'v3';
 
 function byggLenke(bransjeSlug) {
   const params = new URLSearchParams({
@@ -37,7 +38,7 @@ function byggLenke(bransjeSlug) {
     utm_campaign: 'bww_pilot',
     utm_content: bransjeSlug || 'ukjent',
   });
-  return `https://www.betterworkwear.no/?${params.toString()}`;
+  return `https://www.betterworkwear.no/for-bedrifter?${params.toString()}`;
 }
 
 export default function AnnonseBww({ bransjeSlug, variant = 'kompakt' }) {
