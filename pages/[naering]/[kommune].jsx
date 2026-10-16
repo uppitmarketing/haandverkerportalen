@@ -9,6 +9,8 @@ import { NAERINGSKODER, KOMMUNER, getBedrifterByKategoriOgKommune, getNaeringByS
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import { safeJsonLd } from '../../lib/jsonLd';
 import { getBransjeInnsikt, getBransjeFlertall } from '../../lib/bransjeInnsikt';
+import { getBransjeSynonymer, bransjeTittelNavn } from '../../lib/bransjeSynonymer';
+import { finnTettsteder, nummerertListe } from '../../lib/tettsteder';
 import { getArtiklerForBransje, getGenerelleArtikler } from '../../lib/artikler';
 import { BransjeIkon } from '../../components/icons';
 import { Hourglass } from 'lucide-react';
@@ -36,7 +38,11 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
     </Layout>
   );
 
-  const tittel = `${naering.visningsnavn} i ${kommune}`;
+  const tittelNavn = bransjeTittelNavn(naering.slug, naering.visningsnavn);
+  const tittelNavnLiten = tittelNavn.replace(naering.visningsnavn, naering.visningsnavn.toLowerCase());
+  const tittel = `${tittelNavn} i ${kommune}`;
+  const synonymForklaring = getBransjeSynonymer(naering.slug).forklaring;
+  const tettsteder = finnTettsteder(bedrifter, kommune);
   const kommuneSlugUrl = kommune.toLowerCase().replace(/\s/g, '-');
   const innsikt = getBransjeInnsikt(naering.slug);
   const flertall = getBransjeFlertall(naering.slug, naering.visningsnavn);
@@ -170,9 +176,10 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
           <div className={styles.heroInner}>
             <div>
               <div className={styles.heroIcon}><BransjeIkon slug={naering.slug} size={28} /></div>
-              <h1 className={styles.heroTitle}>{naering.visningsnavn} i {kommune}</h1>
+              <h1 className={styles.heroTitle}>{tittel}</h1>
               <p className={styles.heroDesc}>
-                <strong>{total} registrerte bedrifter</strong> innen {naering.visningsnavn.toLowerCase()} i {kommune}.
+                <strong>{total} registrerte bedrifter</strong> innen {tittelNavnLiten} i {kommune}.
+                {tettsteder.length > 0 && <> Dekker blant annet {nummerertListe(tettsteder)}.</>}{' '}
                 Data fra Brønnøysundregistrene.
               </p>
             </div>
@@ -216,6 +223,7 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
             HåndverkerPortalen har <strong>{total} registrerte {flertall} i {kommune}</strong>, ifølge Brønnøysundregistrene.
           </p>
           {stedTekst && <p>{stedTekst}</p>}
+          {synonymForklaring && <p>{synonymForklaring}</p>}
           <h2>Hva koster en {naering.visningsnavn.toLowerCase()} i {kommune}?</h2>
           <p>
             {bedrifter.length > 0 && (
