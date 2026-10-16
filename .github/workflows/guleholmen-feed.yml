@@ -1,0 +1,33 @@
+name: Guleholmen produktfeed
+
+on:
+  schedule:
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+    inputs:
+      torrkjoring:
+        description: 'Tørrkjøring (skriver ut utvalget, endrer ingenting)'
+        type: boolean
+        default: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install node-fetch @supabase/supabase-js ws
+
+      - name: Hent produkter fra Guleholmen-feeden
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          DRY_RUN: ${{ inputs.torrkjoring && '1' || '' }}
+        run: node guleholmen_feed_sync.js

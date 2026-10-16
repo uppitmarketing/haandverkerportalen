@@ -1,0 +1,48 @@
+/* components/AnnonseGuleholmen.module.css
+   Produktrutenett i den brede annonseplassen. Rammen (.kort/.header/.label)
+   kommer fra AnnonseBww.module.css slik at alle annonser ser like ut. */
+.plassholder { min-height: 300px; }
+
+.ingress {
+  margin: 0; padding: 12px 14px 0;
+  font-size: 13px; font-weight: 700; color: var(--ink);
+}
+
+.rutenett {
+  list-style: none; margin: 0; padding: 12px 14px 14px;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
+}
+.rute { min-width: 0; }
+
+.produkt {
+  display: flex; flex-direction: column; gap: 6px; height: 100%;
+  text-decoration: none; color: var(--ink);
+}
+.produkt:hover .tittel { text-decoration: underline; }
+.produkt:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: var(--radius-sm); }
+
+.bildeRamme {
+  position: relative; display: block; aspect-ratio: 1 / 1;
+  background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;
+}
+.bilde { display: block; width: 100%; height: 100%; object-fit: contain; }
+.rabatt {
+  position: absolute; top: 6px; left: 6px;
+  padding: 2px 6px; border-radius: var(--radius-sm);
+  background: var(--red); color: #fff; font-size: 11px; font-weight: 700;
+}
+
+.tittel {
+  font-size: 12.5px; font-weight: 600; line-height: 1.3;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.priser { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; margin-top: auto; }
+.salgspris { font-size: 14px; font-weight: 700; color: var(--red); font-variant-numeric: tabular-nums; }
+.ordinaerpris { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+.bannerLenke { display: block; text-decoration: none; }
+
+@media (max-width: 640px) {
+  .rutenett { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .plassholder { min-height: 490px; }
+}
