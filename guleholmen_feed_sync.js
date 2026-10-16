@@ -5,7 +5,7 @@
 //
 // Feeden har én rad per størrelse/farge (~1800 rader for ~250 produkter), så radene
 // grupperes på item_group_id. Bare produkter som er relevante for håndverkere,
-// er på lager og har en reell rabatt kommer med.
+// er på lager, er WRKS-merket og har en reell rabatt kommer med.
 //
 // DRY_RUN=1 skriver ut utvalget uten å endre noe.
 import { createClient } from '@supabase/supabase-js';
@@ -25,8 +25,9 @@ const KATEGORIER = new Set([
   'Arbeidsbukser', 'WRKS Arbeidsklær', 'Synlighetstøy', 'Sko/Støvler', 'Overdeler', 'Jakker',
 ]);
 const MIN_RABATT_PROSENT = 15;
-const ANTALL_UTVALG = 8;      // nettsiden viser 4 av disse, tilfeldig per visning
-const MAKS_PER_KATEGORI = 3;  // spre utvalget over flere typer plagg
+const MERKE = 'WRKS';         // bare Guleholmens eget merke, ikke videreselgte merker (Treksta, Dunlop ...)
+const ANTALL_UTVALG = 16;     // karusellen på nettsiden blar gjennom alle, i tilfeldig rekkefølge
+const MAKS_PER_KATEGORI = 6;  // spre utvalget over flere typer plagg
 const MIN_FORVENTET_RADER = 200; // sikkerhetsnett mot tom/halv feed
 
 function hent(item, tag) {
@@ -69,6 +70,7 @@ async function hentProdukter() {
     if (hent(item, 'availability') !== 'in_stock') continue;
     const kategori = hent(item, 'product_type');
     if (!KATEGORIER.has(kategori)) continue;
+    if (hent(item, 'brand').toUpperCase() !== MERKE) continue;
     const pris = parsePris(hent(item, 'price'));
     const salgspris = parsePris(hent(item, 'sale_price'));
     const lenke = hent(item, 'link');

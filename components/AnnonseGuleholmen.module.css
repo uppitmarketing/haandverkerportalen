@@ -1,18 +1,38 @@
 /* components/AnnonseGuleholmen.module.css
-   Produktrutenett i den brede annonseplassen. Rammen (.kort/.header/.label)
+   Produktkarusell i den brede annonseplassen. Rammen (.kort/.header/.label)
    kommer fra AnnonseBww.module.css slik at alle annonser ser like ut. */
-.plassholder { min-height: 300px; }
+.plassholder { min-height: 290px; }
 
 .ingress {
   margin: 0; padding: 12px 14px 0;
   font-size: 13px; font-weight: 700; color: var(--ink);
 }
 
-.rutenett {
-  list-style: none; margin: 0; padding: 12px 14px 14px;
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
+.karusell { position: relative; padding: 12px 0 14px; }
+
+.spor {
+  list-style: none; margin: 0; padding: 0 14px;
+  display: flex; gap: 12px;
+  overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 14px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
-.rute { min-width: 0; }
+.spor::-webkit-scrollbar { display: none; }
+
+/* 4 kort synlige på desktop (kortbredden regnes fra innholdsbredden minus mellomrom) */
+.rute { flex: 0 0 calc((100% - 36px) / 4); min-width: 0; scroll-snap-align: start; }
+
+.pil {
+  position: absolute; top: calc(12px + 50px); z-index: 1;
+  width: 32px; height: 32px; padding: 0 0 3px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm); font-size: 22px; line-height: 1; cursor: pointer;
+}
+.pil:hover:not(:disabled) { background: var(--accent-lt); border-color: var(--accent); color: var(--accent-dk); }
+.pil:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pil:disabled { opacity: 0; pointer-events: none; }
+.pilVenstre { left: 4px; }
+.pilHoyre { right: 4px; }
 
 .produkt {
   display: flex; flex-direction: column; gap: 6px; height: 100%;
@@ -42,7 +62,8 @@
 
 .bannerLenke { display: block; text-decoration: none; }
 
+/* Mobil: ca. 2,4 kort synlige så det er tydelig at man kan sveipe, og ingen piler */
 @media (max-width: 640px) {
-  .rutenett { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .plassholder { min-height: 490px; }
+  .rute { flex-basis: 40%; }
+  .pil { display: none; }
 }

@@ -1,6 +1,6 @@
 // components/AnnonseGuleholmen.jsx
 // Guleholmen-annonse i den brede plassen under FAQ på bedriftsprofiler.
-// Viser fire rabatterte produkter fra Guleholmens Google Shopping-feed
+// Viser rabatterte WRKS-produkter i en karusell fra Guleholmens Google Shopping-feed
 // (synkronisert daglig til annonse_produkter av guleholmen_feed_sync.js).
 // Hvis utvalget mangler eller er for gammelt vises i stedet den statiske
 // kampanjebanneren, slik at vi aldri viser utdaterte priser.
@@ -17,7 +17,7 @@ const FOTO_URL = '/assets/annonsorer/guleholmen-hero.webp';
 const FOTO_BREDDE = 1717;
 const FOTO_HOYDE = 916;
 
-const ANTALL_VIST = 4;
+const MIN_PRODUKTER = 4; // færre enn dette gir ikke en meningsfull karusell - vis banner
 // Feeden synkes daglig; er utvalget eldre enn dette (synk har stoppet) faller
 // vi tilbake til banneren i stedet for å risikere en utdatert pris.
 const MAKS_ALDER_MS = 72 * 60 * 60 * 1000;
@@ -42,21 +42,26 @@ function bannerLenke(bransjeSlug) {
   return byggLenke('https://www.guleholmen.no/categories/apningstilbud', bransjeSlug);
 }
 
-function trekkTilfeldig(liste, antall) {
+// Tilfeldig rekkefølge per visning, så ikke de samme fire alltid står først
+function stokk(liste) {
   const kopi = [...liste];
   for (let i = kopi.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [kopi[i], kopi[j]] = [kopi[j], kopi[i]];
   }
-  return kopi.slice(0, antall);
+  return kopi;
 }
 
 export default function AnnonseGuleholmen({ bransjeSlug, variant = 'bred' }) {
   const kortRef = useRef(null);
   const harRapportertVisning = useRef(false);
+  const sporRef = useRef(null);
+  const harRapportertBlaing = useRef(false);
+  const [kanBlaVenstre, setKanBlaVenstre] = useState(false);
+  const [kanBlaHoyre, setKanBlaHoyre] = useState(true);
   // null = laster, [] = ingen gyldige produkter (vis banner)
   const [produkter, setProdukter] = useState(null);
-  const modus = produkter === null ? 'laster' : produkter.length >= ANTALL_VIST ? 'produkter' : 'banner';
+  const modus = produkter === null ? 'laster' : produkter.length >= MIN_PRODUKTER ? 'produkter' : 'banner';
 
   useEffect(() => {
     let avbrutt = false;
@@ -71,7 +76,7 @@ export default function AnnonseGuleholmen({ bransjeSlug, variant = 'bred' }) {
         const ferske = (data || []).filter(p =>
           p.salgspris && p.salgspris < p.pris && naa - new Date(p.oppdatert).getTime() < MAKS_ALDER_MS
         );
-        if (!avbrutt) setProdukter(trekkTilfeldig(ferske, ANTALL_VIST));
+        if (!avbrutt) setProdukter(stokk(ferske));
       } catch {
         if (!avbrutt) setProdukter([]);
       }
@@ -106,6 +111,24 @@ export default function AnnonseGuleholmen({ bransjeSlug, variant = 'bred' }) {
     return () => { observer.disconnect(); if (timer) clearTimeout(timer); };
   }, [bransjeSlug, variant, modus]);
 
+  function oppdaterBlaKnapper() {
+    const spor = sporRef.current;
+    if (!spor) return;
+    setKanBlaVenstre(spor.scrollLeft > 4);
+    setKanBlaHoyre(spor.scrollLeft + spor.clientWidth < spor.scrollWidth - 4);
+    if (!harRapportertBlaing.current && spor.scrollLeft > 4) {
+      harRapportertBlaing.current = true;
+      sporHendelse('ad_interaction', { ad_partner: 'guleholmen', ad_content: bransjeSlug || 'ukjent', ad_placement: variant, ad_interaction: 'carousel_scroll', page_location: window.location.href });
+    }
+  }
+
+  function bla(retning) {
+    const spor = sporRef.current;
+    if (!spor) return;
+    const reduser = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    spor.scrollBy({ left: retning * spor.clientWidth * 0.9, behavior: reduser ? 'auto' : 'smooth' });
+  }
+
   function handleKlikk(produktId) {
     sporHendelse('ad_click', { ad_partner: 'guleholmen', ad_content: bransjeSlug || 'ukjent', ad_placement: variant, ad_format: modus, ad_product: produktId || 'banner', page_location: window.location.href });
     sporInternHendelse(`/_annonse/klikk/annonse/guleholmen/${bransjeSlug || 'ukjent'}/${variant}`);
@@ -122,29 +145,49 @@ export default function AnnonseGuleholmen({ bransjeSlug, variant = 'bred' }) {
       {modus === 'produkter' && (
         <>
           <p className={styles.ingress}>Arbeidsklær på tilbud</p>
-          <ul className={styles.rutenett}>
-            {produkter.map(p => (
-              <li key={p.id} className={styles.rute}>
-                <a
-                  href={byggLenke(p.lenke, bransjeSlug)}
-                  target="_blank"
-                  rel="noopener noreferrer sponsored"
-                  className={styles.produkt}
-                  onClick={() => handleKlikk(p.id)}
-                >
-                  <span className={styles.bildeRamme}>
-                    <img src={p.bilde_url} alt="" width={400} height={400} loading="lazy" className={styles.bilde} />
-                    <span className={styles.rabatt}>-{p.rabatt_prosent} %</span>
-                  </span>
-                  <span className={styles.tittel}>{p.tittel}</span>
-                  <span className={styles.priser}>
-                    <span className={styles.salgspris}>{kr(p.salgspris)}</span>
-                    <s className={styles.ordinaerpris}>{kr(p.pris)}</s>
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
+          <div className={styles.karusell}>
+            <ul className={styles.spor} ref={sporRef} onScroll={oppdaterBlaKnapper}>
+              {produkter.map(p => (
+                <li key={p.id} className={styles.rute}>
+                  <a
+                    href={byggLenke(p.lenke, bransjeSlug)}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                    className={styles.produkt}
+                    onClick={() => handleKlikk(p.id)}
+                  >
+                    <span className={styles.bildeRamme}>
+                      <img src={p.bilde_url} alt="" width={400} height={400} loading="lazy" className={styles.bilde} />
+                      <span className={styles.rabatt}>-{p.rabatt_prosent} %</span>
+                    </span>
+                    <span className={styles.tittel}>{p.tittel}</span>
+                    <span className={styles.priser}>
+                      <span className={styles.salgspris}>{kr(p.salgspris)}</span>
+                      <s className={styles.ordinaerpris}>{kr(p.pris)}</s>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              className={`${styles.pil} ${styles.pilVenstre}`}
+              onClick={() => bla(-1)}
+              disabled={!kanBlaVenstre}
+              aria-label="Forrige produkter"
+            >
+              <span aria-hidden="true">‹</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.pil} ${styles.pilHoyre}`}
+              onClick={() => bla(1)}
+              disabled={!kanBlaHoyre}
+              aria-label="Neste produkter"
+            >
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
         </>
       )}
 
