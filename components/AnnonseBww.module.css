@@ -15,11 +15,11 @@
 
 .overlay {
   position: absolute; left: 0; right: 0; bottom: 0;
-  padding: 18px 14px 14px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.82) 10%, rgba(0, 0, 0, 0) 95%);
+  padding: 36px 14px 14px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 25%, rgba(0, 0, 0, 0.55) 65%, rgba(0, 0, 0, 0) 100%);
 }
-.overlayTittel { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.3; margin-bottom: 3px; }
-.overlayUndertekst { font-size: 11.5px; color: rgba(255, 255, 255, 0.75); line-height: 1.4; margin-bottom: 12px; }
+.overlayTittel { font-size: 14px; font-weight: 700; color: #fff; line-height: 1.3; margin-bottom: 3px; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
+.overlayUndertekst { font-size: 12px; color: rgba(255, 255, 255, 0.92); line-height: 1.4; margin-bottom: 12px; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
 .overlayCta {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 7px 12px; background: #fff; color: var(--accent-dk);
