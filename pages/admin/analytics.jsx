@@ -1108,6 +1108,7 @@ export async function getServerSideProps({ req, query }) {
       if (nokkel === 'toolsinvent:bred') return 'Toolsinvent (pilot) – bred banner';
       if (nokkel === 'guleholmen:bred') return 'Guleholmen (pilot) – bred banner';
       if (nokkel === 'guleholmen:kompakt') return 'Guleholmen (pilot) – sidepanel';
+      if (nokkel === 'guleholmen:liste') return 'Guleholmen (pilot) – kategori- og byside';
       if (nokkel === 'placeholder') return 'Ingen annonsør (tom plassholder)';
       if (nokkel === 'legacy') return 'Generisk annonsørsystem (data før annonsør-ID)';
       const id = nokkel.slice('annonsor:'.length);

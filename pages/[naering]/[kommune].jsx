@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import BedriftKort from '../../components/BedriftKort';
 import Annonse from '../../components/Annonse';
+import AnnonseGuleholmen from '../../components/AnnonseGuleholmen';
 import { NAERINGSKODER, KOMMUNER, getBedrifterByKategoriOgKommune, getNaeringBySlug } from '../../lib/db';
 import { getAnnonsorForBransje } from '../../lib/annonsorer';
 import { safeJsonLd } from '../../lib/jsonLd';
@@ -187,7 +188,9 @@ export default function KategoriSide({ bedrifter, naering, kommune, fylke, total
       </section>
 
       <div className="container">
-        <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering.slug} />
+        {annonsor
+          ? <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering.slug} />
+          : <div className={styles.annonseSlot}><AnnonseGuleholmen bransjeSlug={naering.slug} variant="liste" /></div>}
       </div>
 
       <section className={styles.bedrifterSection}>

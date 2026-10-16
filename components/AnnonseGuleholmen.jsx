@@ -20,6 +20,7 @@ const FOTO_HOYDE = 916;
 const MIN_PRODUKTER = 4; // færre enn dette gir ikke en meningsfull karusell - vis banner
 // Feeden synkes daglig; er utvalget eldre enn dette (synk har stoppet) faller
 // vi tilbake til banneren i stedet for å risikere en utdatert pris.
+const HENTE_TIMEOUT_MS = 4000;
 const MAKS_ALDER_MS = 72 * 60 * 60 * 1000;
 
 const krFormat = new Intl.NumberFormat('nb-NO', { maximumFractionDigits: 0 });
@@ -67,10 +68,15 @@ export default function AnnonseGuleholmen({ bransjeSlug, variant = 'bred' }) {
     let avbrutt = false;
     (async () => {
       try {
-        const { data, error } = await supabase
-          .from('annonse_produkter')
-          .select('id, tittel, bilde_url, lenke, pris, salgspris, rabatt_prosent, oppdatert')
-          .eq('partner', 'guleholmen');
+        // Henger spørringen (nett- eller låsproblem) vises banneren i stedet for en tom plass
+        const timeout = new Promise((_, avvis) => setTimeout(() => avvis(new Error('timeout')), HENTE_TIMEOUT_MS));
+        const { data, error } = await Promise.race([
+          supabase
+            .from('annonse_produkter')
+            .select('id, tittel, bilde_url, lenke, pris, salgspris, rabatt_prosent, oppdatert')
+            .eq('partner', 'guleholmen'),
+          timeout,
+        ]);
         if (error) throw error;
         const naa = Date.now();
         const ferske = (data || []).filter(p =>
@@ -135,7 +141,7 @@ export default function AnnonseGuleholmen({ bransjeSlug, variant = 'bred' }) {
   }
 
   return (
-    <div ref={kortRef} className={bwwStyles.kort}>
+    <div ref={kortRef} className={`${bwwStyles.kort} ${variant === 'liste' ? styles.liste : ''}`}>
       <div className={bwwStyles.header}>
         <span className={bwwStyles.label}>Annonse · Guleholmen.no</span>
       </div>

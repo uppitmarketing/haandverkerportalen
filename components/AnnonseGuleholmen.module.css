@@ -62,6 +62,13 @@
 
 .bannerLenke { display: block; text-decoration: none; }
 
+/* Kategori-/kommunesider er bredere (hele containeren): vis 6 kort og
+   hold fallback-banneren på en fornuftig størrelse. */
+@media (min-width: 900px) {
+  .liste .rute { flex-basis: calc((100% - 60px) / 6); }
+}
+.liste .bannerLenke { max-width: 640px; margin: 0 auto; }
+
 /* Mobil: ca. 2,4 kort synlige så det er tydelig at man kan sveipe, og ingen piler */
 @media (max-width: 640px) {
   .rute { flex-basis: 40%; }
