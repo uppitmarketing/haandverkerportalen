@@ -17,16 +17,21 @@ export default function BransjeBlokk({ blokk, bransjeNavn }) {
       </ul>
 
       <h3 className={styles.under}>Hva koster det?</h3>
-      <dl className={styles.priser}>
-        {blokk.pris.rader.map(r => (
-          <div key={r.jobb} className={styles.prisRad}>
-            <dt>{r.jobb}</dt>
-            <dd>{r.pris}</dd>
-          </div>
-        ))}
-      </dl>
+      {blokk.pris.tekst && <p className={styles.tekst}>{blokk.pris.tekst}</p>}
+      {blokk.pris.rader && (
+        <dl className={styles.priser}>
+          {blokk.pris.rader.map(r => (
+            <div key={r.jobb} className={styles.prisRad}>
+              <dt>{r.jobb}</dt>
+              <dd>{r.pris}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
       <p className={styles.merknad}>
-        {blokk.pris.merknad} Veiledende priser inkl. mva, oppdatert {BLOKK_OPPDATERT}. Faktisk pris varierer med sted, omfang og bedrift, så innhent flere tilbud.
+        {blokk.pris.merknad && <>{blokk.pris.merknad} </>}
+        {blokk.pris.rader && <>Veiledende priser inkl. mva, oppdatert {BLOKK_OPPDATERT}. </>}
+        Faktisk pris varierer med sted, omfang og bedrift, så innhent flere tilbud.
       </p>
 
       <h3 className={styles.under}>Krav og godkjenninger</h3>
@@ -39,8 +44,12 @@ export default function BransjeBlokk({ blokk, bransjeNavn }) {
         {blokk.sjekk.map(k => <li key={k}>{k}</li>)}
       </ul>
 
-      <h3 className={styles.under}>Beste tid å bestille</h3>
-      <p className={styles.tekst}>{blokk.sesong}</p>
+      {blokk.sesong && (
+        <>
+          <h3 className={styles.under}>Beste tid å bestille</h3>
+          <p className={styles.tekst}>{blokk.sesong}</p>
+        </>
+      )}
 
       <h3 className={styles.under}>Spørsmål om {navn}</h3>
       <div className={styles.faq}>
