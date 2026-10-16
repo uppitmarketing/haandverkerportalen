@@ -94,6 +94,10 @@
 
 .seksjonAnnonse { display: flex; flex-direction: column; gap: 16px; }
 
+/* Annonseplassen er et grid-element; uten min-width: 0 utvider karusellens
+   innhold hele siden bredere enn skjermen på mobil. */
+.seksjonAnnonseBred { min-width: 0; }
+
 /* Rekkefølge på mobil skal avvike fra desktop (tekst, annonse, kontakt,
    adresse, FAQ, resten) - "contents" løser opp main/aside-boksene slik at
    alle seksjonene kan omorganiseres fritt med "order" i samme grid. */
