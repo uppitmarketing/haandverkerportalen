@@ -441,6 +441,12 @@ export default function BedriftSide({ bedrift, relaterte, annonsor, kontekst }) 
               <Kart adresse={bedrift.adresse} postnummer={bedrift.postnummer} poststed={bedrift.poststed} />
             </div>
 
+            <div className={styles.seksjonAnnonseBred}>
+              {annonsor
+                ? <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering?.slug} />
+                : <AnnonseGuleholmen bransjeSlug={naering?.slug} variant="bred" />}
+            </div>
+
             {faq.length > 0 && (
               <div className={`${styles.boks} ${styles.seksjonFaq}`}>
                 <h2 className={styles.faqTitle}>Ofte stilte spørsmål</h2>
@@ -460,12 +466,6 @@ export default function BedriftSide({ bedrift, relaterte, annonsor, kontekst }) 
                 <BransjeBlokk blokk={bransjeBlokk} bransjeNavn={naering.visningsnavn} />
               </div>
             )}
-
-            <div className={styles.seksjonAnnonseBred}>
-              {annonsor
-                ? <Annonse annonsor={annonsor} variant="bred" bransjeSlug={naering?.slug} />
-                : <AnnonseGuleholmen bransjeSlug={naering?.slug} variant="bred" />}
-            </div>
 
             {!bedrift.er_fremhevet && relaterte.length > 0 && (
               <div className={styles.relaterteSection}>

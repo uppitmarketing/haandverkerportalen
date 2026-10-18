@@ -115,11 +115,11 @@
   .seksjonAnnonse { order: 2; }
   .kontaktBoks { order: 3; }
   .seksjonAdresse { order: 4; }
-  .seksjonKvalifikasjoner { order: 5; }
-  .seksjonFaq { order: 6; }
-  .seksjonBransje { order: 7; }
-  .seksjonFakta { order: 8; }
-  .seksjonAnnonseBred { order: 9; }
+  .seksjonAnnonseBred { order: 5; }
+  .seksjonKvalifikasjoner { order: 6; }
+  .seksjonFaq { order: 7; }
+  .seksjonBransje { order: 8; }
+  .seksjonFakta { order: 9; }
   .relaterteSection { order: 10; }
   .relListe { grid-template-columns: minmax(0, 1fr); }
 }
