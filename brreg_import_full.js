@@ -395,6 +395,12 @@ function lagSlug(navn, orgnr) {
     .substring(0, 60) + '-' + orgnr;
 }
 
+// Bedrifter som skal være borte fra portalen, også etter månedlig import. Settes også
+// er_aktiv = false i databasen, og importen hopper over dem så de ikke aktiveres igjen.
+const EKSKLUDERTE_ORGNR = new Set([
+  '938400970', // AJK ELEKTRO AS - fjernet etter ønske fra portaleier 2026-11-20
+]);
+
 function mapEnhet(e) {
   const adr = e.forretningsadresse || e.postadresse || {};
   return {
@@ -463,7 +469,8 @@ async function hentEkstraDataForNyeBedrifter(orgnumre) {
 async function lagreBatch(enheter) {
   const mapped = enheter
     .map(mapEnhet)
-    .filter(e => e.organisasjonsform === 'AS');
+    .filter(e => e.organisasjonsform === 'AS')
+    .filter(e => !EKSKLUDERTE_ORGNR.has(e.organisasjonsnummer));
   if (!mapped.length) return 0;
   const { error } = await supabase.from('bedrifter').upsert(mapped, { onConflict: 'organisasjonsnummer' });
   if (error) throw error;
